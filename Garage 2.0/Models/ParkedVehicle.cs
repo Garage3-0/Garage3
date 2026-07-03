@@ -14,13 +14,13 @@ namespace Garage_2._0.Models
         public required string RegNbr {  get; set; }
 
         [StringLength(10)]
-        public string Color { get; set; }
+        public required string Color { get; set; }
 
         [StringLength(20)]
-        public string Brand { get; set; }
+        public required string Brand { get; set; }
 
         [StringLength(10)]
-        public string Model { get; set; }
+        public required string Model { get; set; }
 
         [Range(2, 10)]
         public int Wheels { get; set; }
