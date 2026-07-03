@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 
 namespace Garage_2._0.Models
@@ -24,7 +25,7 @@ namespace Garage_2._0.Models
         [Range(2, 10)]
         public int Wheels { get; set; }
 
-        public DateTime Arrival { get; private set; }
+        public DateTime Arrival { get; private set; } = DateTime.Now;
 
     }
 }
