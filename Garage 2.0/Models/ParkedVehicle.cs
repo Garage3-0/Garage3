@@ -1,18 +1,26 @@
-﻿namespace Garage_2._0.Models
+﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
+
+namespace Garage_2._0.Models
 {
     public class ParkedVehicle
     {
-        public int Id { get; set; }
-        public VehicleType VehicleType { get; set; }
+        //public int Id { get; set; }
 
-        public string RegNbr {  get; set; }
+        public required VehicleType VehicleType { get; set; }
 
+        public required string RegNbr {  get; set; }
+
+        [StringLength(10)]
         public string Color { get; set; }
 
+        [StringLength(20)]
         public string Brand { get; set; }
 
+        [StringLength(10)]
         public string Model { get; set; }
 
+        [Range(2, 10)]
         public int Wheels { get; set; }
 
         public DateTime Arrival { get; set; }
