@@ -5,7 +5,8 @@ namespace Garage_2._0.Models
 {
     public class ParkedVehicle
     {
-        //public int Id { get; set; }
+        [Key]
+        public int Id { get; set; }
 
         public required VehicleType VehicleType { get; set; }
 
