@@ -47,15 +47,27 @@ public class ParkedVehiclesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,VehicleType,RegNbr,Color,Brand,Model,Wheels,Arrival")] ParkedVehicle parkedvehicle)
+    public async Task<IActionResult> Create(ParkedVehicleViewModel parkedVehicleViewModel)
     {
         if (ModelState.IsValid)
         {
-            _context.Add(parkedvehicle);
+            var parkedVehicle = new ParkedVehicle
+            {
+                VehicleType = parkedVehicleViewModel.VehicleType,
+                RegNbr = parkedVehicleViewModel.RegNbr,
+                Color = parkedVehicleViewModel.Color,
+                Brand = parkedVehicleViewModel.Brand,
+                Model = parkedVehicleViewModel.Model,
+                Wheels = parkedVehicleViewModel.Wheels,
+                Arrival = DateTime.Now
+            };
+            //_context.Add(parkedVehicleViewModel);
+            _context.Add(parkedVehicle);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+
         }
-        return View(parkedvehicle);
+        return View(parkedVehicleViewModel);
     }
 
     // GET: PARKEDVEHICLES/Edit/5
