@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 
@@ -6,7 +7,6 @@ namespace Garage_2._0.Models
 {
     public class ParkedVehicle
     {
-        [Key]
         public int Id { get; set; }
 
         public required VehicleType VehicleType { get; set; }
@@ -25,7 +25,7 @@ namespace Garage_2._0.Models
         [Range(2, 10)]
         public int Wheels { get; set; }
 
-        public DateTime Arrival { get; private set; } = DateTime.Now;
+        public DateTime Arrival { get; set; } = DateTime.Now;
 
     }
 }
