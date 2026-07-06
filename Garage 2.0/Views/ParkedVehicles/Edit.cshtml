@@ -15,7 +15,9 @@
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
                 <label asp-for="VehicleType" class="control-label"></label>
-                <input asp-for="VehicleType" class="form-control" />
+                <select asp-for="VehicleType"
+                        asp-items="Html.GetEnumSelectList<VehicleType>()">
+                </select>
                 <span asp-validation-for="VehicleType" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -45,7 +47,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Arrival" class="control-label"></label>
-                <input asp-for="Arrival" class="form-control" />
+                <input asp-for="Arrival" class="form-control" readonly />
                 <span asp-validation-for="Arrival" class="text-danger"></span>
             </div>
             <div class="form-group">

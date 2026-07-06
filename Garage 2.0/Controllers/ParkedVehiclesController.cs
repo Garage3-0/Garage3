@@ -90,8 +90,23 @@ public class ParkedVehiclesController : Controller
         {
             try
             {
+                // KONTROLL: Finns det ett ANNAT fordon som redan har detta regnummer?
+                bool regNbrExists = await _context.ParkedVehicle
+                    .AnyAsync(v => v.RegNbr == parkedvehicle.RegNbr && v.Id != parkedvehicle.Id);
+
+                if (regNbrExists)
+                {
+                    // Lägg till ett valideringsfel kopplat till just fältet RegNbr
+                    ModelState.AddModelError("RegNbr", "Registreringsnumret är upptaget av ett annat parkerat fordon.");
+
+                    // Avbryt och skicka tillbaka användaren till vyn med felmeddelandet visat
+                    return View(parkedvehicle);
+                }
+
                 _context.Update(parkedvehicle);
                 await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = $"Vehicle with registration number \"{parkedvehicle.RegNbr}\" has been updated!";
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -108,6 +123,7 @@ public class ParkedVehiclesController : Controller
         }
         return View(parkedvehicle);
     }
+
 
     // GET: PARKEDVEHICLES/Delete/5
     public async Task<IActionResult> Delete(int? id)
