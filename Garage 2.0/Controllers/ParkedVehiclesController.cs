@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Garage_2._0.Models;
+using System.Text;
 
 public class ParkedVehiclesController : Controller
 {
@@ -112,19 +113,35 @@ public class ParkedVehiclesController : Controller
     // GET: PARKEDVEHICLES/Delete/5
     public async Task<IActionResult> Delete(int? id)
     {
-        if (id == null)
+        const int pricePerHour = 60;
+
+        ParkedVehicle? parkedVehicle = null;
+
+        if (id == null ||
+            (parkedVehicle = await _context.ParkedVehicle
+                .FirstOrDefaultAsync(m => m.Id == id)) == null)
         {
             return NotFound();
         }
 
-        var parkedvehicle = await _context.ParkedVehicle
-            .FirstOrDefaultAsync(m => m.Id == id);
-        if (parkedvehicle == null)
-        {
-            return NotFound();
-        }
+        //Get act time, parked time and price
+        var timeNow = DateTime.Now;
+        TimeSpan totalTime = timeNow - parkedVehicle.Arrival;
+        var timeHours = totalTime.Hours;
+        var timeMinutes = totalTime.Minutes;
 
-        return View(parkedvehicle);
+        //Create parked time as string
+        StringBuilder strTime = new StringBuilder();
+        if (timeHours > 0)
+            strTime.Append(timeHours + " h ");
+        if (timeMinutes > 0)
+            strTime.Append(timeMinutes + " m");
+
+        ViewBag.timeNow = timeNow;
+        ViewBag.totalTimeString = strTime;
+        ViewBag.price = (timeHours * pricePerHour) + (timeMinutes * pricePerHour / 60);
+
+        return View(parkedVehicle);
     }
 
     // POST: PARKEDVEHICLES/Delete/5
