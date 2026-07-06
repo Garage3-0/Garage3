@@ -1,71 +1,37 @@
-@model IEnumerable<Garage_2._0.Models.ParkedVehicle>
+@model IEnumerable<Garage_2._0.ViewModels.ParkedVehicleOverviewViewModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Parked Vehicles";
 }
 
-<h1>Index</h1>
+<h1>Parked Vehicles</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">Park New Vehicle</a>
 </p>
+
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.VehicleType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RegNbr)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Color)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Brand)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Model)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Wheels)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Arrival)
-            </th>
-            <th></th>
+            <th>Vehicle Type</th>
+            <th>Registration Number</th>
+            <th>Arrival Time</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.VehicleType)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.RegNbr)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Color)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Brand)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Model)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Wheels)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Arrival)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.VehicleType</td>
+                <td>@item.RegNbr</td>
+                <td>@item.Arrival</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Check Out</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
