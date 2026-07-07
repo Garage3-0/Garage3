@@ -1,4 +1,4 @@
-@model Garage_2._0.Models.ParkedVehicle
+@model Garage_2._0.Models.ParkedVehicleEditViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -6,7 +6,7 @@
 
 <h1>Edit</h1>
 
-<h4>ParkedVehicle</h4>
+<h4>Parked Vehicle</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -14,39 +14,42 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
-                <label asp-for="VehicleType" class="control-label"></label>
-                <input asp-for="VehicleType" class="form-control" />
+                <label asp-for="VehicleType" class="control-label fw-bold"></label>
+                <select asp-for="VehicleType"
+                        asp-items="Html.GetEnumSelectList<VehicleType>()">
+                </select>
                 <span asp-validation-for="VehicleType" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="RegNbr" class="control-label"></label>
+                <label asp-for="RegNbr" class="control-label fw-bold"></label>
                 <input asp-for="RegNbr" class="form-control" />
                 <span asp-validation-for="RegNbr" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Color" class="control-label"></label>
-                <input asp-for="Color" class="form-control" />
+                <label asp-for="Color" class="control-label fw-bold"></label>
+                <input asp-for="Color" class="form-control" maxlength="10" />
                 <span asp-validation-for="Color" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Brand" class="control-label"></label>
-                <input asp-for="Brand" class="form-control" />
+                <label asp-for="Brand" class="control-label fw-bold"></label>
+                <input asp-for="Brand" class="form-control" maxlength="20" />
                 <span asp-validation-for="Brand" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Model" class="control-label"></label>
-                <input asp-for="Model" class="form-control" />
+                <label asp-for="Model" class="control-label fw-bold"></label>
+                <input asp-for="Model" class="form-control" maxlength="10" />
                 <span asp-validation-for="Model" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Wheels" class="control-label"></label>
-                <input asp-for="Wheels" class="form-control" />
+                <label asp-for="Wheels" class="control-label fw-bold"></label>
+                <input asp-for="Wheels" class="form-control"/>
                 <span asp-validation-for="Wheels" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Arrival" class="control-label"></label>
-                <input asp-for="Arrival" class="form-control" />
-                <span asp-validation-for="Arrival" class="text-danger"></span>
+                <label asp-for="Arrival" class="control-label fw-bold"></label>
+                <p class="form-control-plaintext">@Model.Arrival.ToString("yyyy-MM-dd HH:mm")</p>
+                <input type="hidden" asp-for="Arrival" />
+                <small class="form-text text-muted">Arrival time cannot be edited.</small>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

@@ -50,15 +50,27 @@ public class ParkedVehiclesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,VehicleType,RegNbr,Color,Brand,Model,Wheels,Arrival")] ParkedVehicle parkedvehicle)
+    public async Task<IActionResult> Create(ParkedVehicleViewModel parkedVehicleViewModel)
     {
         if (ModelState.IsValid)
         {
-            _context.Add(parkedvehicle);
+            var parkedVehicle = new ParkedVehicle
+            {
+                VehicleType = parkedVehicleViewModel.VehicleType,
+                RegNbr = parkedVehicleViewModel.RegNbr,
+                Color = parkedVehicleViewModel.Color,
+                Brand = parkedVehicleViewModel.Brand,
+                Model = parkedVehicleViewModel.Model,
+                Wheels = parkedVehicleViewModel.Wheels,
+                Arrival = DateTime.Now
+            };
+            //_context.Add(parkedVehicleViewModel);
+            _context.Add(parkedVehicle);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+
         }
-        return View(parkedvehicle);
+        return View(parkedVehicleViewModel);
     }
 
     // GET: PARKEDVEHICLES/Edit/5
@@ -74,7 +86,19 @@ public class ParkedVehiclesController : Controller
         {
             return NotFound();
         }
-        return View(parkedvehicle);
+
+        var viewModel = new ParkedVehicleEditViewModel
+        {
+            Id = parkedvehicle.Id,
+            VehicleType = parkedvehicle.VehicleType,
+            RegNbr = parkedvehicle.RegNbr,
+            Color = parkedvehicle.Color,
+            Brand = parkedvehicle.Brand,
+            Model = parkedvehicle.Model,
+            Wheels = parkedvehicle.Wheels,
+            Arrival = parkedvehicle.Arrival
+        };
+        return View(viewModel);
     }
 
     // POST: PARKEDVEHICLES/Edit/5
@@ -82,9 +106,9 @@ public class ParkedVehiclesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, [Bind("Id,VehicleType,RegNbr,Color,Brand,Model,Wheels,Arrival")] ParkedVehicle parkedvehicle)
+    public async Task<IActionResult> Edit(int id, ParkedVehicleEditViewModel viewModel)
     {
-        if (id != parkedvehicle.Id)
+        if (id != viewModel.Id)
         {
             return NotFound();
         }
@@ -93,12 +117,40 @@ public class ParkedVehiclesController : Controller
         {
             try
             {
-                _context.Update(parkedvehicle);
+                // KONTROLL: Finns det ett ANNAT fordon som redan har detta regnummer?
+                bool regNbrExists = await _context.ParkedVehicle
+                    .AnyAsync(v => v.RegNbr == viewModel.RegNbr && v.Id != viewModel.Id);
+
+                if (regNbrExists)
+                {
+                    // Lägg till ett valideringsfel kopplat till just fältet RegNbr
+                    ModelState.AddModelError("RegNbr", "This registration number is already occupied by another parked vehicle.");
+
+                    // Avbryt och skicka tillbaka användaren till vyn med felmeddelandet visat
+                    return View(viewModel);
+                }
+
+                var parkedvehicle = await _context.ParkedVehicle.FindAsync(id);
+                if (parkedvehicle == null)
+                {
+                    return NotFound();
+                }
+
+                parkedvehicle.VehicleType = viewModel.VehicleType!.Value;
+                parkedvehicle.RegNbr = viewModel.RegNbr;
+                parkedvehicle.Color = viewModel.Color;
+                parkedvehicle.Brand = viewModel.Brand;
+                parkedvehicle.Model = viewModel.Model;
+                parkedvehicle.Wheels = viewModel.Wheels;
+
+                //_context.Update(parkedvehicle);
                 await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = $"Vehicle with registration number \"{parkedvehicle.RegNbr}\" has been updated!";
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ParkedVehicleExists(parkedvehicle.Id))
+                if (!ParkedVehicleExists(viewModel.Id))
                 {
                     return NotFound();
                 }
@@ -109,8 +161,9 @@ public class ParkedVehiclesController : Controller
             }
             return RedirectToAction(nameof(Index));
         }
-        return View(parkedvehicle);
+        return View(viewModel);
     }
+
 
     // GET: PARKEDVEHICLES/Delete/5
     public async Task<IActionResult> Checkout(int? id)
