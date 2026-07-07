@@ -113,7 +113,7 @@ public class ParkedVehiclesController : Controller
     }
 
     // GET: PARKEDVEHICLES/Delete/5
-    public async Task<IActionResult> Delete(int? id)
+    public async Task<IActionResult> Checkout(int? id)
     {
         ParkedVehicle? parkedVehicle = null;
 
