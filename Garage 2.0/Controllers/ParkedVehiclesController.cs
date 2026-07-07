@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Garage_2._0.Models;
+using Garage_2._0.ViewModels;
 using System.Text;
 
 public class ParkedVehiclesController : Controller
@@ -16,11 +17,25 @@ public class ParkedVehiclesController : Controller
     }
 
     // GET: PARKEDVEHICLES
-    public async Task<IActionResult> Index()    
+    public async Task<IActionResult> Index()
     {
-        return View(await _context.ParkedVehicle.ToListAsync());
-    }
+    var vehicles = await _context.ParkedVehicle
+        .Select(v => new ParkedVehicleOverviewViewModel
+{
+        Id = v.Id,
+        VehicleType = v.VehicleType,
+        RegNbr = v.RegNbr,
+        Color = v.Color,
+        Brand = v.Brand,
+        Model = v.Model,
+        Wheels = v.Wheels,
+        Arrival = v.Arrival
 
+        })
+        .ToListAsync();
+
+    return View(vehicles);
+}
     // GET: PARKEDVEHICLES/Details/5
     public async Task<IActionResult> Details(int? id)
     {
