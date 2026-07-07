@@ -21,11 +21,16 @@ public class ParkedVehiclesController : Controller
     {
     var vehicles = await _context.ParkedVehicle
         .Select(v => new ParkedVehicleOverviewViewModel
-        {
-            Id = v.Id,
-            VehicleType = v.VehicleType,
-            RegNbr = v.RegNbr,
-            Arrival = v.Arrival
+{
+        Id = v.Id,
+        VehicleType = v.VehicleType,
+        RegNbr = v.RegNbr,
+        Color = v.Color,
+        Brand = v.Brand,
+        Model = v.Model,
+        Wheels = v.Wheels,
+        Arrival = v.Arrival
+
         })
         .ToListAsync();
 

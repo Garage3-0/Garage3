@@ -10,6 +10,11 @@ namespace Garage_2._0.ViewModels
 
         public string RegNbr { get; set; } = "";
 
+        public string Color { get; set; } = "";
+        public string Brand { get; set; } = "";
+        public string Model { get; set; } = "";
+        public int Wheels { get; set; }
+
         public DateTime Arrival { get; set; }
     }
 }
