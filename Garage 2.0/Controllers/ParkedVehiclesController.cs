@@ -13,7 +13,7 @@ public class ParkedVehiclesController : Controller
     }
 
     // GET: PARKEDVEHICLES
-    public async Task<IActionResult> Index()    
+    public async Task<IActionResult> Index()
     {
         return View(await _context.ParkedVehicle.ToListAsync());
     }
@@ -51,6 +51,15 @@ public class ParkedVehiclesController : Controller
     {
         if (ModelState.IsValid)
         {
+
+            bool exists = _context.ParkedVehicle.Any(v => v.RegNbr.ToUpper() == parkedVehicleViewModel.RegNbr.ToUpper());
+
+            if (exists)
+            {
+                ModelState.AddModelError("RegNbr", "Registration number already exists in the garage.");
+                return View(parkedVehicleViewModel);
+            }
+
             var parkedVehicle = new ParkedVehicle
             {
                 VehicleType = parkedVehicleViewModel.VehicleType,
@@ -61,12 +70,17 @@ public class ParkedVehiclesController : Controller
                 Wheels = parkedVehicleViewModel.Wheels,
                 Arrival = DateTime.Now
             };
-            //_context.Add(parkedVehicleViewModel);
             _context.Add(parkedVehicle);
             await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Vehicle has been successfully parked!";
+
             return RedirectToAction(nameof(Index));
 
         }
+
+        TempData["Error"] = "Vehicle could not be parked!";
+
         return View(parkedVehicleViewModel);
     }
 
@@ -116,8 +130,14 @@ public class ParkedVehiclesController : Controller
                     throw;
                 }
             }
+
+            TempData["Success"] = "Vehicle details updated successfully!";
+
             return RedirectToAction(nameof(Index));
         }
+
+        TempData["Error"] = "Failed to update vehicle details.";
+
         return View(parkedvehicle);
     }
 
@@ -151,6 +171,9 @@ public class ParkedVehiclesController : Controller
         }
 
         await _context.SaveChangesAsync();
+
+        TempData["Success"] = "Vehicle checked out successfully!";
+
         return RedirectToAction(nameof(Index));
     }
 
