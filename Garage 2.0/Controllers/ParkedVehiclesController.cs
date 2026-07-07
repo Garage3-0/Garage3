@@ -47,27 +47,27 @@ public class ParkedVehiclesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ParkedVehicleViewModel parkedVehicleViewModel)
+    public async Task<IActionResult> Create(ParkVehicleViewModel ParkVehicleViewModel)
     {
         if (ModelState.IsValid)
         {
 
-            bool exists = _context.ParkedVehicle.Any(v => v.RegNbr.ToUpper() == parkedVehicleViewModel.RegNbr.ToUpper());
+            bool exists = _context.ParkedVehicle.Any(v => v.RegNbr.ToUpper() == ParkVehicleViewModel.RegNbr.ToUpper());
 
             if (exists)
             {
-                ModelState.AddModelError("RegNbr", "Registration number already exists in the garage.");
-                return View(parkedVehicleViewModel);
+                ModelState.AddModelError("RegNbr", "Registration number already exists in the garage. There can only be one vehicle per registration number.");
+                return View(ParkVehicleViewModel);
             }
 
             var parkedVehicle = new ParkedVehicle
             {
-                VehicleType = parkedVehicleViewModel.VehicleType,
-                RegNbr = parkedVehicleViewModel.RegNbr,
-                Color = parkedVehicleViewModel.Color,
-                Brand = parkedVehicleViewModel.Brand,
-                Model = parkedVehicleViewModel.Model,
-                Wheels = parkedVehicleViewModel.Wheels,
+                VehicleType = ParkVehicleViewModel.VehicleType,
+                RegNbr = ParkVehicleViewModel.RegNbr,
+                Color = ParkVehicleViewModel.Color,
+                Brand = ParkVehicleViewModel.Brand,
+                Model = ParkVehicleViewModel.Model,
+                Wheels = ParkVehicleViewModel.Wheels,
                 Arrival = DateTime.Now
             };
             _context.Add(parkedVehicle);
@@ -81,7 +81,7 @@ public class ParkedVehiclesController : Controller
 
         TempData["Error"] = "Vehicle could not be parked!";
 
-        return View(parkedVehicleViewModel);
+        return View(ParkVehicleViewModel);
     }
 
     // GET: PARKEDVEHICLES/Edit/5

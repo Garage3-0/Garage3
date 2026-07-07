@@ -2,7 +2,7 @@
 
 namespace Garage_2._0.Models
 {
-    public class ParkedVehicleViewModel
+    public class ParkVehicleViewModel
     {
         [Required(ErrorMessage = "Please select a vehicle type.")]
         [Display(Name = "Vehicle type")]
