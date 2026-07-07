@@ -6,6 +6,8 @@ using System.Text;
 
 public class ParkedVehiclesController : Controller
 {
+    const int pricePerHour = 10;
+
     private readonly Garage_2_0Context _context;
 
     public ParkedVehiclesController(Garage_2_0Context context)
@@ -113,10 +115,9 @@ public class ParkedVehiclesController : Controller
     // GET: PARKEDVEHICLES/Delete/5
     public async Task<IActionResult> Delete(int? id)
     {
-        const int pricePerHour = 60;
-
         ParkedVehicle? parkedVehicle = null;
 
+        //Bad input or vehicle not found
         if (id == null ||
             (parkedVehicle = await _context.ParkedVehicle
                 .FirstOrDefaultAsync(m => m.Id == id)) == null)
@@ -136,7 +137,8 @@ public class ParkedVehiclesController : Controller
             strTime.Append(timeHours + " h ");
         if (timeMinutes > 0)
             strTime.Append(timeMinutes + " m");
-
+        
+        //Collect data to View
         ViewBag.timeNow = timeNow;
         ViewBag.totalTimeString = strTime;
         ViewBag.price = (timeHours * pricePerHour) + (timeMinutes * pricePerHour / 60);
