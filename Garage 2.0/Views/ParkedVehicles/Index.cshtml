@@ -20,18 +20,35 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.VehicleType</td>
-                <td>@item.RegNbr</td>
-                <td>@item.Arrival</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Check Out</a>
-                </td>
-            </tr>
-        }
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(model => item.VehicleType)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.RegNbr)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Color)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Brand)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Model)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Wheels)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Arrival)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Checkout" asp-route-id="@item.Id">Checkout</a>
+            </td>
+        </tr>
+}
     </tbody>
 </table>
