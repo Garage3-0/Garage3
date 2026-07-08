@@ -9,6 +9,9 @@
         strTime.Append(Model.ParkedHours + " h ");
     if (Model.ParkedMinutes > 0)
         strTime.Append(Model.ParkedMinutes + " m");
+    
+    if(strTime.Length <= 0)
+        strTime.Append("No fee");
 }
 
 <dl class="row">
