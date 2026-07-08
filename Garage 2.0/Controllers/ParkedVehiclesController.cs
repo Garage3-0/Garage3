@@ -2,9 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Garage_2._0.Models;
+using Garage_2._0.ViewModels;
+using System.Text;
 
 public class ParkedVehiclesController : Controller
 {
+    const int pricePerHour = 10;
+
     private readonly Garage_2_0Context _context;
 
     public ParkedVehiclesController(Garage_2_0Context context)
@@ -15,9 +19,23 @@ public class ParkedVehiclesController : Controller
     // GET: PARKEDVEHICLES
     public async Task<IActionResult> Index()
     {
-        return View(await _context.ParkedVehicle.ToListAsync());
-    }
+    var vehicles = await _context.ParkedVehicle
+        .Select(v => new ParkedVehicleOverviewViewModel
+{
+        Id = v.Id,
+        VehicleType = v.VehicleType,
+        RegNbr = v.RegNbr,
+        Color = v.Color,
+        Brand = v.Brand,
+        Model = v.Model,
+        Wheels = v.Wheels,
+        Arrival = v.Arrival
 
+        })
+        .ToListAsync();
+
+    return View(vehicles);
+}
     // GET: PARKEDVEHICLES/Details/5
     public async Task<IActionResult> Details(int? id)
     {
@@ -97,7 +115,19 @@ public class ParkedVehiclesController : Controller
         {
             return NotFound();
         }
-        return View(parkedvehicle);
+
+        var viewModel = new ParkedVehicleEditViewModel
+        {
+            Id = parkedvehicle.Id,
+            VehicleType = parkedvehicle.VehicleType,
+            RegNbr = parkedvehicle.RegNbr,
+            Color = parkedvehicle.Color,
+            Brand = parkedvehicle.Brand,
+            Model = parkedvehicle.Model,
+            Wheels = parkedvehicle.Wheels,
+            Arrival = parkedvehicle.Arrival
+        };
+        return View(viewModel);
     }
 
     // POST: PARKEDVEHICLES/Edit/5
@@ -105,9 +135,9 @@ public class ParkedVehiclesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, [Bind("Id,VehicleType,RegNbr,Color,Brand,Model,Wheels,Arrival")] ParkedVehicle parkedvehicle)
+    public async Task<IActionResult> Edit(int id, ParkedVehicleEditViewModel viewModel)
     {
-        if (id != parkedvehicle.Id)
+        if (id != viewModel.Id)
         {
             return NotFound();
         }
@@ -116,12 +146,40 @@ public class ParkedVehiclesController : Controller
         {
             try
             {
-                _context.Update(parkedvehicle);
+                // KONTROLL: Finns det ett ANNAT fordon som redan har detta regnummer?
+                bool regNbrExists = await _context.ParkedVehicle
+                    .AnyAsync(v => v.RegNbr == viewModel.RegNbr && v.Id != viewModel.Id);
+
+                if (regNbrExists)
+                {
+                    // Lägg till ett valideringsfel kopplat till just fältet RegNbr
+                    ModelState.AddModelError("RegNbr", "This registration number is already occupied by another parked vehicle.");
+
+                    // Avbryt och skicka tillbaka användaren till vyn med felmeddelandet visat
+                    return View(viewModel);
+                }
+
+                var parkedvehicle = await _context.ParkedVehicle.FindAsync(id);
+                if (parkedvehicle == null)
+                {
+                    return NotFound();
+                }
+
+                parkedvehicle.VehicleType = viewModel.VehicleType!.Value;
+                parkedvehicle.RegNbr = viewModel.RegNbr;
+                parkedvehicle.Color = viewModel.Color;
+                parkedvehicle.Brand = viewModel.Brand;
+                parkedvehicle.Model = viewModel.Model;
+                parkedvehicle.Wheels = viewModel.Wheels;
+
+                //_context.Update(parkedvehicle);
                 await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = $"Vehicle with registration number \"{parkedvehicle.RegNbr}\" has been updated!";
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ParkedVehicleExists(parkedvehicle.Id))
+                if (!ParkedVehicleExists(viewModel.Id))
                 {
                     return NotFound();
                 }
@@ -141,22 +199,39 @@ public class ParkedVehiclesController : Controller
         return View(parkedvehicle);
     }
 
+
     // GET: PARKEDVEHICLES/Delete/5
-    public async Task<IActionResult> Delete(int? id)
+    public async Task<IActionResult> Checkout(int? id)
     {
-        if (id == null)
+        ParkedVehicle? parkedVehicle = null;
+
+        //Bad input or vehicle not found
+        if (id == null ||
+            (parkedVehicle = await _context.ParkedVehicle
+                .FirstOrDefaultAsync(m => m.Id == id)) == null)
         {
             return NotFound();
         }
 
-        var parkedvehicle = await _context.ParkedVehicle
-            .FirstOrDefaultAsync(m => m.Id == id);
-        if (parkedvehicle == null)
-        {
-            return NotFound();
-        }
+        //Get act time, parked time and price
+        var timeNow = DateTime.Now;
+        TimeSpan totalTime = timeNow - parkedVehicle.Arrival;
+        var timeHours = totalTime.Hours;
+        var timeMinutes = totalTime.Minutes;
 
-        return View(parkedvehicle);
+        //Create parked time as string
+        StringBuilder strTime = new StringBuilder();
+        if (timeHours > 0)
+            strTime.Append(timeHours + " h ");
+        if (timeMinutes > 0)
+            strTime.Append(timeMinutes + " m");
+        
+        //Collect data to View
+        ViewBag.timeNow = timeNow;
+        ViewBag.totalTimeString = strTime;
+        ViewBag.price = (timeHours * pricePerHour) + (timeMinutes * pricePerHour / 60);
+
+        return View(parkedVehicle);
     }
 
     // POST: PARKEDVEHICLES/Delete/5
