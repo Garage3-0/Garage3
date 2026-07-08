@@ -8,9 +8,11 @@ namespace Garage_2._0.Models
         [Display(Name = "Vehicle type")]
         public VehicleType VehicleType { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Registration number is required.")]
+        [StringLength(10, ErrorMessage = "Registration number is too long.")]
         // Regex: ^[A-Za-z]{3}[0-9]{3}$ betyder exakt 3 bokstäver (A-Z) och exakt 3 siffror (0-9)
         [RegularExpression(@"^[A-Za-z]{3}[0-9]{3}$", ErrorMessage = "Registration number must be 3 letters followed by 3 digits (e.g., ABC123).")]
+        [Display(Name = "Registration number")]
         public string RegNbr { get; set; }
 
         [Required(ErrorMessage = "Color is required.")]
