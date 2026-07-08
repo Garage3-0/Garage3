@@ -152,6 +152,28 @@ namespace Garage_2._0.Migrations
                             RegNbr = "RFM596",
                             VehicleType = 0,
                             Wheels = 4
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Arrival = new DateTime(2026, 6, 28, 15, 45, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Volvo",
+                            Color = "White",
+                            Model = "AZ34",
+                            RegNbr = "JYT628",
+                            VehicleType = 2,
+                            Wheels = 8
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Arrival = new DateTime(2026, 7, 8, 10, 18, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Toyota",
+                            Color = "Red",
+                            Model = "V30",
+                            RegNbr = "DER421",
+                            VehicleType = 1,
+                            Wheels = 2
                         });
                 });
 #pragma warning restore 612, 618
