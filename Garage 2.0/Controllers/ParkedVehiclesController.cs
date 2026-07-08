@@ -1,4 +1,6 @@
 
+using Garage_2._0.Models;
+using Garage_2._0.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Garage_2._0.Models;
@@ -31,6 +33,10 @@ public class ParkedVehiclesController : Controller
         Model = v.Model,
         Wheels = v.Wheels,
         Arrival = v.Arrival
+                
+
+    
+
 
         })
         .ToListAsync();
@@ -54,6 +60,42 @@ public class ParkedVehiclesController : Controller
 
         return View(parkedvehicle);
     }
+
+    // GET: PARKEDVEHICLES/Search (IndexWithViewModel)
+    public async Task<IActionResult> Search(string searchRegNbr)
+    {
+        // Utgångspunkten är alla fordon i databasen
+        var vehiclesQuery = _context.ParkedVehicle.AsQueryable();
+        bool? exists = null;
+
+        // Om användaren faktiskt har skrivit något i sökfältet
+        if (!string.IsNullOrEmpty(searchRegNbr))
+        {
+            searchRegNbr = searchRegNbr.Trim().ToUpper();
+            ViewData["CurrentFilter"] = searchRegNbr; // Sparar texten i sökfältet
+
+            // Kontrollera om det exakta numret finns
+            exists = _context.ParkedVehicle.Any(v => v.RegNbr != null && v.RegNbr.ToUpper().Contains(searchRegNbr));
+            ViewData["Exists"] = exists;
+
+            // Om det finns, filtrera. Om inte, visas hela listan
+            if (exists == true)
+            {
+                vehiclesQuery = vehiclesQuery.Where(v => v.RegNbr != null && v.RegNbr.ToUpper().Contains(searchRegNbr));
+            }
+        }
+
+        // 3. Packa in bilarna i den ViewModel som din vy faktiskt använder (VehiclesViewModel)
+        var model = new VehiclesViewModel // Skapar en instans (en behållare) för att förvara och skicka bilarna till vyn
+        {
+            ParkedVehicles = await vehiclesQuery.ToListAsync<ParkedVehicle>()
+        };
+
+        // 4. Returnera vyn
+        return View(model);
+    }
+
+
 
     // GET: PARKEDVEHICLES/Create
     public IActionResult Create()
@@ -108,17 +150,20 @@ public class ParkedVehiclesController : Controller
     {
         if (id == null)
         {
-            return NotFound();
+            TempData["ErrorMessage"] = "A valid vehicle ID must be provided to edit.";
+            return RedirectToAction(nameof(Index));
         }
 
         var parkedvehicle = await _context.ParkedVehicle.FindAsync(id);
-        if (parkedvehicle == null)
-        {
-            return NotFound();
+        
+            if (parkedvehicle == null)
+            {
+                TempData["ErrorMessage"] = $"Vehicle with ID {id} could not be found in the system.";
+                return RedirectToAction(nameof(Index));
         }
 
         var viewModel = new ParkedVehicleEditViewModel
-        {
+         {
             Id = parkedvehicle.Id,
             VehicleType = parkedvehicle.VehicleType,
             RegNbr = parkedvehicle.RegNbr,
@@ -127,7 +172,8 @@ public class ParkedVehiclesController : Controller
             Model = parkedvehicle.Model,
             Wheels = parkedvehicle.Wheels,
             Arrival = parkedvehicle.Arrival
-        };
+         };
+
         return View(viewModel);
     }
 
@@ -138,9 +184,11 @@ public class ParkedVehiclesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, ParkedVehicleEditViewModel viewModel)
     {
+        // 1. Om ID i URL:en inte matchar ID i formuläret (Manipulerad begäran)
         if (id != viewModel.Id)
         {
-            return NotFound();
+            TempData["ErrorMessage"] = "Data mismatch error. The request could not be processed.";
+            return RedirectToAction(nameof(Index));
         }
 
         if (ModelState.IsValid)
@@ -153,17 +201,18 @@ public class ParkedVehiclesController : Controller
 
                 if (regNbrExists)
                 {
-                    // Lägg till ett valideringsfel kopplat till just fältet RegNbr
                     ModelState.AddModelError("RegNbr", "This registration number is already occupied by another parked vehicle.");
 
-                    // Avbryt och skicka tillbaka användaren till vyn med felmeddelandet visat
-                    return View(viewModel);
+                    return View(viewModel); // Avbryt och skicka tillbaka användaren till vyn med felmeddelandet visat
                 }
 
                 var parkedvehicle = await _context.ParkedVehicle.FindAsync(id);
+
+                // 2. Om fordonet har tagits bort från databasen under tiden användaren redigerade det
                 if (parkedvehicle == null)
                 {
-                    return NotFound();
+                    TempData["ErrorMessage"] = "The vehicle you are trying to edit no longer exists.";
+                    return RedirectToAction(nameof(Index));
                 }
 
                 parkedvehicle.VehicleType = viewModel.VehicleType!.Value;
@@ -173,7 +222,6 @@ public class ParkedVehiclesController : Controller
                 parkedvehicle.Model = viewModel.Model;
                 parkedvehicle.Wheels = viewModel.Wheels;
 
-                //_context.Update(parkedvehicle);
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = $"Vehicle with registration number \"{parkedvehicle.RegNbr}\" has been updated!";
@@ -182,11 +230,13 @@ public class ParkedVehiclesController : Controller
             {
                 if (!ParkedVehicleExists(viewModel.Id))
                 {
-                    return NotFound();
+                    TempData["ErrorMessage"] = "The vehicle was removed by another user during the process.";
+                    return RedirectToAction(nameof(Index));
                 }
                 else
                 {
-                    throw;
+                    TempData["ErrorMessage"] = "A database concurrency error occurred. Please try again.";
+                    return RedirectToAction(nameof(Index));
                 }
             }
 
