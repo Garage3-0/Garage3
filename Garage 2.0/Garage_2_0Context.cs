@@ -4,7 +4,7 @@ using System.Drawing;
 
 public class Garage_2_0Context(DbContextOptions<Garage_2_0Context> options) : DbContext(options)
 {
-    public DbSet<Garage_2._0.Models.ParkedVehicle> ParkedVehicle { get; set; } = default!;
+    public DbSet<ParkedVehicle> ParkedVehicle { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -105,6 +105,30 @@ public class Garage_2_0Context(DbContextOptions<Garage_2_0Context> options) : Db
                 Model = "A50",
                 Wheels = 4,
                 Arrival = new DateTime(2026, 7, 6, 11, 18, 00),
+            },
+
+            new ParkedVehicle()
+            {
+                Id = 9,
+                VehicleType = VehicleType.Bus,
+                RegNbr = "JYT628",
+                Color = "White",
+                Brand = "Volvo",
+                Model = "AZ34",
+                Wheels = 8,
+                Arrival = new DateTime(2026, 6, 28, 15, 45, 00),
+            },
+
+            new ParkedVehicle()
+            {
+                Id = 10,
+                VehicleType = VehicleType.Motorcycle,
+                RegNbr = "DER421",
+                Color = "Red",
+                Brand = "Toyota",
+                Model = "V30",
+                Wheels = 2,
+                Arrival = new DateTime(2026, 7, 8, 10, 18, 00),
             }
             );
     }

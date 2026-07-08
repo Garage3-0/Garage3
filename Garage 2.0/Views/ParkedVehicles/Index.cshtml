@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Index";
+    string currentSearch = ViewData["CurrentFilter"]?.ToString() ?? "";
 }
 
 <h1>Index</h1>
@@ -14,9 +15,48 @@
     </div>
 }
 
+    <!-- Display error message if the user tries to access a non-existing vehicle ID -->
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
+<!-- SEARCH -->
+
+<form asp-controller="ParkedVehicles" asp-action="Search" method="get" class="form-inline mb-3">
+    <div class="input-group">
+        <input type="text" 
+               name="searchRegNbr" 
+               value="@currentSearch"
+               class="form-control" 
+               placeholder="Filter by registration number"
+                required
+                oninvalid="this.setCustomValidity('You need to enter a registration number.')"
+                oninput="this.setCustomValidity('')" />
+                
+
+        <div class="input-group-append">
+            @if (!string.IsNullOrEmpty(ViewData["CurrentFilter"]?.ToString()))
+            {
+                <!-- Exit to clear search and view all vehicles -->
+                <a asp-action="Search"
+                class="btn btn-outline-secondary" 
+                title="Clear search">&times;</a>
+            }
+            <button type="submit" 
+                    class="btn btn-primary">Search</button>
+        </div>
+    </div>
+</form>
+
 <table class="table">
     <thead>
         <tr>
