@@ -196,7 +196,7 @@ public class ParkedVehiclesController : Controller
 
         TempData["Error"] = "Failed to update vehicle details.";
 
-        return View(parkedvehicle);
+        return View(viewModel);
     }
 
 
