@@ -81,7 +81,7 @@ public class ParkedVehiclesController : Controller
             var parkedVehicle = new ParkedVehicle
             {
                 VehicleType = ParkVehicleViewModel.VehicleType,
-                RegNbr = ParkVehicleViewModel.RegNbr,
+                RegNbr = ParkVehicleViewModel.RegNbr.ToUpper().Trim(),
                 Color = ParkVehicleViewModel.Color,
                 Brand = ParkVehicleViewModel.Brand,
                 Model = ParkVehicleViewModel.Model,
