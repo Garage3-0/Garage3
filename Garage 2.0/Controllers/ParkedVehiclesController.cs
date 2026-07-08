@@ -33,10 +33,6 @@ public class ParkedVehiclesController : Controller
         Model = v.Model,
         Wheels = v.Wheels,
         Arrival = v.Arrival
-                
-
-    
-
 
         })
         .ToListAsync();
@@ -64,29 +60,29 @@ public class ParkedVehiclesController : Controller
     // GET: PARKEDVEHICLES/Search (IndexWithViewModel)
     public async Task<IActionResult> Search(string searchRegNbr)
     {
-        // Utgångspunkten är alla fordon i databasen
+        // Starting point: all vehicles in the database
         var vehiclesQuery = _context.ParkedVehicle.AsQueryable();
         bool? exists = null;
 
-        // Om användaren faktiskt har skrivit något i sökfältet
+        // IF the user has written something in the search field
         if (!string.IsNullOrEmpty(searchRegNbr))
         {
             searchRegNbr = searchRegNbr.Trim().ToUpper();
-            ViewData["CurrentFilter"] = searchRegNbr; // Sparar texten i sökfältet
+            ViewData["CurrentFilter"] = searchRegNbr; // Saves the text in the search field
 
-            // Kontrollera om det exakta numret finns
+            // Does the exact reg number exist?
             exists = _context.ParkedVehicle.Any(v => v.RegNbr != null && v.RegNbr.ToUpper().Contains(searchRegNbr));
             ViewData["Exists"] = exists;
 
-            // Om det finns, filtrera. Om inte, visas hela listan
+            // If yes, filter. If not, show the full list.
             if (exists == true)
             {
                 vehiclesQuery = vehiclesQuery.Where(v => v.RegNbr != null && v.RegNbr.ToUpper().Contains(searchRegNbr));
             }
         }
 
-        // 3. Packa in bilarna i den ViewModel som din vy faktiskt använder (VehiclesViewModel)
-        var model = new VehiclesViewModel // Skapar en instans (en behållare) för att förvara och skicka bilarna till vyn
+        // 3. Package the vehicles in the ViewModel that your view is actually using (VehiclesViewModel)
+        var model = new VehiclesViewModel // Creates an instance (container) to store and send vehicles back to view
         {
             ParkedVehicles = await vehiclesQuery.ToListAsync<ParkedVehicle>()
         };
@@ -184,7 +180,7 @@ public class ParkedVehiclesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, ParkedVehicleEditViewModel viewModel)
     {
-        // 1. Om ID i URL:en inte matchar ID i formuläret (Manipulerad begäran)
+        // If the ID in the URL does not match the ID in the form
         if (id != viewModel.Id)
         {
             TempData["ErrorMessage"] = "Data mismatch error. The request could not be processed.";
@@ -195,7 +191,7 @@ public class ParkedVehiclesController : Controller
         {
             try
             {
-                // KONTROLL: Finns det ett ANNAT fordon som redan har detta regnummer?
+                // Is there another vehicle that already has this reg number?
                 bool regNbrExists = await _context.ParkedVehicle
                     .AnyAsync(v => v.RegNbr == viewModel.RegNbr && v.Id != viewModel.Id);
 
@@ -203,12 +199,12 @@ public class ParkedVehiclesController : Controller
                 {
                     ModelState.AddModelError("RegNbr", "This registration number is already occupied by another parked vehicle.");
 
-                    return View(viewModel); // Avbryt och skicka tillbaka användaren till vyn med felmeddelandet visat
+                    return View(viewModel); // "Abort" and send user back to view with error message
                 }
 
                 var parkedvehicle = await _context.ParkedVehicle.FindAsync(id);
 
-                // 2. Om fordonet har tagits bort från databasen under tiden användaren redigerade det
+                // If the vehicle has been removed from the database while another user edited it
                 if (parkedvehicle == null)
                 {
                     TempData["ErrorMessage"] = "The vehicle you are trying to edit no longer exists.";
@@ -298,6 +294,8 @@ public class ParkedVehiclesController : Controller
         //Remove vehicle
         _context.ParkedVehicle.Remove(parkedvehicle);
         await _context.SaveChangesAsync();
+
+        TempData["Success"] = "Vehicle has been checked out.";
 
         return RedirectToAction("Receipt", "ParkedVehicles");
     }
