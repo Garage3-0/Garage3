@@ -66,27 +66,41 @@ public class ParkedVehiclesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ParkedVehicleViewModel parkedVehicleViewModel)
+    public async Task<IActionResult> Create(ParkVehicleViewModel ParkVehicleViewModel)
     {
         if (ModelState.IsValid)
         {
+
+            bool exists = _context.ParkedVehicle.Any(v => v.RegNbr.ToUpper() == ParkVehicleViewModel.RegNbr.ToUpper());
+
+            if (exists)
+            {
+                ModelState.AddModelError("RegNbr", "Registration number already exists in the garage. There can only be one vehicle per registration number.");
+                return View(ParkVehicleViewModel);
+            }
+
             var parkedVehicle = new ParkedVehicle
             {
-                VehicleType = parkedVehicleViewModel.VehicleType,
-                RegNbr = parkedVehicleViewModel.RegNbr,
-                Color = parkedVehicleViewModel.Color,
-                Brand = parkedVehicleViewModel.Brand,
-                Model = parkedVehicleViewModel.Model,
-                Wheels = parkedVehicleViewModel.Wheels,
+                VehicleType = ParkVehicleViewModel.VehicleType,
+                RegNbr = ParkVehicleViewModel.RegNbr.ToUpper().Trim(),
+                Color = ParkVehicleViewModel.Color,
+                Brand = ParkVehicleViewModel.Brand,
+                Model = ParkVehicleViewModel.Model,
+                Wheels = ParkVehicleViewModel.Wheels,
                 Arrival = DateTime.Now
             };
-            //_context.Add(parkedVehicleViewModel);
             _context.Add(parkedVehicle);
             await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Vehicle has been successfully parked!";
+
             return RedirectToAction(nameof(Index));
 
         }
-        return View(parkedVehicleViewModel);
+
+        TempData["Error"] = "Vehicle could not be parked!";
+
+        return View(ParkVehicleViewModel);
     }
 
     // GET: PARKEDVEHICLES/Edit/5
@@ -175,8 +189,14 @@ public class ParkedVehiclesController : Controller
                     throw;
                 }
             }
+
+            TempData["Success"] = "Vehicle details updated successfully!";
+
             return RedirectToAction(nameof(Index));
         }
+
+        TempData["Error"] = "Failed to update vehicle details.";
+
         return View(viewModel);
     }
 

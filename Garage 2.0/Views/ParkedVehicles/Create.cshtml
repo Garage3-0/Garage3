@@ -1,13 +1,21 @@
-@model Garage_2._0.Models.ParkedVehicleViewModel
+@model Garage_2._0.Models.ParkVehicleViewModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Park vehicle";
 }
 
-<h1>Create</h1>
+<h1>Park vehicle</h1>
 
-<h4>ParkedVehicle</h4>
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+@* <h4>ParkedVehicle</h4> *@
 <hr />
+<br />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
@@ -15,10 +23,8 @@
 
             <div class="form-group">
                 <label asp-for="VehicleType" class="control-label"></label>
-                @* <input asp-for="VehicleType" class="form-control" /> *@
                 <select asp-for="VehicleType" asp-items="Html.GetEnumSelectList<VehicleType>()" class="form-control">
                     <option value="">-- Choose Vehicle type --</option>
-
                 </select>
                 <span asp-validation-for="VehicleType" class="text-danger"></span>
             </div>
@@ -63,3 +69,9 @@
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
