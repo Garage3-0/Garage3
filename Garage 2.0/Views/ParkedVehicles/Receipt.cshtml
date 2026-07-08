@@ -1,0 +1,11 @@
+﻿@model Garage_2._0.Models.ReceiptViewModel
+
+<h1>Receipt</h1>
+<div>
+    <hr />
+    <h4 class="mb-3">Receipt for parking of vehicle - @TempData["regNbr"]</h4>
+
+    <partial name="_timePricePartial" />
+
+    <a asp-action="Index">Back to List</a>
+</div>

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Garage_2._0.Models;
 using Garage_2._0.ViewModels;
 using System.Text;
+using System.Text.Json;
 
 public class ParkedVehiclesController : Controller
 {
@@ -185,7 +186,6 @@ public class ParkedVehiclesController : Controller
     {
         ParkedVehicle? parkedVehicle = null;
 
-        //Bad input or vehicle not found
         if (id == null ||
             (parkedVehicle = await _context.ParkedVehicle
                 .FirstOrDefaultAsync(m => m.Id == id)) == null)
@@ -193,44 +193,80 @@ public class ParkedVehiclesController : Controller
             return NotFound();
         }
 
-        //Get act time, parked time and price
-        var timeNow = DateTime.Now;
-        TimeSpan totalTime = timeNow - parkedVehicle.Arrival;
-        var timeHours = totalTime.Hours;
-        var timeMinutes = totalTime.Minutes;
+        ReceiptViewModel receiptViewModel = CreateReceiptViewModel(parkedVehicle);
 
-        //Create parked time as string
-        StringBuilder strTime = new StringBuilder();
-        if (timeHours > 0)
-            strTime.Append(timeHours + " h ");
-        if (timeMinutes > 0)
-            strTime.Append(timeMinutes + " m");
-        
-        //Collect data to View
-        ViewBag.timeNow = timeNow;
-        ViewBag.totalTimeString = strTime;
-        ViewBag.price = (timeHours * pricePerHour) + (timeMinutes * pricePerHour / 60);
-
-        return View(parkedVehicle);
+        return View(receiptViewModel);
     }
 
-    // POST: PARKEDVEHICLES/Delete/5
-    [HttpPost, ActionName("Delete")]
+    
+
+    //GET: PARKEDVEHICLES/Receipt/5
+    public async Task<IActionResult> Receipt()
+    {
+        //  Gets time and price info via TempData
+        var tmp = TempData["receipt"] as string ?? "";
+        ReceiptViewModel? receiptViewModel = JsonSerializer.Deserialize<ReceiptViewModel>(tmp);
+
+        return View(receiptViewModel);
+    }
+
+    // POST: PARKEDVEHICLES/Receipt/5
+    [HttpPost, ActionName("Receipt")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int? id)
     {
-        var parkedvehicle = await _context.ParkedVehicle.FindAsync(id);
-        if (parkedvehicle != null)
+        ParkedVehicle? parkedvehicle = await _context.ParkedVehicle.FindAsync(id);
+        if (parkedvehicle == null)
         {
-            _context.ParkedVehicle.Remove(parkedvehicle);
+            return NotFound();
         }
 
+        //Store data for receipt in TempData
+        ReceiptViewModel receiptViewModel = CreateReceiptViewModel(parkedvehicle);
+        TempData["receipt"] = JsonSerializer.Serialize(receiptViewModel);
+
+        //Remove vehicle
+        _context.ParkedVehicle.Remove(parkedvehicle);
         await _context.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
+
+        return RedirectToAction("Receipt", "ParkedVehicles");
     }
 
     private bool ParkedVehicleExists(int? id)
     {
         return _context.ParkedVehicle.Any(e => e.Id == id);
+    }
+
+    private ReceiptViewModel CreateReceiptViewModel(ParkedVehicle parkedVehicle)
+    {
+        //Get act time, parked time and price
+        var timeNow = DateTime.Now;
+        TimeSpan totalTime = timeNow - parkedVehicle.Arrival;
+        var timeDays = totalTime.Days;
+        var timeHours = totalTime.Hours;
+        var timeMinutes = totalTime.Minutes;
+
+        //Calculate price
+        var price = (timeDays * 24 * pricePerHour) + (timeHours * pricePerHour) + (timeMinutes * pricePerHour / 60);
+
+        ReceiptViewModel receiptViewModel = new ReceiptViewModel()
+        {
+            Id = parkedVehicle.Id,
+            VehicleType = parkedVehicle.VehicleType,
+            RegNbr = parkedVehicle.RegNbr,
+            Color = parkedVehicle.Color,
+            Brand = parkedVehicle.Brand,
+            Model = parkedVehicle.Model,
+            Wheels = parkedVehicle.Wheels,
+            Arrival = parkedVehicle.Arrival,
+            CheckoutTime = timeNow,
+            ParkedDays = timeDays,
+            ParkedHours = timeHours,
+            ParkedMinutes = timeMinutes,
+            Price = price,
+            PricePerHour = pricePerHour
+        };
+
+        return receiptViewModel;
     }
 }
