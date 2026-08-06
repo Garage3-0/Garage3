@@ -13,22 +13,22 @@ namespace Garage_3._0.Models.ViewModels
         // Regex: ^[A-Za-z]{3}[0-9]{3}$ means exactly 3 letters (A-Z) followed by exactly 3 digits (0-9).
         [RegularExpression(@"^[A-Za-z]{3}[0-9]{3}$", ErrorMessage = "Registration number must be 3 letters followed by 3 digits (e.g., ABC123).")]
         [Display(Name = "Registration number")]
-        public string RegNbr { get; set; }
+        public string? RegNbr { get; set; }
 
         [Required(ErrorMessage = "Color is required.")]
         [StringLength(10, ErrorMessage = "Color name is too long.")]
         [Display(Name = "Color")]
-        public string Color { get; set; }
+        public string? Color { get; set; }
 
         [Required(ErrorMessage = "Brand is required.")]
         [StringLength(20, ErrorMessage = "Brand name is too long.")]
         [Display(Name = "Brand")]
-        public string Brand { get; set; }
+        public string? Brand { get; set; }
 
         [Required(ErrorMessage = "Model is required.")]
         [StringLength(10, ErrorMessage = "Model name is too long.")]
         [Display(Name = "Model")]
-        public string Model { get; set; }
+        public string? Model { get; set; }
 
         [Required(ErrorMessage = "Number of wheels is required.")]
         [Range(2, 10, ErrorMessage = "Number of wheels must be between 2 and 10.")]

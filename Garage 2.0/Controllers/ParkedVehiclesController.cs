@@ -20,23 +20,23 @@ public class ParkedVehiclesController : Controller
     // GET: PARKEDVEHICLES
     public async Task<IActionResult> Index()
     {
-    var vehicles = await _context.ParkedVehicle
-        .Select(v => new ParkedVehicleOverviewViewModel
-{
-        Id = v.Id,
-        VehicleType = v.VehicleType,
-        RegNbr = v.RegNbr,
-        Color = v.Color,
-        Brand = v.Brand,
-        Model = v.Model,
-        Wheels = v.Wheels,
-        Arrival = v.Arrival
+        var vehicles = await _context.ParkedVehicle
+            .Select(v => new ParkedVehicleOverviewViewModel
+            {
+                Id = v.Id,
+                VehicleType = v.VehicleType,
+                RegNbr = v.RegNbr,
+                Color = v.Color,
+                Brand = v.Brand,
+                Model = v.Model,
+                Wheels = v.Wheels,
+                Arrival = v.Arrival
 
-        })
-        .ToListAsync();
+            })
+            .ToListAsync();
 
-    return View(vehicles);
-}
+        return View(vehicles);
+    }
     // GET: PARKEDVEHICLES/Details/5
     public async Task<IActionResult> Details(int? id)
     {
@@ -106,8 +106,7 @@ public class ParkedVehiclesController : Controller
     {
         if (ModelState.IsValid)
         {
-
-            bool exists = _context.ParkedVehicle.Any(v => v.RegNbr.ToUpper() == ParkVehicleViewModel.RegNbr.ToUpper());
+            bool exists = _context.ParkedVehicle.Any(v => string.Equals(v.RegNbr, ParkVehicleViewModel.RegNbr, StringComparison.OrdinalIgnoreCase));
 
             if (exists)
             {
@@ -118,10 +117,10 @@ public class ParkedVehiclesController : Controller
             var parkedVehicle = new ParkedVehicle
             {
                 VehicleType = ParkVehicleViewModel.VehicleType,
-                RegNbr = ParkVehicleViewModel.RegNbr.ToUpper().Trim(),
-                Color = ParkVehicleViewModel.Color,
-                Brand = ParkVehicleViewModel.Brand,
-                Model = ParkVehicleViewModel.Model,
+                RegNbr = ParkVehicleViewModel.RegNbr?.ToUpper().Trim() ?? string.Empty,
+                Color = ParkVehicleViewModel.Color ?? string.Empty,
+                Brand = ParkVehicleViewModel.Brand ?? string.Empty,
+                Model = ParkVehicleViewModel.Model ?? string.Empty,
                 Wheels = ParkVehicleViewModel.Wheels,
                 Arrival = DateTime.Now
             };
@@ -149,15 +148,15 @@ public class ParkedVehiclesController : Controller
         }
 
         var parkedvehicle = await _context.ParkedVehicle.FindAsync(id);
-        
-            if (parkedvehicle == null)
-            {
-                TempData["ErrorMessage"] = $"Vehicle with ID {id} could not be found in the system.";
-                return RedirectToAction(nameof(Index));
+
+        if (parkedvehicle == null)
+        {
+            TempData["ErrorMessage"] = $"Vehicle with ID {id} could not be found in the system.";
+            return RedirectToAction(nameof(Index));
         }
 
         var viewModel = new ParkedVehicleEditViewModel
-         {
+        {
             Id = parkedvehicle.Id,
             VehicleType = parkedvehicle.VehicleType,
             RegNbr = parkedvehicle.RegNbr,
@@ -166,7 +165,7 @@ public class ParkedVehiclesController : Controller
             Model = parkedvehicle.Model,
             Wheels = parkedvehicle.Wheels,
             Arrival = parkedvehicle.Arrival
-         };
+        };
 
         return View(viewModel);
     }
@@ -262,7 +261,7 @@ public class ParkedVehiclesController : Controller
         return View(receiptViewModel);
     }
 
-    
+
 
     //GET: PARKEDVEHICLES/Receipt/5
     public async Task<IActionResult> Receipt()
