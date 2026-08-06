@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Garage_2._0.Migrations
+namespace Garage_3._0.Migrations
 {
     /// <inheritdoc />
     public partial class IsUnique : Migration

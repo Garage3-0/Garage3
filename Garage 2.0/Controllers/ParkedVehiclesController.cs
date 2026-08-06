@@ -1,6 +1,6 @@
 
-using Garage_2._0.Models;
-using Garage_2._0.Models.ViewModels;
+using Garage_3._0.Models;
+using Garage_3._0.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
