@@ -20,7 +20,7 @@ namespace Garage_3._0.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     VehicleType = table.Column<int>(type: "int", nullable: false),
-                    RegNbr = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    RegNbr = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Color = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     Brand = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Model = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
@@ -48,6 +48,12 @@ namespace Garage_3._0.Migrations
                     { 9, new DateTime(2026, 6, 28, 15, 45, 0, 0, DateTimeKind.Unspecified), "Volvo", "White", "AZ34", "JYT628", 2, 8 },
                     { 10, new DateTime(2026, 7, 8, 10, 18, 0, 0, DateTimeKind.Unspecified), "Toyota", "Red", "V30", "DER421", 1, 2 }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ParkedVehicle_RegNbr",
+                table: "ParkedVehicle",
+                column: "RegNbr",
+                unique: true);
         }
 
         /// <inheritdoc />

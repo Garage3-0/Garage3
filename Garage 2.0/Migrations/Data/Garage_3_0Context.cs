@@ -2,7 +2,7 @@ using Garage_3._0.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Drawing;
 
-public class Garage_2_0Context(DbContextOptions<Garage_2_0Context> options) : DbContext(options)
+public class Garage_3_0Context(DbContextOptions<Garage_3_0Context> options) : DbContext(options)
 {
     public DbSet<ParkedVehicle> ParkedVehicle { get; set; } = default!;
 

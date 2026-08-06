@@ -10,9 +10,9 @@ public class ParkedVehiclesController : Controller
 {
     const int pricePerHour = 10;
 
-    private readonly Garage_2_0Context _context;
+    private readonly Garage_3_0Context _context;
 
-    public ParkedVehiclesController(Garage_2_0Context context)
+    public ParkedVehiclesController(Garage_3_0Context context)
     {
         _context = context;
     }

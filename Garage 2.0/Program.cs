@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("Garage_2_0Context") ?? throw new InvalidOperationException("Connection string 'Garage_2_0Context' not found.");
+var connectionString = builder.Configuration.GetConnectionString("Garage_3_0Context") ?? throw new InvalidOperationException("Connection string 'Garage_3_0Context' not found.");
 
-builder.Services.AddDbContext<Garage_2_0Context>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<Garage_3_0Context>(options => options.UseSqlServer(connectionString));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -19,7 +19,7 @@ if (!app.Environment.IsDevelopment())
 
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<Garage_2_0Context>();
+    var db = scope.ServiceProvider.GetRequiredService<Garage_3_0Context>();
     db.Database.Migrate();
 }
 
