@@ -3,8 +3,6 @@ using Garage_2._0.Models;
 using Garage_2._0.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Garage_2._0.Models;
-using Garage_2._0.ViewModels;
 using System.Text;
 using System.Text.Json;
 
