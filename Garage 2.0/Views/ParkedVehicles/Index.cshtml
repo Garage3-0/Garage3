@@ -14,15 +14,14 @@
     </div>
 }
 
-    <!-- Display error message if the user tries to access a non-existing vehicle ID -->
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["ErrorMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
+<!-- Display error message if the user tries to access a non-existing vehicle ID -->
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
 <p>
     <a asp-action="Create" class="btn btn-primary">Park New Vehicle</a>

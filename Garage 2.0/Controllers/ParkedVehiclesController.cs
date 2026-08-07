@@ -268,10 +268,18 @@ public class ParkedVehiclesController : Controller
     public async Task<IActionResult> Receipt()
     {
         //  Gets time and price info via TempData
-        var tmp = TempData["receipt"] as string ?? "";
-        ReceiptViewModel? receiptViewModel = JsonSerializer.Deserialize<ReceiptViewModel>(tmp);
+        var tmp = TempData["receipt"] as string ?? "";  // Bad spelling
+        if (!string.IsNullOrWhiteSpace(tmp))
+        {
+            ReceiptViewModel? receiptViewModel = JsonSerializer.Deserialize<ReceiptViewModel>(tmp);
+            return View(receiptViewModel);
+        }
 
-        return View(receiptViewModel);
+        // If error...
+        TempData["Success"] = null;  // Remove success text
+        TempData["ErrorMessage"] = "Technical error - failed to show receipt!";
+
+        return RedirectToAction(nameof(Index));
     }
 
     // POST: PARKEDVEHICLES/Receipt/5
