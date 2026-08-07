@@ -106,7 +106,8 @@ public class ParkedVehiclesController : Controller
     {
         if (ModelState.IsValid)
         {
-            bool exists = _context.ParkedVehicle.Any(v => string.Equals(v.RegNbr, ParkVehicleViewModel.RegNbr, StringComparison.OrdinalIgnoreCase));
+            bool exists = _context.ParkedVehicle.Any(v => v.RegNbr == ParkVehicleViewModel.RegNbr);
+
 
             if (exists)
             {
