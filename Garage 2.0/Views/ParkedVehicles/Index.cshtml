@@ -30,7 +30,7 @@
 
 <!-- SEARCH -->
 
-<form asp-controller="ParkedVehicles" asp-action="Search" method="get" class="form-inline mb-3">
+<form asp-controller="ParkedVehicles" asp-action="Index" method="get" class="form-inline mb-3">
     <div class="input-group">
         <input type="text" 
                name="searchRegNbr" 
@@ -46,7 +46,7 @@
             @if (!string.IsNullOrEmpty(ViewData["CurrentFilter"]?.ToString()))
             {
                 <!-- Exit to clear search and view all vehicles -->
-                <a asp-action="Search"
+                <a asp-action="Index"
                 class="btn btn-outline-secondary" 
                 title="Clear search">&times;</a>
             }
@@ -56,11 +56,35 @@
     </div>
 </form>
 
+@if (ViewData["Exists"] != null)
+{
+    if (ViewData["Exists"] as bool? == true)
+    {
+        <div class="alert alert-success mt-3" role="alert">
+            <strong>Hit!</strong> Vehicle(s) with registration number <strong>@ViewData["CurrentFilter"]</strong> is displayed below.
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning mt-3" role="alert">
+            <strong>No hit!</strong> Registration number <strong>@ViewData["CurrentFilter"]</strong> does not exist. Full list of vehicles is displayed instead.
+        </div>
+    }
+}
+
 <table class="table">
     <thead>
         <tr>
             <th>Vehicle Type</th>
             <th>Registration Number</th>
+
+            @if (!string.IsNullOrEmpty(currentSearch))
+            {
+                <th>Brand</th>
+                <th>Model</th>
+                <th>Color</th>
+                <th>Wheels</th>
+            }
             <th>Arrival Time</th>
             <th>Actions</th>
         </tr>
@@ -74,18 +98,21 @@
             <td>
                 @Html.DisplayFor(model => item.RegNbr)
             </td>
-            @* <td>
-                @Html.DisplayFor(model => item.Color)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Brand)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Model)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Wheels)
-            </td> *@
+                @if (!string.IsNullOrEmpty(currentSearch))
+                {
+                    <td>
+                        @Html.DisplayFor(model => item.Brand)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => item.Model)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => item.Color)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => item.Wheels)
+                    </td>
+                }
             <td>
                 @Html.DisplayFor(model => item.Arrival)
             </td>
