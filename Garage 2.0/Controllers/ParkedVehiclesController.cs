@@ -106,7 +106,7 @@ public class ParkedVehiclesController : Controller
     {
         if (ModelState.IsValid)
         {
-            bool exists = _context.ParkedVehicle.Any(v => string.Equals(v.RegNbr, ParkVehicleViewModel.RegNbr, StringComparison.OrdinalIgnoreCase));
+            bool exists = _context.ParkedVehicle.Any(v => v.RegNbr == ParkVehicleViewModel.RegNbr);
 
             if (exists)
             {
@@ -262,7 +262,6 @@ public class ParkedVehiclesController : Controller
     }
 
 
-
     //GET: PARKEDVEHICLES/Receipt/5
     public async Task<IActionResult> Receipt()
     {
@@ -270,13 +269,20 @@ public class ParkedVehiclesController : Controller
         var tmp = TempData["receipt"] as string ?? "";  // Bad spelling
         if (!string.IsNullOrWhiteSpace(tmp))
         {
-            ReceiptViewModel? receiptViewModel = JsonSerializer.Deserialize<ReceiptViewModel>(tmp);
-            return View(receiptViewModel);
+            try
+            {
+                ReceiptViewModel? receiptViewModel = JsonSerializer.Deserialize<ReceiptViewModel>(tmp);
+                return View(receiptViewModel);
+            }
+            catch (Exception ex)
+            {
+                // Error...
+            }
         }
 
         // If error...
         TempData["Success"] = null;  // Remove success text
-        TempData["ErrorMessage"] = "Technical error - failed to show receipt!";
+        TempData["ErrorMessage"] = "Technical error - the vehicle is checked out but we failed to show receipt!";
 
         return RedirectToAction(nameof(Index));
     }
