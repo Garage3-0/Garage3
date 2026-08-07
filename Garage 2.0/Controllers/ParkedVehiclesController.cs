@@ -63,19 +63,19 @@ public class ParkedVehiclesController : Controller
         bool? exists = null;
 
         // IF the user has written something in the search field
-        if (!string.IsNullOrEmpty(searchRegNbr))
+        if (!string.IsNullOrWhiteSpace(searchRegNbr))
         {
             searchRegNbr = searchRegNbr.Trim().ToUpper();
             ViewData["CurrentFilter"] = searchRegNbr; // Saves the text in the search field
 
-            // Does the exact reg number exist?
-            exists = _context.ParkedVehicle.Any(v => v.RegNbr != null && v.RegNbr.ToUpper().Contains(searchRegNbr));
+            // Does the reg number or partial reg number exist?
+            exists = await _context.ParkedVehicle.AnyAsync(v => v.RegNbr != null && v.RegNbr.Contains(searchRegNbr));
             ViewData["Exists"] = exists;
 
             // If yes, filter. If not, show the full list.
             if (exists == true)
             {
-                vehiclesQuery = vehiclesQuery.Where(v => v.RegNbr != null && v.RegNbr.ToUpper().Contains(searchRegNbr));
+                vehiclesQuery = vehiclesQuery.Where(v => v.RegNbr != null && v.RegNbr.Contains(searchRegNbr));
             }
         }
 
