@@ -18,10 +18,27 @@ public class ParkedVehiclesController : Controller
     }
 
     // GET: PARKEDVEHICLES
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string searchRegNbr)
     {
-        var vehicles = await _context.ParkedVehicle
-            .Select(v => new ParkedVehicleOverviewViewModel
+        ViewData["CurrentFilter"] = searchRegNbr;
+
+        var vehicles = _context.ParkedVehicle.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(searchRegNbr))
+        {
+            var searchResults = vehicles.Where(v => v.RegNbr.Contains(searchRegNbr));
+
+            if (searchResults.Any())
+            {
+                ViewData["Exists"] = true;
+                vehicles = searchResults;
+            }
+            else
+            {
+                ViewData["Exists"] = false;
+            }
+        }
+            var model = await vehicles.Select(v => new ParkedVehicleOverviewViewModel
             {
                 Id = v.Id,
                 VehicleType = v.VehicleType,
@@ -35,7 +52,7 @@ public class ParkedVehiclesController : Controller
             })
             .ToListAsync();
 
-        return View(vehicles);
+        return View(model);
     }
     // GET: PARKEDVEHICLES/Details/5
     public async Task<IActionResult> Details(int? id)
@@ -54,42 +71,6 @@ public class ParkedVehiclesController : Controller
 
         return View(parkedvehicle);
     }
-
-    // GET: PARKEDVEHICLES/Search (IndexWithViewModel)
-    public async Task<IActionResult> Search(string searchRegNbr)
-    {
-        // Starting point: all vehicles in the database
-        var vehiclesQuery = _context.ParkedVehicle.AsQueryable();
-        bool? exists = null;
-
-        // IF the user has written something in the search field
-        if (!string.IsNullOrEmpty(searchRegNbr))
-        {
-            searchRegNbr = searchRegNbr.Trim().ToUpper();
-            ViewData["CurrentFilter"] = searchRegNbr; // Saves the text in the search field
-
-            // Does the exact reg number exist?
-            exists = _context.ParkedVehicle.Any(v => v.RegNbr != null && v.RegNbr.ToUpper().Contains(searchRegNbr));
-            ViewData["Exists"] = exists;
-
-            // If yes, filter. If not, show the full list.
-            if (exists == true)
-            {
-                vehiclesQuery = vehiclesQuery.Where(v => v.RegNbr != null && v.RegNbr.ToUpper().Contains(searchRegNbr));
-            }
-        }
-
-        // 3. Package the vehicles in the ViewModel that your view is actually using (VehiclesViewModel)
-        var model = new VehiclesViewModel // Creates an instance (container) to store and send vehicles back to view
-        {
-            ParkedVehicles = await vehiclesQuery.ToListAsync<ParkedVehicle>()
-        };
-
-        // 4. Returnera vyn
-        return View(model);
-    }
-
-
 
     // GET: PARKEDVEHICLES/Create
     public IActionResult Create()
