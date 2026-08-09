@@ -1,10 +1,12 @@
-﻿namespace Garage_3._0.Models
-{
-        public enum VehicleType
+﻿using System.ComponentModel.DataAnnotations;
 
-        {
-            Car,
-            Motorcycle,
-            Bus,
-        }
+namespace Garage_3._0.Models
+{
+    public enum VehicleTypes
+
+    {
+        Car,
+        Motorcycle,
+        Bus,
     }
+}
