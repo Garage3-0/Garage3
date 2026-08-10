@@ -1,0 +1,17 @@
+﻿@model ReceiptViewModel
+
+<h1>Receipt</h1>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+<div>
+    <hr />
+    <h4 class="mb-3">Receipt for parking of vehicle - @Model.RegNbr</h4>
+    <partial name="_TimePricePartial" />
+    <a asp-action="Index">Back to List</a>
+</div>
+
+
