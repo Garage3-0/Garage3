@@ -1,6 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Garage3.Models;
+using System.ComponentModel.DataAnnotations;
 
-namespace Garage_3._0.Models.ViewModels
+namespace Garage3.Models.ViewModels
 {
     public class ParkVehicleViewModel
     {
