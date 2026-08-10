@@ -6,7 +6,7 @@ var connectionString = builder.Configuration.GetConnectionString("Garage_3_0Cont
 
 builder.Services.AddDbContext<GarageContext>(options => options.UseSqlServer(connectionString));
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<GarageContext>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -39,5 +39,7 @@ app.MapControllerRoute(
     pattern: "{controller=ParkedVehicles}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+app.MapRazorPages()
+    .WithStaticAssets();
 
 app.Run();
