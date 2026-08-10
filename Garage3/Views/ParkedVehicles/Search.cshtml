@@ -1,0 +1,99 @@
+﻿@model VehiclesViewModel
+
+@{
+    ViewData["Title"] = "Search";
+    string currentSearch = ViewData["CurrentFilter"]?.ToString() ?? "";
+}
+
+<h1>Search</h1>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+<form asp-action="Search" method="get" class="form-inline mb-3">
+    <div class="input-group">
+        <input type="text"
+               name="searchRegNbr"
+               value="@currentSearch"
+               class="form-control"
+               placeholder="Filter by registration number"
+                required 
+                oninvalid="this.setCustomValidity('You need to enter a registration number.')"
+                oninput="this.setCustomValidity('')" />
+
+        <div class="input-group-append">
+            @if (!string.IsNullOrEmpty(ViewData["CurrentFilter"]?.ToString()))
+            {
+                <!-- Exit to clear search and view all vehicles -->
+                <a asp-action="Search"
+                   class="btn btn-outline-secondary"
+                   title="Clear search">&times;</a>
+            }
+            <button type="submit"
+                    class="btn btn-primary">
+                Search
+            </button>
+        </div>
+    </div>
+</form>
+
+<!-- Messages based on search -->
+@if (ViewData["Exists"] != null)
+{
+    if ((bool)ViewData["Exists"] == true)
+    {
+        <div class="alert alert-success mt-3" role="alert">
+            <strong>Hit!</strong> Vehicle(s) with registration number <strong>@ViewData["CurrentFilter"]</strong> is displayed below.
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning mt-3" role="alert">
+            <strong>No hit!</strong> Registration number <strong>@ViewData["CurrentFilter"]</strong> does not exist. Full list of vehicles is displayed instead.
+        </div>
+    }
+}
+
+<!-- Table that draws vehicles from my VehiclesViewModel -->
+<table class="table table-striped mt-3">
+    <thead>
+        <tr>
+            <th>Vehicle Type</th>
+            <th>Registration Number</th>
+            <th>Brand</th>
+            <th>Model</th>
+            <th>Color</th>
+            <th>Wheels</th>
+            <th>Arrival</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.ParkedVehicles)
+        {
+            <tr>
+                <td>@item.VehicleType</td>
+                <td>@item.RegNbr</td>
+                <td>@item.Brand</td>
+                <td>@item.Model</td>
+                <td>@item.Color</td>
+                <td>@item.Wheels</td>
+                <td>@item.Arrival</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Checkout" asp-route-id="@item.Id">Checkout</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
