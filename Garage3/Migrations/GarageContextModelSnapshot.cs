@@ -87,7 +87,7 @@ namespace Garage3.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Garage_3._0.Models.ParkedVehicle", b =>
+            modelBuilder.Entity("Garage3.Models.ParkedVehicle", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -243,6 +243,168 @@ namespace Garage3.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Garage3.Models.ParkingSpot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsOutOfService")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Number")
+                        .IsUnique();
+
+                    b.ToTable("ParkingSpots");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            IsOutOfService = false,
+                            Location = "",
+                            Number = 100
+                        },
+                        new
+                        {
+                            Id = 2,
+                            IsOutOfService = false,
+                            Location = "",
+                            Number = 101
+                        },
+                        new
+                        {
+                            Id = 3,
+                            IsOutOfService = false,
+                            Location = "",
+                            Number = 102
+                        });
+                });
+
+            modelBuilder.Entity("Garage3.Models.Vehicle", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Brand")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("NumberOfWheels")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RegistrationNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("VehicleTypeNewId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RegistrationNumber")
+                        .IsUnique();
+
+                    b.HasIndex("VehicleTypeNewId");
+
+                    b.ToTable("Vehicles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Brand = "Alfa Romeo",
+                            Color = "Blue",
+                            Model = "X99",
+                            NumberOfWheels = 4,
+                            RegistrationNumber = "AAA111",
+                            VehicleTypeNewId = 2
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Brand = "Ford",
+                            Color = "Blue",
+                            Model = "Fiesta",
+                            NumberOfWheels = 4,
+                            RegistrationNumber = "BBB222",
+                            VehicleTypeNewId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Brand = "Honda",
+                            Color = "Red",
+                            Model = "CBX750",
+                            NumberOfWheels = 2,
+                            RegistrationNumber = "CCC333",
+                            VehicleTypeNewId = 3
+                        });
+                });
+
+            modelBuilder.Entity("Garage3.Models.VehicleTypeNew", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("VehicleTypeNew");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Bus"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Car"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Motorcycle"
+                        });
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -378,6 +540,17 @@ namespace Garage3.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("Garage3.Models.Vehicle", b =>
+                {
+                    b.HasOne("Garage3.Models.VehicleTypeNew", "VehicleTypeNew")
+                        .WithMany()
+                        .HasForeignKey("VehicleTypeNewId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("VehicleTypeNew");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
