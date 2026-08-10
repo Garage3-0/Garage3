@@ -9,7 +9,7 @@ namespace Garage_3._0.Models
     {
         public int Id { get; set; }
 
-        public required VehicleType VehicleType { get; set; }
+        public required VehicleTypes VehicleTypes { get; set; }
 
         public required string RegNbr {  get; set; }
 

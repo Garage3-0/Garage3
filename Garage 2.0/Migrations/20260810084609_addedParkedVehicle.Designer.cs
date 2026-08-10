@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Garage_3._0.Migrations
 {
     [DbContext(typeof(Garage_3_0Context))]
-    [Migration("20260810070117_SeedVehicleParkings")]
-    partial class SeedVehicleParkings
+    [Migration("20260810084609_addedParkedVehicle")]
+    partial class addedParkedVehicle
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -52,9 +52,9 @@ namespace Garage_3._0.Migrations
 
                     b.Property<string>("RegNbr")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("VehicleTypeId")
+                    b.Property<int>("VehicleTypes")
                         .HasColumnType("int");
 
                     b.Property<int>("Wheels")
@@ -62,9 +62,122 @@ namespace Garage_3._0.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("VehicleTypeId");
+                    b.HasIndex("RegNbr")
+                        .IsUnique();
 
                     b.ToTable("ParkedVehicle");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Arrival = new DateTime(2026, 7, 6, 10, 59, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Volvo",
+                            Color = "Red",
+                            Model = "V60",
+                            RegNbr = "ABC123",
+                            VehicleTypes = 0,
+                            Wheels = 4
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Arrival = new DateTime(2026, 7, 4, 11, 59, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Toyota",
+                            Color = "Blue",
+                            Model = "A50",
+                            RegNbr = "BGD567",
+                            VehicleTypes = 1,
+                            Wheels = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Arrival = new DateTime(2026, 6, 5, 9, 10, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Saab",
+                            Color = "Yellow",
+                            Model = "H88",
+                            RegNbr = "KLI908",
+                            VehicleTypes = 2,
+                            Wheels = 10
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Arrival = new DateTime(2026, 7, 8, 18, 0, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Toyota",
+                            Color = "Black",
+                            Model = "X76",
+                            RegNbr = "TRE654",
+                            VehicleTypes = 1,
+                            Wheels = 2
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Arrival = new DateTime(2026, 7, 1, 10, 45, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Saab",
+                            Color = "Blue",
+                            Model = "C50",
+                            RegNbr = "DUN584",
+                            VehicleTypes = 0,
+                            Wheels = 4
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Arrival = new DateTime(2026, 6, 28, 14, 50, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Volvo",
+                            Color = "White",
+                            Model = "BG70",
+                            RegNbr = "PLG327",
+                            VehicleTypes = 2,
+                            Wheels = 10
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Arrival = new DateTime(2026, 6, 30, 16, 25, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Mazda",
+                            Color = "Black",
+                            Model = "BT50",
+                            RegNbr = "NJG968",
+                            VehicleTypes = 0,
+                            Wheels = 4
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Arrival = new DateTime(2026, 7, 6, 11, 18, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Toyota",
+                            Color = "White",
+                            Model = "A50",
+                            RegNbr = "RFM596",
+                            VehicleTypes = 0,
+                            Wheels = 4
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Arrival = new DateTime(2026, 6, 28, 15, 45, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Volvo",
+                            Color = "White",
+                            Model = "AZ34",
+                            RegNbr = "JYT628",
+                            VehicleTypes = 2,
+                            Wheels = 8
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Arrival = new DateTime(2026, 7, 8, 10, 18, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Toyota",
+                            Color = "Red",
+                            Model = "V30",
+                            RegNbr = "DER421",
+                            VehicleTypes = 1,
+                            Wheels = 2
+                        });
                 });
 
             modelBuilder.Entity("Garage_3._0.Models.ParkingSpot", b =>
@@ -209,7 +322,7 @@ namespace Garage_3._0.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("VehicleTypes");
+                    b.ToTable("VehicleType");
 
                     b.HasData(
                         new
@@ -227,17 +340,6 @@ namespace Garage_3._0.Migrations
                             Id = 3,
                             Name = "Motorcycle"
                         });
-                });
-
-            modelBuilder.Entity("Garage_3._0.Models.ParkedVehicle", b =>
-                {
-                    b.HasOne("Garage_3._0.Models.VehicleType", "VehicleType")
-                        .WithMany()
-                        .HasForeignKey("VehicleTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("VehicleType");
                 });
 
             modelBuilder.Entity("Garage_3._0.Models.Vehicle", b =>
