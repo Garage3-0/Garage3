@@ -3,6 +3,8 @@ using Garage3.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
+namespace Garage3.Data;
+
 public class GarageContext(DbContextOptions<GarageContext> options) : IdentityDbContext<ApplicationUser>(options)
 {
     public DbSet<ParkedVehicle> ParkedVehicle { get; set; } = default!;
