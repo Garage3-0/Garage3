@@ -1,7 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.Runtime.CompilerServices;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Garage_3._0.Models
 {
@@ -11,7 +8,7 @@ namespace Garage_3._0.Models
 
         public required VehicleType VehicleType { get; set; }
 
-        public required string RegNbr {  get; set; }
+        public required string RegNbr { get; set; }
 
         [StringLength(10)]
         public required string Color { get; set; }

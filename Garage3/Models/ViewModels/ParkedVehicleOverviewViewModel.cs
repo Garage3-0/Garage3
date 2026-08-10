@@ -1,5 +1,3 @@
-using Garage_3._0.Models;
-
 namespace Garage_3._0.Models.ViewModels
 {
     public class ParkedVehicleOverviewViewModel

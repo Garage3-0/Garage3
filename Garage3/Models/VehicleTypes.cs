@@ -1,10 +1,10 @@
 ﻿namespace Garage_3._0.Models
 {
-        public enum VehicleType
+    public enum VehicleType
 
-        {
-            Car,
-            Motorcycle,
-            Bus,
-        }
+    {
+        Car,
+        Motorcycle,
+        Bus,
     }
+}

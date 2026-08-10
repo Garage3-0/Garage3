@@ -2,7 +2,6 @@ using Garage_3._0.Models;
 using Garage3.Data;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Drawing;
 
 public class GarageContext(DbContextOptions<GarageContext> options) : IdentityDbContext<ApplicationUser>(options)
 {
@@ -22,7 +21,7 @@ public class GarageContext(DbContextOptions<GarageContext> options) : IdentityDb
                 Brand = "Volvo",
                 Model = "V60",
                 Wheels = 4,
-                Arrival = new DateTime(2026,7,6, 10,59,00),
+                Arrival = new DateTime(2026, 7, 6, 10, 59, 00),
             },
 
             new ParkedVehicle()

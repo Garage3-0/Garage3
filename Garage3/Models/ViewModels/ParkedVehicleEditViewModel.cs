@@ -27,7 +27,7 @@ namespace Garage_3._0.Models.ViewModels
 
         [Range(2, 10, ErrorMessage = "Number of wheels must be between 2 and 10.")]
         public int Wheels { get; set; }
-        
+
         public DateTime Arrival { get; set; }
     }
 }

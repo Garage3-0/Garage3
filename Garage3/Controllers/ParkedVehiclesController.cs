@@ -3,7 +3,6 @@ using Garage_3._0.Models;
 using Garage_3._0.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Text;
 using System.Text.Json;
 
 public class ParkedVehiclesController : Controller
@@ -38,19 +37,19 @@ public class ParkedVehiclesController : Controller
                 ViewData["Exists"] = false;
             }
         }
-            var model = await vehicles.Select(v => new ParkedVehicleOverviewViewModel
-            {
-                Id = v.Id,
-                VehicleType = v.VehicleType,
-                RegNbr = v.RegNbr,
-                Color = v.Color,
-                Brand = v.Brand,
-                Model = v.Model,
-                Wheels = v.Wheels,
-                Arrival = v.Arrival
+        var model = await vehicles.Select(v => new ParkedVehicleOverviewViewModel
+        {
+            Id = v.Id,
+            VehicleType = v.VehicleType,
+            RegNbr = v.RegNbr,
+            Color = v.Color,
+            Brand = v.Brand,
+            Model = v.Model,
+            Wheels = v.Wheels,
+            Arrival = v.Arrival
 
-            })
-            .ToListAsync();
+        })
+        .ToListAsync();
 
         return View(model);
     }
