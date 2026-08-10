@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -7,7 +8,7 @@
 namespace Garage_3._0.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class SeedVehicleParkings : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -38,6 +39,31 @@ namespace Garage_3._0.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_VehicleTypes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ParkedVehicle",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    VehicleTypeId = table.Column<int>(type: "int", nullable: false),
+                    RegNbr = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Color = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    Brand = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Model = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    Wheels = table.Column<int>(type: "int", nullable: false),
+                    Arrival = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ParkedVehicle", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ParkedVehicle_VehicleTypes_VehicleTypeId",
+                        column: x => x.VehicleTypeId,
+                        principalTable: "VehicleTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -95,6 +121,11 @@ namespace Garage_3._0.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_ParkedVehicle_VehicleTypeId",
+                table: "ParkedVehicle",
+                column: "VehicleTypeId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ParkingSpots_Number",
                 table: "ParkingSpots",
                 column: "Number",
@@ -121,6 +152,9 @@ namespace Garage_3._0.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ParkedVehicle");
+
             migrationBuilder.DropTable(
                 name: "ParkingSpots");
 

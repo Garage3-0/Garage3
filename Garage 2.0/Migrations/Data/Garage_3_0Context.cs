@@ -8,7 +8,9 @@ public class Garage_3_0Context(DbContextOptions<Garage_3_0Context> options) : Db
     public DbSet<VehicleType> VehicleTypes { get; set; }  // = default!;
     public DbSet<Vehicle> Vehicles { get; set; }  // = default!;
     public DbSet<ParkingSpot> ParkingSpots { get; set; }  // = default!;
-    //public DbSet<ParkingSession> ParkingSessions { get; set; }  // = default!;
+
+        // TODO: ERROR - Update-database complains for some "NOT" when running code
+        // public DbSet<ParkingSession> ParkingSessions { get; set; }  // = default!;
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -99,7 +101,7 @@ public class Garage_3_0Context(DbContextOptions<Garage_3_0Context> options) : Db
             }
             );
 
-        // Seed ParkingSpots
+        // Seed ParkingSession
         // TODO - seed with loop
         //base.OnModelCreating(modelBuilder);
         //modelBuilder.Entity<ParkingSession>().HasData(
