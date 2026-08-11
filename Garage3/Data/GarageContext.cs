@@ -146,7 +146,7 @@ public class GarageContext(DbContextOptions<GarageContext> options)
 
 
         // Seed VehicleTypes
-        // ToDo - change VehicleTypes to VehicleType - temporary name conflict
+        // TODO - change VehicleTypes to VehicleType - temporary name conflict
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<VehicleTypeNew>().HasIndex(v => v.Name).IsUnique();
         modelBuilder.Entity<VehicleTypeNew>().HasData(

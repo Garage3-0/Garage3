@@ -23,19 +23,17 @@ namespace Garage3.Models
 
 
         // TODO - change name to VehicleType when old VehicleType-model is removed
-        // Required foreign key property
         public required int VehicleTypeNewId { get; set; }
 
         // Required reference navigation to principal
         public VehicleTypeNew VehicleTypeNew { get; set; } = null!;
 
-        // We might need a collection for simplier access to parking sessions
         public ICollection<ParkingSession> ParkingSessions { get; } = new List<ParkingSession>();
 
-        //=== Add ApplicationUser ===
-        // TODO - Must set owner in Context Seed data
-        //public string OwnerId { get; set; }
-        //public required string ApplicationUser { get; set; }
+      
+        // TODO - add ApplicationUser 
+        //public required string ApplicationUserId { get; set; }
+        //public ApplicationUser? ApplicationUser { get; set; }  // TODO required !!!
 
     }
 }
