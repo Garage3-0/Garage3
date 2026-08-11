@@ -26,4 +26,41 @@ public static class DbInitializer
             }
         }
     }
+
+    public static async Task SeedAdminAsync(IServiceProvider serviceProvider)
+    {
+        var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+        const string adminEmail = "admin@garage3.local";
+        const string adminPassword = "Admin123!";
+
+        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+
+        if (adminUser == null)
+        {
+            adminUser = new ApplicationUser
+            {
+                UserName = adminEmail,
+                Email = adminEmail,
+                EmailConfirmed = true,
+            };
+
+            var result = await userManager.CreateAsync(
+                adminUser,
+                adminPassword);
+
+            if (!result.Succeeded)
+            {
+                throw new Exception(
+                    $"Failed to create admin user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+            }
+        }
+
+        if (!await userManager.IsInRoleAsync(adminUser, Roles.Admin))
+        {
+            await userManager.AddToRoleAsync(
+                adminUser,
+                Roles.Admin);
+        }
+    }
 }

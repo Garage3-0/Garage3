@@ -13,13 +13,6 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-
-    await DbInitializer.SeedRolesAsync(services);
-}
-
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -30,8 +23,13 @@ if (!app.Environment.IsDevelopment())
 
 using (var scope = app.Services.CreateScope())
 {
+    var services = scope.ServiceProvider;
+
     var db = scope.ServiceProvider.GetRequiredService<GarageContext>();
     db.Database.Migrate();
+
+    await DbInitializer.SeedRolesAsync(services);
+    await DbInitializer.SeedAdminAsync(services);
 }
 
 app.UseHttpsRedirection();
