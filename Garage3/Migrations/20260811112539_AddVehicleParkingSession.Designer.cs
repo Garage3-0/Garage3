@@ -4,6 +4,7 @@ using Garage3.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Garage3.Migrations
 {
     [DbContext(typeof(GarageContext))]
-    partial class GarageContextModelSnapshot : ModelSnapshot
+    [Migration("20260811112539_AddVehicleParkingSession")]
+    partial class AddVehicleParkingSession
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -288,32 +291,6 @@ namespace Garage3.Migrations
                     b.HasIndex("VehicleId");
 
                     b.ToTable("ParkingSession");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CheckInTime = new DateTime(2026, 8, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            HourlyRateAtCheckin = 9.9m,
-                            ParkingSpotId = 1,
-                            VehicleId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CheckInTime = new DateTime(2026, 8, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            HourlyRateAtCheckin = 9.9m,
-                            ParkingSpotId = 2,
-                            VehicleId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CheckInTime = new DateTime(2026, 8, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            HourlyRateAtCheckin = 9.9m,
-                            ParkingSpotId = 3,
-                            VehicleId = 3
-                        });
                 });
 
             modelBuilder.Entity("Garage3.Models.ParkingSpot", b =>

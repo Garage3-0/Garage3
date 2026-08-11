@@ -234,33 +234,33 @@ public class GarageContext(DbContextOptions<GarageContext> options)
 
         // Seed ParkingSession
         // TODO - this gives error on update-database!
-        //base.OnModelCreating(modelBuilder);
-        //modelBuilder.Entity<ParkingSession>().HasData(
-        //    new ParkingSession()
-        //    {
-        //        Id = 1,
-        //        VehicleId = 1,
-        //        ParkingSpotId = 1,
-        //        CheckInTime = new DateTime(2026, 8, 1),
-        //        HourlyRateAtCheckin = 9.9m
-        //    },
-        //    new ParkingSession()
-        //    {
-        //        Id = 2,
-        //        VehicleId = 2,
-        //        ParkingSpotId = 2,
-        //        CheckInTime = new DateTime(2026, 8, 2),
-        //        HourlyRateAtCheckin = 9.9m
-        //    },
-        //    new ParkingSession()
-        //    {
-        //        Id = 3,
-        //        VehicleId = 3,
-        //        ParkingSpotId = 3,
-        //        CheckInTime = new DateTime(2026, 8, 3),
-        //        HourlyRateAtCheckin = 9.9m
-        //    }
-        //    );
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<ParkingSession>().HasData(
+            new ParkingSession()
+            {
+                Id = 1,
+                VehicleId = 1,
+                ParkingSpotId = 1,
+                CheckInTime = new DateTime(2026, 8, 1),
+                HourlyRateAtCheckin = 9.9m
+            },
+            new ParkingSession()
+            {
+                Id = 2,
+                VehicleId = 2,
+                ParkingSpotId = 2,
+                CheckInTime = new DateTime(2026, 8, 2),
+                HourlyRateAtCheckin = 9.9m
+            },
+            new ParkingSession()
+            {
+                Id = 3,
+                VehicleId = 3,
+                ParkingSpotId = 3,
+                CheckInTime = new DateTime(2026, 8, 3),
+                HourlyRateAtCheckin = 9.9m
+            }
+            );
 
     }
 }

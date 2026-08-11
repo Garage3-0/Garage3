@@ -30,7 +30,7 @@ namespace Garage3.Models
         public VehicleTypeNew VehicleTypeNew { get; set; } = null!;
 
         // We might need a collection for simplier access to parking sessions
-        //public ICollection<ParkingSession> ParkingSessions { get; } = new List<ParkingSession>();
+        public ICollection<ParkingSession> ParkingSessions { get; } = new List<ParkingSession>();
 
         //=== Add ApplicationUser ===
         // TODO - Must set owner in Context Seed data
