@@ -143,29 +143,9 @@ public class GarageContext(DbContextOptions<GarageContext> options)
             }
             );
 
+   
 
-        // Seed VehicleTypes
-        // TODO - change VehicleTypes to VehicleType - temporary name conflict
-        base.OnModelCreating(modelBuilder);
-        modelBuilder.Entity<VehicleTypeNew>().HasIndex(v => v.Name).IsUnique();
-        modelBuilder.Entity<VehicleTypeNew>().HasData(
-            new VehicleTypeNew()
-            {
-                Id = 1,
-                Name = "Bus"
-            },
-            new VehicleTypeNew()
-            {
-                Id = 2,
-                Name = "Car"
-            },
-            new VehicleTypeNew()
-            {
-                Id = 3,
-                Name = "Motorcycle"
-            });
-
-        // Seed Vehicles
+        // Seed Vehicles + user + types
         // Todo - add OwnerId
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<Vehicle>().HasIndex(v => v.RegistrationNumber).IsUnique();
@@ -203,33 +183,7 @@ public class GarageContext(DbContextOptions<GarageContext> options)
                 VehicleTypeNewId = 3
                 // OwnerId = ???
             }
-            );
-
-        // Seed ParkingSpots
-        // TODO - seed with loop
-        // TODO - how many parking spots?
-        base.OnModelCreating(modelBuilder);
-        modelBuilder.Entity<ParkingSpot>().HasIndex(v => v.Number).IsUnique();
-        modelBuilder.Entity<ParkingSpot>().HasData(
-            new ParkingSpot()
-            {
-                Id = 1,
-                Number = 100,
-                Location = ""
-            },
-            new ParkingSpot()
-            {
-                Id = 2,
-                Number = 101,
-                Location = ""
-            },
-            new ParkingSpot()
-            {
-                Id = 3,
-                Number = 102,
-                Location = ""
-            }
-            );
+        );
 
         // Seed ParkingSession
         // TODO - this gives error on update-database!

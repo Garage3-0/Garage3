@@ -1,4 +1,5 @@
 ﻿using Garage3.Constants;
+using Garage3.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -70,12 +71,17 @@ public static class DbInitializer
         
     }
 
+
+
+
     //--------------------------------------------------------
     // (ApplicationDbContext _context, IServiceProvider services)
     public static async Task SeedParkingMembers(GarageContext context, IServiceProvider serviceProvider)
     {
-
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+
+        // IDictionary<string, int> dict = new Dictionary<string, int>(); ?
 
 
         var userMail = "u2@u.com";
@@ -92,11 +98,7 @@ public static class DbInitializer
                 UserName = "u2",
                 NormalizedUserName = "U1",
                 PersonalIdentityNumber = "1",
-                //PhoneNumber = "+111111111111",
                 EmailConfirmed = false
-                //,
-                //PhoneNumberConfirmed = true,
-                //SecurityStamp = Guid.NewGuid().ToString("D")
             };
 
             var res = await userManager.CreateAsync(
@@ -109,16 +111,54 @@ public static class DbInitializer
                     $"Failed to create user user: {string.Join(", ", res.Errors.Select(e => e.Description))}");
             }
 
-             if (!await userManager.IsInRoleAsync(user, Roles.Member))
+            if (!await userManager.IsInRoleAsync(user, Roles.Member))
             {
                 await userManager.AddToRoleAsync(
                     user,
                     Roles.Member);
             }
-            // AssignRoles(serviceProvider, user.Email, roles);
 
             await context.SaveChangesAsync();
         }
+    }
+
+    public static async Task SeedVehicleTypes(GarageContext context)
+    {
+        // Vehicle types
+        ICollection<string> typeList = ["Bus", "Car", "Motorcycle"];
+        
+        var types = await context.VehicleTypeNew.FirstOrDefaultAsync();
+
+        if (types == null)
+        {
+            foreach(string type in typeList)
+            {
+                var vt = new VehicleTypeNew() { Name = type };
+                context.Add(vt);
+                await context.SaveChangesAsync();
+            }
+        }
+    }
+
+    public static async Task SeedParkingSpots(GarageContext context)
+    {
+        var count = 3;
+
+        var parkingspot = await context.ParkingSpots.FirstOrDefaultAsync();
+
+        if (parkingspot == null)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                var spot = new ParkingSpot()
+                {
+                    Number = 100 + i,
+                    Location = ""
+                };
+                context.Add(spot);
+                await context.SaveChangesAsync();
+            }
+        }       
     }
 
     //public static async Task SeedParkingSessions(GarageContext garage, IServiceProvider serviceProvider)
