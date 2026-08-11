@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Garage3.Data;
 
-public class GarageContext(DbContextOptions<GarageContext> options) : IdentityDbContext<ApplicationUser>(options)
+public class GarageContext(DbContextOptions<GarageContext> options)
+    : IdentityDbContext<ApplicationUser>(options)
 {
     public DbSet<ParkedVehicle> ParkedVehicle { get; set; } = default!;
 

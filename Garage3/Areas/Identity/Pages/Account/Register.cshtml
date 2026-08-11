@@ -11,6 +11,29 @@
         <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
             <h2>Create a new account.</h2>
             <hr />
+            <div class="form-floating mb-3">
+    <input asp-for="Input.UserName" class="form-control" placeholder="Username" />
+    <label asp-for="Input.UserName">Username</label>
+    <span asp-validation-for="Input.UserName" class="text-danger"></span>
+</div>
+
+<div class="form-floating mb-3">
+    <input asp-for="Input.FirstName" class="form-control" placeholder="First name" />
+    <label asp-for="Input.FirstName">First name</label>
+    <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+</div>
+
+<div class="form-floating mb-3">
+    <input asp-for="Input.LastName" class="form-control" placeholder="Last name" />
+    <label asp-for="Input.LastName">Last name</label>
+    <span asp-validation-for="Input.LastName" class="text-danger"></span>
+</div>
+
+<div class="form-floating mb-3">
+    <input asp-for="Input.PersonalIdentityNumber" class="form-control" placeholder="Personal identity number" />
+    <label asp-for="Input.PersonalIdentityNumber">Personal identity number</label>
+    <span asp-validation-for="Input.PersonalIdentityNumber" class="text-danger"></span>
+</div>
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
