@@ -1,6 +1,7 @@
 using Garage3.Data;
 using Garage3.Models;
 using Garage3.Models.ViewModels;
+using Garage3.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
@@ -10,10 +11,12 @@ public class ParkedVehiclesController : Controller
     const int pricePerHour = 10;
 
     private readonly GarageContext _context;
+    private readonly IUniquenessValidator _uniquenessValidator;
 
-    public ParkedVehiclesController(GarageContext context)
+    public ParkedVehiclesController(GarageContext context, IUniquenessValidator uniquenessValidator)
     {
         _context = context;
+        _uniquenessValidator = uniquenessValidator;
     }
 
     // GET: PARKEDVEHICLES
@@ -86,9 +89,11 @@ public class ParkedVehiclesController : Controller
     {
         if (ModelState.IsValid)
         {
-            bool exists = _context.ParkedVehicle.Any(v => v.RegNbr == ParkVehicleViewModel.RegNbr);
+            var normalizedRegNbr = ParkVehicleViewModel.RegNbr?.Trim().ToUpper() ?? string.Empty;
 
-            if (exists)
+            bool isUnique = await _uniquenessValidator.IsRegNbrUniqueAsync(normalizedRegNbr);
+
+            if (!isUnique)
             {
                 ModelState.AddModelError("RegNbr", "Registration number already exists in the garage. There can only be one vehicle per registration number.");
                 return View(ParkVehicleViewModel);
@@ -97,7 +102,7 @@ public class ParkedVehiclesController : Controller
             var parkedVehicle = new ParkedVehicle
             {
                 VehicleType = ParkVehicleViewModel.VehicleType,
-                RegNbr = ParkVehicleViewModel.RegNbr?.ToUpper().Trim() ?? string.Empty,
+                RegNbr = normalizedRegNbr,
                 Color = ParkVehicleViewModel.Color ?? string.Empty,
                 Brand = ParkVehicleViewModel.Brand ?? string.Empty,
                 Model = ParkVehicleViewModel.Model ?? string.Empty,
@@ -110,13 +115,13 @@ public class ParkedVehiclesController : Controller
             TempData["Success"] = "Vehicle has been successfully parked!";
 
             return RedirectToAction(nameof(Index));
-
         }
 
-        TempData["Error"] = "Vehicle could not be parked!";
+            TempData["Error"] = "Vehicle could not be parked!";
 
-        return View(ParkVehicleViewModel);
-    }
+            return View(ParkVehicleViewModel);
+        }
+    
 
     // GET: PARKEDVEHICLES/Edit/5
     public async Task<IActionResult> Edit(int? id)
@@ -168,11 +173,12 @@ public class ParkedVehiclesController : Controller
         {
             try
             {
+                var normalizedRegNbr = viewModel.RegNbr.Trim().ToUpper() ?? string.Empty;
                 // Is there another vehicle that already has this reg number?
-                bool regNbrExists = await _context.ParkedVehicle
-                    .AnyAsync(v => v.RegNbr == viewModel.RegNbr && v.Id != viewModel.Id);
+                bool isUnique = await _uniquenessValidator
+                    .IsRegNbrUniqueAsync(viewModel.RegNbr, viewModel.Id);
 
-                if (regNbrExists)
+                if (!isUnique)
                 {
                     ModelState.AddModelError("RegNbr", "This registration number is already occupied by another parked vehicle.");
 
@@ -189,7 +195,7 @@ public class ParkedVehiclesController : Controller
                 }
 
                 parkedvehicle.VehicleType = viewModel.VehicleType!.Value;
-                parkedvehicle.RegNbr = viewModel.RegNbr;
+                parkedvehicle.RegNbr = normalizedRegNbr;
                 parkedvehicle.Color = viewModel.Color;
                 parkedvehicle.Brand = viewModel.Brand;
                 parkedvehicle.Model = viewModel.Model;

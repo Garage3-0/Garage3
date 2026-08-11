@@ -169,12 +169,12 @@ public class GarageContext(DbContextOptions<GarageContext> options)
         // Seed Vehicles
         // Todo - add OwnerId
         base.OnModelCreating(modelBuilder);
-        modelBuilder.Entity<Vehicle>().HasIndex(v => v.RegistrationNumber).IsUnique();
+        modelBuilder.Entity<Vehicle>().HasIndex(v => v.RegNbr).IsUnique();
         modelBuilder.Entity<Vehicle>().HasData(
             new Vehicle()
             {
                 Id = 1,
-                RegistrationNumber = "AAA111",
+                RegNbr = "AAA111",
                 Color = "Blue",
                 Brand = "Alfa Romeo",
                 Model = "X99",
@@ -185,7 +185,7 @@ public class GarageContext(DbContextOptions<GarageContext> options)
             new Vehicle()
             {
                 Id = 2,
-                RegistrationNumber = "BBB222",
+                RegNbr = "BBB222",
                 Color = "Blue",
                 Brand = "Ford",
                 Model = "Fiesta",
@@ -196,7 +196,7 @@ public class GarageContext(DbContextOptions<GarageContext> options)
             new Vehicle()
             {
                 Id = 3,
-                RegistrationNumber = "CCC333",
+                RegNbr = "CCC333",
                 Color = "Red",
                 Brand = "Honda",
                 Model = "CBX750",

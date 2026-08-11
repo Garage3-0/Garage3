@@ -1,9 +1,12 @@
 using Garage3.Data;
+using Garage3.Services;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Garage_3_0Context") ?? throw new InvalidOperationException("Connection string 'Garage_3_0Context' not found.");
 
 builder.Services.AddDbContext<GarageContext>(options => options.UseSqlServer(connectionString));
+
+builder.Services.AddScoped<IUniquenessValidator, UniquenessValidator>();
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<GarageContext>();
 
