@@ -30,6 +30,9 @@ using (var scope = app.Services.CreateScope())
 
     await DbInitializer.SeedRolesAsync(services);
     await DbInitializer.SeedAdminAsync(services);
+
+    // Test add member
+    await DbInitializer.SeedParkingMembers(db, services);
 }
 
 app.UseHttpsRedirection();
