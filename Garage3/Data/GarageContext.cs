@@ -1,4 +1,3 @@
-using Garage3.Data;
 using Garage3.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

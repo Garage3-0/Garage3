@@ -1,5 +1,4 @@
-﻿using Garage3.Data;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Garage3.Models
 {
@@ -30,7 +29,7 @@ namespace Garage3.Models
 
         public ICollection<ParkingSession> ParkingSessions { get; } = new List<ParkingSession>();
 
-      
+
         // TODO - add ApplicationUser 
         //public required string ApplicationUserId { get; set; }
         //public ApplicationUser? ApplicationUser { get; set; }  // TODO required !!!
