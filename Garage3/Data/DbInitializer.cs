@@ -163,19 +163,117 @@ public static class DbInitializer
 
         if (!await context.ParkedVehicle.AnyAsync())
         {
-            var vehicle = new ParkedVehicle
+            context.ParkedVehicle.Add(new ParkedVehicle
             {
                 VehicleType = VehicleType.Car,
                 RegNbr = "ABC123",
-                Color = "Black",
+                Color = "Red",
                 Brand = "Volvo",
                 Model = "V60",
                 Wheels = 4,
-                Arrival = DateTime.Now,
+                Arrival = new DateTime(2026, 7, 6, 10, 59, 00),
                 ApplicationUserId = member.Id
-            };
+            });
+            context.ParkedVehicle.Add(new ParkedVehicle
+            {
+                VehicleType = VehicleType.Motorcycle,
+                RegNbr = "BGD567",
+                Color = "Blue",
+                Brand = "Toyota",
+                Model = "A50",
+                Wheels = 2,
+                Arrival = new DateTime(2026, 7, 4, 11, 59, 00),
+                ApplicationUserId = member.Id
+            });
+            context.ParkedVehicle.Add(new ParkedVehicle
+            {
+                VehicleType = VehicleType.Bus,
+                RegNbr = "KLI908",
+                Color = "Yellow",
+                Brand = "Saab",
+                Model = "H88",
+                Wheels = 10,
+                Arrival = new DateTime(2026, 6, 5, 09, 10, 00),
+                ApplicationUserId = member.Id
+            });
+            context.ParkedVehicle.Add(new ParkedVehicle
+            {
+                VehicleType = VehicleType.Motorcycle,
+                RegNbr = "TRE654",
+                Color = "Black",
+                Brand = "Toyota",
+                Model = "X76",
+                Wheels = 2,
+                Arrival = new DateTime(2026, 7, 8, 18, 00, 00),
+                ApplicationUserId = member.Id
+            });
+            context.ParkedVehicle.Add(new ParkedVehicle
+            {
+                VehicleType = VehicleType.Car,
+                RegNbr = "DUN584",
+                Color = "Blue",
+                Brand = "Saab",
+                Model = "C50",
+                Wheels = 4,
+                Arrival = new DateTime(2026, 7, 1, 10, 45, 00),
+                ApplicationUserId = member.Id
+            });
+            context.ParkedVehicle.Add(new ParkedVehicle
+            {
+                VehicleType = VehicleType.Bus,
+                RegNbr = "PLG327",
+                Color = "White",
+                Brand = "Volvo",
+                Model = "BG70",
+                Wheels = 10,
+                Arrival = new DateTime(2026, 6, 28, 14, 50, 00),
+                ApplicationUserId = member.Id
+            });
+            context.ParkedVehicle.Add(new ParkedVehicle
+            {
+                VehicleType = VehicleType.Car,
+                RegNbr = "NJG968",
+                Color = "Black",
+                Brand = "Mazda",
+                Model = "BT50",
+                Wheels = 4,
+                Arrival = new DateTime(2026, 6, 30, 16, 25, 00),
+                ApplicationUserId = member.Id
+            });
+            context.ParkedVehicle.Add(new ParkedVehicle
+            {
+                VehicleType = VehicleType.Car,
+                RegNbr = "RFM596",
+                Color = "White",
+                Brand = "Toyota",
+                Model = "A50",
+                Wheels = 4,
+                Arrival = new DateTime(2026, 7, 6, 11, 18, 00),
+                ApplicationUserId = member.Id
+            });
+            context.ParkedVehicle.Add(new ParkedVehicle
+            {
+                VehicleType = VehicleType.Bus,
+                RegNbr = "JYT628",
+                Color = "White",
+                Brand = "Volvo",
+                Model = "AZ34",
+                Wheels = 8,
+                Arrival = new DateTime(2026, 6, 28, 15, 45, 00),
+                ApplicationUserId = member.Id
+            });
+            context.ParkedVehicle.Add(new ParkedVehicle
+            {
+                VehicleType = VehicleType.Motorcycle,
+                RegNbr = "DER421",
+                Color = "Red",
+                Brand = "Toyota",
+                Model = "V30",
+                Wheels = 2,
+                Arrival = new DateTime(2026, 7, 8, 10, 18, 00),
+                ApplicationUserId = member.Id
+            });
 
-            context.ParkedVehicle.Add(vehicle);
             await context.SaveChangesAsync();
         }
     }

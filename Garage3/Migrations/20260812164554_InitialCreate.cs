@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace Garage3.Migrations
 {
     /// <inheritdoc />
@@ -273,23 +271,6 @@ namespace Garage3.Migrations
                         principalTable: "Vehicles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.InsertData(
-                table: "ParkedVehicle",
-                columns: new[] { "Id", "ApplicationUserId", "Arrival", "Brand", "Color", "Model", "RegNbr", "VehicleType", "Wheels" },
-                values: new object[,]
-                {
-                    { 1, "", new DateTime(2026, 7, 6, 10, 59, 0, 0, DateTimeKind.Unspecified), "Volvo", "Red", "V60", "ABC123", 0, 4 },
-                    { 2, "", new DateTime(2026, 7, 4, 11, 59, 0, 0, DateTimeKind.Unspecified), "Toyota", "Blue", "A50", "BGD567", 1, 2 },
-                    { 3, "", new DateTime(2026, 6, 5, 9, 10, 0, 0, DateTimeKind.Unspecified), "Saab", "Yellow", "H88", "KLI908", 2, 10 },
-                    { 4, "", new DateTime(2026, 7, 8, 18, 0, 0, 0, DateTimeKind.Unspecified), "Toyota", "Black", "X76", "TRE654", 1, 2 },
-                    { 5, "", new DateTime(2026, 7, 1, 10, 45, 0, 0, DateTimeKind.Unspecified), "Saab", "Blue", "C50", "DUN584", 0, 4 },
-                    { 6, "", new DateTime(2026, 6, 28, 14, 50, 0, 0, DateTimeKind.Unspecified), "Volvo", "White", "BG70", "PLG327", 2, 10 },
-                    { 7, "", new DateTime(2026, 6, 30, 16, 25, 0, 0, DateTimeKind.Unspecified), "Mazda", "Black", "BT50", "NJG968", 0, 4 },
-                    { 8, "", new DateTime(2026, 7, 6, 11, 18, 0, 0, DateTimeKind.Unspecified), "Toyota", "White", "A50", "RFM596", 0, 4 },
-                    { 9, "", new DateTime(2026, 6, 28, 15, 45, 0, 0, DateTimeKind.Unspecified), "Volvo", "White", "AZ34", "JYT628", 2, 8 },
-                    { 10, "", new DateTime(2026, 7, 8, 10, 18, 0, 0, DateTimeKind.Unspecified), "Toyota", "Red", "V30", "DER421", 1, 2 }
                 });
 
             migrationBuilder.CreateIndex(
