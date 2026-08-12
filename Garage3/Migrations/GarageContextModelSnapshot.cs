@@ -337,33 +337,7 @@ namespace Garage3.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Number")
-                        .IsUnique();
-
                     b.ToTable("ParkingSpots");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            IsOutOfService = false,
-                            Location = "",
-                            Number = 100
-                        },
-                        new
-                        {
-                            Id = 2,
-                            IsOutOfService = false,
-                            Location = "",
-                            Number = 101
-                        },
-                        new
-                        {
-                            Id = 3,
-                            IsOutOfService = false,
-                            Location = "",
-                            Number = 102
-                        });
                 });
 
             modelBuilder.Entity("Garage3.Models.Vehicle", b =>

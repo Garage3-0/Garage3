@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Garage3.Migrations
 {
     [DbContext(typeof(GarageContext))]
-    [Migration("20260811134838_SomeUnknownUpdate")]
-    partial class SomeUnknownUpdate
+    [Migration("20260812074826_SeedData")]
+    partial class SeedData
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -340,33 +340,7 @@ namespace Garage3.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Number")
-                        .IsUnique();
-
                     b.ToTable("ParkingSpots");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            IsOutOfService = false,
-                            Location = "",
-                            Number = 100
-                        },
-                        new
-                        {
-                            Id = 2,
-                            IsOutOfService = false,
-                            Location = "",
-                            Number = 101
-                        },
-                        new
-                        {
-                            Id = 3,
-                            IsOutOfService = false,
-                            Location = "",
-                            Number = 102
-                        });
                 });
 
             modelBuilder.Entity("Garage3.Models.Vehicle", b =>
@@ -459,31 +433,11 @@ namespace Garage3.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
-
                     b.ToTable("VehicleTypeNew");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Bus"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Car"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Motorcycle"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

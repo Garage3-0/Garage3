@@ -28,13 +28,16 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<GarageContext>();
     db.Database.Migrate();
 
+    uint nbrParkingSpots = 3;
+
     await DbInitializer.SeedRolesAsync(services);
     await DbInitializer.SeedAdminAsync(services);
-
-    // Seed test data
+    
     await DbInitializer.SeedParkingMembers(db, services);
     await DbInitializer.SeedVehicleTypes(db);
-    await DbInitializer.SeedParkingSpots(db);
+    await DbInitializer.SeedParkingSpots(db, nbrParkingSpots);
+    
+    // parkingsessions  // TODO - Seed parking sessions
 }
 
 app.UseHttpsRedirection();

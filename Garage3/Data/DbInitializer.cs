@@ -37,7 +37,7 @@ public static class DbInitializer
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
         const string userEmail = "u2@garage3.local";
-        const string userPassword = "Testare-1";
+        const string userPassword = "Admin123!";
 
         var memberUser = await userManager.FindByEmailAsync(userEmail);
 
@@ -67,43 +67,37 @@ public static class DbInitializer
                     Roles.Admin);
             }
         }
-
-        
     }
 
-
-
-
-    //--------------------------------------------------------
-    // (ApplicationDbContext _context, IServiceProvider services)
     public static async Task SeedParkingMembers(GarageContext context, IServiceProvider serviceProvider)
     {
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
+        await DbInitializer.SeedMember(context, userManager, "test1", "testare1", "test1@test.com");
+        await DbInitializer.SeedMember(context, userManager, "test2", "testare2", "test2@test.com");
+    }
 
-        // IDictionary<string, int> dict = new Dictionary<string, int>(); ?
+    public static async Task SeedMember(GarageContext context, UserManager<ApplicationUser> userManager, string firstName, string lastName, string email, string password = "")
+    {
+        string pwd = !String.IsNullOrWhiteSpace(password) ? password : "Testare-1";
 
+        var user = await userManager.FindByEmailAsync(email);
 
-        var userMail = "u2@u.com";
-
-        var user = await userManager.FindByEmailAsync(userMail);
-
-        if (user == null) {
+        if (user == null)
+        {
             user = new ApplicationUser
             {
-                FirstName = "u2",
-                LastName = "user2",
-                Email = "u2@u.com",
-                NormalizedEmail = "U2@U.COM",
-                UserName = "u2",
-                NormalizedUserName = "U1",
+                FirstName = firstName,
+                LastName = lastName,
+                Email = email,
+                NormalizedEmail = email.ToUpper(),
+                UserName = email,
+                NormalizedUserName = firstName.ToUpper(),
                 PersonalIdentityNumber = "1",
-                EmailConfirmed = false
+                EmailConfirmed = true
             };
 
-            var res = await userManager.CreateAsync(
-                    user,
-                    "Testare-1");
+            var res = await userManager.CreateAsync(user, pwd);
 
             if (!res.Succeeded)
             {
@@ -140,9 +134,9 @@ public static class DbInitializer
         }
     }
 
-    public static async Task SeedParkingSpots(GarageContext context)
+    public static async Task SeedParkingSpots(GarageContext context, uint nbrParkingSpots)
     {
-        var count = 3;
+        var count = nbrParkingSpots;
 
         var parkingspot = await context.ParkingSpots.FirstOrDefaultAsync();
 
@@ -161,15 +155,16 @@ public static class DbInitializer
         }       
     }
 
-    //public static async Task SeedParkingSessions(GarageContext garage, IServiceProvider serviceProvider)
+    //public static async Task SeedParkingSessions(GarageContext context, IServiceProvider serviceProvider)
     //{
 
+    //    // User
+    //    // Vehicle
+    //    // Parkignspot
+    //    // ParkingSession
     //}
 
-    //public static async Task SeedParkingSpotsAsync(GarageContext _context, IServiceProvider serviceProvider, int count)
-    //{
-    //    count parkingSpots
 
 
-    //}
+
 }
