@@ -48,6 +48,7 @@ public static class DbInitializer
                 UserName = userEmail,
                 Email = userEmail,
                 EmailConfirmed = true,
+                PersonalIdentityNumber = "900101-0017",
             };
 
             var result = await userManager.CreateAsync(
@@ -78,11 +79,27 @@ public static class DbInitializer
     {
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        await DbInitializer.SeedMember(context, userManager, "test1", "testare1", "test1@test.com");
-        await DbInitializer.SeedMember(context, userManager, "test2", "testare2", "test2@test.com");
+        await DbInitializer.SeedMember(
+     context, userManager,
+     "test1", "testare1",
+     "test1@test.com",
+     "900101-0025");
+
+        await DbInitializer.SeedMember(
+            context, userManager,
+            "test2", "testare2",
+            "test2@test.com",
+            "900101-0033");
     }
 
-    public static async Task SeedMember(GarageContext context, UserManager<ApplicationUser> userManager, string firstName, string lastName, string email, string password = "")
+    public static async Task SeedMember(
+    GarageContext context,
+    UserManager<ApplicationUser> userManager,
+    string firstName,
+    string lastName,
+    string email,
+    string personalIdentityNumber,
+    string password = "")
     {
         string pwd = !String.IsNullOrWhiteSpace(password) ? password : "Testare-1";
 
@@ -98,7 +115,7 @@ public static class DbInitializer
                 NormalizedEmail = email.ToUpper(),
                 UserName = email,
                 NormalizedUserName = firstName.ToUpper(),
-                PersonalIdentityNumber = "1",
+                PersonalIdentityNumber = personalIdentityNumber,
                 EmailConfirmed = true
             };
 
