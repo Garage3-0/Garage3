@@ -11,7 +11,7 @@ public class ParkedVehiclesController : Controller
 
     private readonly GarageContext _context;
 
-    public ParkedVehiclesController(GarageContext context)
+    public ParkedVehiclesController(GarageContext context, decimal hourlyRate)
     {
         _context = context;
     }
