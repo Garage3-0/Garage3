@@ -95,7 +95,7 @@ public class ParkedVehiclesController : Controller
 
             if (!isUnique)
             {
-                ModelState.AddModelError("RegNbr", "Registration number already exists in the garage. There can only be one vehicle per registration number.");
+                ModelState.AddModelError("RegNbr", "This registration number already exists in the garage. There can only be one vehicle per registration number.");
                 return View(ParkVehicleViewModel);
             }
 
@@ -176,7 +176,7 @@ public class ParkedVehiclesController : Controller
                 var normalizedRegNbr = viewModel.RegNbr.Trim().ToUpper() ?? string.Empty;
                 // Is there another vehicle that already has this reg number?
                 bool isUnique = await _uniquenessValidator
-                    .IsRegNbrUniqueAsync(viewModel.RegNbr, viewModel.Id);
+                    .IsRegNbrUniqueAsync(normalizedRegNbr, viewModel.Id);
 
                 if (!isUnique)
                 {
