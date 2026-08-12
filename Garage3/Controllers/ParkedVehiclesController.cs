@@ -2,6 +2,7 @@ using Garage3.Data;
 using Garage3.Models;
 using Garage3.Models.ViewModels;
 using Garage3.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
@@ -12,11 +13,14 @@ public class ParkedVehiclesController : Controller
 
     private readonly GarageContext _context;
     private readonly IUniquenessValidator _uniquenessValidator;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public ParkedVehiclesController(GarageContext context, IUniquenessValidator uniquenessValidator)
+    public ParkedVehiclesController(GarageContext context, IUniquenessValidator uniquenessValidator, UserManager<ApplicationUser> userManager)
+    
     {
         _context = context;
         _uniquenessValidator = uniquenessValidator;
+        _userManager = userManager;
     }
 
     // GET: PARKEDVEHICLES
@@ -98,6 +102,8 @@ public class ParkedVehiclesController : Controller
                 ModelState.AddModelError("RegNbr", "This registration number already exists in the garage. There can only be one vehicle per registration number.");
                 return View(ParkVehicleViewModel);
             }
+
+            var currentUserId = _userManager.GetUserId!;
 
             var parkedVehicle = new ParkedVehicle
             {
@@ -334,5 +340,31 @@ public class ParkedVehiclesController : Controller
         };
 
         return receiptViewModel;
+    }
+
+    // GET: PARKEDVEHICLES/MyVehicles
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    public async Task<IActionResult> MyVehicles()
+    {
+        // Get ID for logged in user
+        var currentUserId = _userManager.GetUserId(User);
+
+        // Filter for vehicles with the same ApplicationUserId
+        var myVehicles = await _context.ParkedVehicle
+            .Where(v => v.ApplicationUserId == currentUserId)
+            .Select(v => new ParkedVehicleOverviewViewModel
+            {
+                Id = v.Id,
+                VehicleType = v.VehicleType,
+                RegNbr = v.RegNbr,
+                Color = v.Color,
+                Brand = v.Brand,
+                Model = v.Model,
+                Wheels = v.Wheels,
+                Arrival = v.Arrival
+            })
+            .ToListAsync();
+
+        return View(myVehicles);
     }
 }

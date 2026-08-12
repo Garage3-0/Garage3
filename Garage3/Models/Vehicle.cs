@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Garage3.Data;
 
 namespace Garage3.Models
 {

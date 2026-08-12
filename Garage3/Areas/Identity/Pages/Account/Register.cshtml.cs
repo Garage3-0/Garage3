@@ -129,20 +129,20 @@ public class RegisterModel : PageModel
             }
             var personalNumber = PersonalIdentityNumber.Replace("-", "");
 
-            if (personalNumber.Length != 10 || !personalNumber.All(char.IsDigit))
+            if (personalNumber.Length != 12 || !personalNumber.All(char.IsDigit))
             {
                 yield return new ValidationResult(
-                    "Personal identity number must contain 10 digits.",
+                    "Your Personal Identity Number must contain 12 digits (YYYYMMDD-XXXX)",
                     new[] { nameof(PersonalIdentityNumber) });
             }
             
             else
             {
-                var datePart = personalNumber.Substring(0, 6);
+                var datePart = personalNumber.Substring(0, 8);
 
                 if (!DateTime.TryParseExact(
                     datePart,
-                    "yyMMdd",
+                    "yyyyMMdd",
                     System.Globalization.CultureInfo.InvariantCulture,
                     System.Globalization.DateTimeStyles.None,
                     out _))
