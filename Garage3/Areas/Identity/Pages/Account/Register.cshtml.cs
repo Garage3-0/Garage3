@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Garage3.Data;
+using Garage3.Services;
+using Garage3.Validation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -14,8 +16,10 @@ using System.Text.Encodings.Web;
 
 namespace Garage3.Areas.Identity.Pages.Account;
 
+
 public class RegisterModel : PageModel
 {
+    private readonly IUniquenessValidator _uniquenessValidator;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUserStore<ApplicationUser> _userStore;
@@ -28,7 +32,8 @@ public class RegisterModel : PageModel
         IUserStore<ApplicationUser> userStore,
         SignInManager<ApplicationUser> signInManager,
         ILogger<RegisterModel> logger,
-        IEmailSender emailSender)
+        IEmailSender emailSender,
+        IUniquenessValidator uniquenessValidator)
     {
         _userManager = userManager;
         _userStore = userStore;
@@ -36,6 +41,7 @@ public class RegisterModel : PageModel
         _signInManager = signInManager;
         _logger = logger;
         _emailSender = emailSender;
+        _uniquenessValidator = uniquenessValidator;
     }
 
     /// <summary>
@@ -76,6 +82,7 @@ public class RegisterModel : PageModel
         public string LastName { get; set; } = default!;
 
         [Required]
+        [PersonalIdentityNumber]
         [Display(Name = "Personal identity number")]
         public string PersonalIdentityNumber { get; set; } = default!;
         /// <summary>
@@ -120,12 +127,21 @@ public class RegisterModel : PageModel
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         if (ModelState.IsValid)
         {
+            var normalizedPnumber = Input.PersonalIdentityNumber?.Trim() ?? string.Empty;
+
+            bool isUnique = await _uniquenessValidator.IsPnumberUniqueAsync(normalizedPnumber);
+
+            if (!isUnique)
+            {
+                ModelState.AddModelError("Input.PersonalIdentityNumber", "Personal identity number already exists.");
+                return Page();
+            }
             var user = CreateUser();
             user.FirstName = Input.FirstName;
             user.LastName = Input.LastName;
-            user.PersonalIdentityNumber = Input.PersonalIdentityNumber;
+            user.PersonalIdentityNumber = normalizedPnumber;
 
-            await _userStore.SetUserNameAsync(user, Input.UserName, CancellationToken.None);
+            await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
             var result = await _userManager.CreateAsync(user, Input.Password);
 
