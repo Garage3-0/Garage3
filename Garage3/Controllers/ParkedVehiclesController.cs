@@ -256,7 +256,7 @@ public class ParkedVehiclesController : Controller
             }
             catch (Exception ex)
             {
-                // Error...
+                throw; // Error...
             }
         }
 
