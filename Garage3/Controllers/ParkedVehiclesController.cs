@@ -2,6 +2,7 @@ using Garage3.Data;
 using Garage3.Models;
 using Garage3.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
@@ -11,10 +12,12 @@ public class ParkedVehiclesController : Controller
     const int pricePerHour = 10;
 
     private readonly GarageContext _context;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public ParkedVehiclesController(GarageContext context)
+    public ParkedVehiclesController(GarageContext context, UserManager<ApplicationUser> userManager)
     {
         _context = context;
+        _userManager = userManager;
     }
 
     // GET: PARKEDVEHICLES
@@ -238,6 +241,25 @@ public class ParkedVehiclesController : Controller
         {
             return NotFound();
         }
+
+        /*
+            var gymClassWithAttendees = await _context.GymClasses
+                .Where(g=>g.Id == id)
+                .Include(c=>c.AttendingMembers)
+                .ThenInclude(u=>u.User).FirstOrDefaultAsync();
+
+        */
+        string? userId = _userManager.GetUserId(User);
+        if (userId == null) ArgumentNullException.ThrowIfNull(userId);
+
+
+        /*
+        Vehicle? vehicle = await _context.Vehicles
+            .Where(v => v.Id == id)
+            //.Include(u => u.ApplicationUserId == userId)
+            .Include(v => v.Id == _context.ParkingSession.VehicleId)
+            .FirstOrDefaultAsync();
+        */
 
         ReceiptViewModel receiptViewModel = CreateReceiptViewModel(parkedVehicle);
 
