@@ -32,9 +32,10 @@ using (var scope = app.Services.CreateScope())
     await DbInitializer.SeedAdminAsync(services);
 
     // Seed test data
+    uint nbrParkingSpots = 3;
     await DbInitializer.SeedParkingMembers(db, services);
     await DbInitializer.SeedVehicleTypes(db);
-    await DbInitializer.SeedParkingSpots(db);
+    await DbInitializer.SeedParkingSpots(db, nbrParkingSpots);
 }
 
 app.UseHttpsRedirection();
