@@ -278,6 +278,8 @@ public class ParkedVehiclesController : Controller
 
 
     // GET: PARKEDVEHICLES/Delete/5
+    // [Authorize]
+    [Authorize(Roles = "Admin, Member")]
     public async Task<IActionResult> Checkout(int? id)
     {
         ParkedVehicle? parkedVehicle = null;
