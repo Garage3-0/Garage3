@@ -353,8 +353,6 @@ namespace Garage3.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId");
-                    b.HasIndex("RegNbr")
-                        .IsUnique();
 
                     b.HasIndex("VehicleTypeNewId");
 
