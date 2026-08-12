@@ -291,6 +291,25 @@ public class ParkedVehiclesController : Controller
             return NotFound();
         }
 
+        /*
+            var gymClassWithAttendees = await _context.GymClasses
+                .Where(g=>g.Id == id)
+                .Include(c=>c.AttendingMembers)
+                .ThenInclude(u=>u.User).FirstOrDefaultAsync();
+
+        */
+        string? userId = _userManager.GetUserId(User);
+        if (userId == null) ArgumentNullException.ThrowIfNull(userId);
+
+
+        /*
+        Vehicle? vehicle = await _context.Vehicles
+            .Where(v => v.Id == id)
+            //.Include(u => u.ApplicationUserId == userId)
+            .Include(v => v.Id == _context.ParkingSession.VehicleId)
+            .FirstOrDefaultAsync();
+        */
+
         ReceiptViewModel receiptViewModel = CreateReceiptViewModel(parkedVehicle);
 
         return View(receiptViewModel);
