@@ -1,10 +1,7 @@
 ﻿using Garage3.Constants;
 using Garage3.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 
 namespace Garage3.Data;
 
@@ -68,21 +65,19 @@ public static class DbInitializer
             }
         }
 
-        
+
     }
-
-
-
 
     public static async Task SeedParkingMembers(GarageContext context, IServiceProvider serviceProvider)
     {
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        await DbInitializer.SeedMember(context, userManager, "test1", "testare1", "test1@test.com");
-        await DbInitializer.SeedMember(context, userManager, "test2", "testare2", "test2@test.com");
+        await DbInitializer.SeedMember(context, userManager, "test1", "testare1", "test1@test.com", "Testare-1");
+        await DbInitializer.SeedMember(context, userManager, "test2", "testare2", "test2@test.com", "Testare-1");
     }
 
-    public static async Task SeedMember(GarageContext context, UserManager<ApplicationUser> userManager, string firstName, string lastName, string email, string password = "")
+
+    private static async Task SeedMember(GarageContext context, UserManager<ApplicationUser> userManager, string firstName, string lastName, string email, string password = "")
     {
         string pwd = !String.IsNullOrWhiteSpace(password) ? password : "Testare-1";
 
@@ -159,6 +154,45 @@ public static class DbInitializer
             }
         }
     }
+
+    public static async Task SeedTestVehicle(GarageContext context, IServiceProvider serviceProvider)
+    {
+        // Add a car for first test user
+        string email = "test1@test.com";
+        string regNbr = "NNN111";
+        string vehicleType = "Car";
+
+        var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+        var user = await userManager.FindByEmailAsync(email);
+
+        if (user != null)
+        {
+            var tmpVehicle = await context.Vehicles.FirstOrDefaultAsync(v => v.RegistrationNumber == regNbr);
+
+            if (tmpVehicle == null)
+            {
+                VehicleTypeNew? type = await context.VehicleTypeNew.FirstOrDefaultAsync(t => t.Name == vehicleType);
+                if (type != null)
+                {
+                    Vehicle vehicle = new Vehicle()
+                    {
+                        RegistrationNumber = regNbr, // nbr.ToString(),
+                        Color = "Svart",
+                        Brand = "SAAB",
+                        Model = "900",
+                        NumberOfWheels = 4,
+                        VehicleTypeNewId = type.Id,
+                        ApplicationUser = user,
+                        ApplicationUserId = user.Id
+                    };
+                    context.Add(vehicle);
+                    await context.SaveChangesAsync();
+                }
+            }
+        }
+    }
+
 
     //public static async Task SeedParkingSessions(GarageContext context, IServiceProvider serviceProvider)
     //{
