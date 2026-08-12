@@ -25,7 +25,7 @@ public class GarageContext(DbContextOptions<GarageContext> options)
     .IsUnique();
 
         modelBuilder.Entity<Vehicle>()
-            .HasIndex(v => v.RegistrationNumber)
+            .HasIndex(v => v.RegNbr)
             .IsUnique();
 
         modelBuilder.Entity<ParkingSpot>()
