@@ -26,6 +26,7 @@ namespace Garage3.Models
         public DateTime Arrival { get; set; } = DateTime.Now;
 
         public string ApplicationUserId { get; set; } = string.Empty;
+
         public ApplicationUser? ApplicationUser { get; set; }
     }
 }

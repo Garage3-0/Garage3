@@ -10,8 +10,7 @@ namespace Garage3.Data;
 
 public static class DbInitializer
 {
-    public static async Task SeedRolesAsync(
-        IServiceProvider serviceProvider)
+    public static async Task SeedRolesAsync(IServiceProvider serviceProvider)
     {
         var roleManager =
             serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -39,52 +38,53 @@ public static class DbInitializer
         const string userEmail = "u2@garage3.local";
         const string userPassword = "Admin123!";
 
-        var memberUser = await userManager.FindByEmailAsync(userEmail);
+        var adminUser = await userManager.FindByEmailAsync(userEmail);
 
-        if (memberUser == null)
+        if (adminUser == null)
         {
-            memberUser = new ApplicationUser
+            adminUser = new ApplicationUser
             {
                 UserName = userEmail,
                 Email = userEmail,
                 EmailConfirmed = true,
+                FirstName = "Admin",
+                LastName = "Administrator",
+                PersonalIdentityNumber = "198001010000"
             };
 
             var result = await userManager.CreateAsync(
-                memberUser,
+                adminUser,
                 userPassword);
 
             if (!result.Succeeded)
             {
                 throw new Exception(
-                    $"Failed to create member user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    $"Failed to create admin user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
             }
 
-            if (!await userManager.IsInRoleAsync(memberUser, Roles.Admin))
+            if (!await userManager.IsInRoleAsync(adminUser, Roles.Admin))
             {
-                await userManager.AddToRoleAsync(
-                    memberUser,
-                    Roles.Admin);
+                await userManager.AddToRoleAsync(adminUser, Roles.Admin);
             }
         }
-
-        
     }
-
-
-
 
     public static async Task SeedParkingMembers(GarageContext context, IServiceProvider serviceProvider)
     {
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        await DbInitializer.SeedMember(context, userManager, "test1", "testare1", "test1@test.com");
-        await DbInitializer.SeedMember(context, userManager, "test2", "testare2", "test2@test.com");
+        await SeedMember(context, userManager, "test1", "tester1", "test1@test.com", "199001011234");
+        await SeedMember(context, userManager, "test2", "tester2", "test2@test.com", "199001025678");
     }
 
-    public static async Task SeedMember(GarageContext context, UserManager<ApplicationUser> userManager, string firstName, string lastName, string email, string password = "")
+    public static async Task SeedMember(GarageContext context, UserManager<ApplicationUser> userManager,
+        string firstName,
+        string lastName,
+        string email,
+        string personalNbr,
+        string password = "")
     {
-        string pwd = !String.IsNullOrWhiteSpace(password) ? password : "Testare-1";
+        string pwd = !String.IsNullOrWhiteSpace(password) ? password : "Tester-1";
 
         var user = await userManager.FindByEmailAsync(email);
 
@@ -97,8 +97,8 @@ public static class DbInitializer
                 Email = email,
                 NormalizedEmail = email.ToUpper(),
                 UserName = email,
-                NormalizedUserName = firstName.ToUpper(),
-                PersonalIdentityNumber = "1",
+                NormalizedUserName = email.ToUpper(),
+                PersonalIdentityNumber = personalNbr,
                 EmailConfirmed = true
             };
 
@@ -107,17 +107,13 @@ public static class DbInitializer
             if (!res.Succeeded)
             {
                 throw new Exception(
-                    $"Failed to create user user: {string.Join(", ", res.Errors.Select(e => e.Description))}");
+                    $"Failed to create user: {string.Join(", ", res.Errors.Select(e => e.Description))}");
             }
 
             if (!await userManager.IsInRoleAsync(user, Roles.Member))
             {
-                await userManager.AddToRoleAsync(
-                    user,
-                    Roles.Member);
+                await userManager.AddToRoleAsync(user, Roles.Member);
             }
-
-            await context.SaveChangesAsync();
         }
     }
 
@@ -141,13 +137,11 @@ public static class DbInitializer
 
     public static async Task SeedParkingSpots(GarageContext context, uint nbrParkingSpots)
     {
-        var count = nbrParkingSpots;
-
         var parkingspot = await context.ParkingSpots.FirstOrDefaultAsync();
 
         if (parkingspot == null)
         {
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < nbrParkingSpots; i++)
             {
                 var spot = new ParkingSpot()
                 {
@@ -155,41 +149,58 @@ public static class DbInitializer
                     Location = ""
                 };
                 context.Add(spot);
-                await context.SaveChangesAsync();
             }
+            await context.SaveChangesAsync();
         }
     }
 
     public static async Task SeedParkingSessions(GarageContext context, IServiceProvider serviceProvider)
     {
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-
         var member = await userManager.FindByEmailAsync("test1@test.com");
-        var vehicleType = await context.VehicleTypeNew.FirstOrDefaultAsync();
-        var spot = await context.ParkingSpots.FirstOrDefaultAsync();
 
-        if (member == null || vehicleType == null || spot == null) return;
+        if (member == null) return;
 
-        //if (!await context.ParkedVehicle.AnyAsync()) 
-    //{
-        //var vehicle = new ParkedVehicle
-        //{
-           // RegistrationNumber = "ABC123",
-            // Använd det riktiga GUID-ID:t från den hämtade användaren:
-            //ApplicationUserId = member.Id, 
-            //VehicleTypeNewId = vehicleType.Id,
-            //ParkingSpotId = spot.Id
-        //};
+        if (!await context.ParkedVehicle.AnyAsync())
+        {
+            var vehicle = new ParkedVehicle
+            {
+                VehicleType = VehicleType.Car,
+                RegNbr = "ABC123",
+                Color = "Black",
+                Brand = "Volvo",
+                Model = "V60",
+                Wheels = 4,
+                Arrival = DateTime.Now,
+                ApplicationUserId = member.Id
+            };
 
-        //context.ParkedVehicle.Add(vehicle);
-        await context.SaveChangesAsync();
+            context.ParkedVehicle.Add(vehicle);
+            await context.SaveChangesAsync();
+        }
     }
 }
 
-        //    // User
-        //    // Vehicle
-        //    // Parkignspot
-        //    // ParkingSession
-        //}
+//var vehicleType = await context.VehicleTypeNew.FirstOrDefaultAsync();
+//var spot = await context.ParkingSpots.FirstOrDefaultAsync();
 
-    
+//if (member == null || vehicleType == null || spot == null) return;
+
+//if (!await context.ParkedVehicle.AnyAsync()) 
+//{
+//var vehicle = new ParkedVehicle
+//{
+// RegistrationNumber = "ABC123",
+// Använd det riktiga GUID-ID:t från den hämtade användaren:
+//ApplicationUserId = member.Id, 
+//VehicleTypeNewId = vehicleType.Id,
+//ParkingSpotId = spot.Id
+//};
+
+
+//    // User
+//    // Vehicle
+//    // Parkignspot
+//    // ParkingSession
+//}
+

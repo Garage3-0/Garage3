@@ -109,11 +109,11 @@ public class ParkedVehiclesController : Controller
                 return View(viewModel);
             }
 
-            var currentUserId = _userManager.GetUserId(User);
+            var currentUser = await _userManager.GetUserAsync(User);
 
-            if (string.IsNullOrEmpty(currentUserId))
+            if (currentUser == null)
             {
-                TempData["Error"] = "User session expired or user ID not found. Please log in again.";
+                TempData["Error"] = "Your session is invalid or user was not found. Please log in again.";
                 return RedirectToAction("Login", "Account", new { area = "Identity" });
             }
 
@@ -126,7 +126,7 @@ public class ParkedVehiclesController : Controller
                 Model = viewModel.Model ?? string.Empty,
                 Wheels = viewModel.Wheels,
                 Arrival = DateTime.Now,
-                ApplicationUserId = currentUserId
+                ApplicationUserId = currentUser.Id
             };
 
             try
@@ -236,6 +236,7 @@ public class ParkedVehiclesController : Controller
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = $"Vehicle with registration number \"{parkedvehicle.RegNbr}\" has been updated!";
+                return RedirectToAction(nameof(MyVehicles));
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -332,11 +333,6 @@ public class ParkedVehiclesController : Controller
         TempData["Success"] = "Vehicle has been checked out.";
 
         return RedirectToAction("Receipt", "ParkedVehicles");
-    }
-
-    private bool ParkedVehicleExists(int? id)
-    {
-        return _context.ParkedVehicle.Any(e => e.Id == id);
     }
 
     private ReceiptViewModel CreateReceiptViewModel(ParkedVehicle parkedVehicle)
