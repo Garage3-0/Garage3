@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Garage3.Data;
+using System.ComponentModel.DataAnnotations;
 
 namespace Garage3.Models
 {
@@ -31,8 +32,8 @@ namespace Garage3.Models
 
 
         // TODO - add ApplicationUser 
-        //public required string ApplicationUserId { get; set; }
-        //public ApplicationUser? ApplicationUser { get; set; }  // TODO required !!!
+        public required string ApplicationUserId { get; set; }
+        public ApplicationUser? ApplicationUser { get; set; }  // TODO required !!!
 
     }
 }
