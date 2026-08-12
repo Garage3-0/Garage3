@@ -256,6 +256,7 @@ public class ParkedVehiclesController : Controller
             }
             catch (Exception ex)
             {
+                var msg = ex.Message;
                 throw; // Error...
             }
         }
