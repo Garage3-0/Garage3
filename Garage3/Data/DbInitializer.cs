@@ -33,7 +33,7 @@ public static class DbInitializer
     {
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        const string userEmail = "u2@garage3.local";
+        const string userEmail = "admin@garage3.local";
         const string userPassword = "Admin123!";
 
         var memberUser = await userManager.FindByEmailAsync(userEmail);
@@ -72,11 +72,24 @@ public static class DbInitializer
     {
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        await DbInitializer.SeedMember(context, userManager, "test1", "testare1", "test1@test.com", "Testare-1");
-        await DbInitializer.SeedMember(context, userManager, "test2", "testare2", "test2@test.com", "Testare-1");
+        string password = "Testare-1";  // Same for all test users!
+
+        await DbInitializer.SeedMember(
+             context, userManager,
+             "900101-0025",
+             "test1", "testare1",
+             "test1@test.com",
+             password);
+
+        await DbInitializer.SeedMember(
+             context, userManager,
+             "900101-0033",
+             "test2", "testare2",
+             "test2@test.com",
+             password);
     }
 
-    private static async Task SeedMember(GarageContext context, UserManager<ApplicationUser> userManager, string firstName, string lastName, string email, string password = "")
+    private static async Task SeedMember(GarageContext context, UserManager<ApplicationUser> userManager, string personalIdentityNumber, string firstName, string lastName, string email, string password = "")
     {
         string pwd = !String.IsNullOrWhiteSpace(password) ? password : "Testare-1";
 
@@ -92,7 +105,7 @@ public static class DbInitializer
                 NormalizedEmail = email.ToUpper(),
                 UserName = email,
                 NormalizedUserName = firstName.ToUpper(),
-                PersonalIdentityNumber = "1",
+                PersonalIdentityNumber = personalIdentityNumber,
                 EmailConfirmed = true
             };
 
