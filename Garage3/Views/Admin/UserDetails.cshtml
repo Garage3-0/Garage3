@@ -1,0 +1,35 @@
+﻿@model (Garage3.Data.ApplicationUser User, IList<string> Roles)
+
+@{
+    ViewData["Title"] = "User Details";
+}
+
+<h1>User Details</h1>
+
+<div>
+    <dl class="=" row">
+        <dt class="=" col-sm-3">Username</dt>
+        <dd class="col-sm-9">@Model.User.UserName</dd>
+
+        <dt class="=" col-sm-3">First name</dt>
+        <dd class="col-sm-9">@Model.User.FirstName</dd>
+
+        <dt class="=" col-sm-3">Last name</dt>
+        <dd class="col-sm-9">@Model.User.LastName</dd>
+
+        <dt class="=" col-sm-3">Personal identity number</dt>
+        <dd class="col-sm-9">@Model.User.PersonalIdentityNumber</dd>
+
+        <dt class="=" col-sm-3">Email</dt>
+        <dd class="col-sm-9">@Model.User.Email</dd>
+
+        <dt class="=" col-sm-3">Roles</dt>
+        <dd class="col-sm-9">
+            @string.Join(", ", Model.Roles)
+        </dd>
+    </dl>
+</div>
+
+<div>
+    <a asp-action="Users" class="btn btn-secondary">Back to users</a>
+</div>
