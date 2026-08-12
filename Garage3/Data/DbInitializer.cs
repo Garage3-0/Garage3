@@ -76,7 +76,6 @@ public static class DbInitializer
         await DbInitializer.SeedMember(context, userManager, "test2", "testare2", "test2@test.com", "Testare-1");
     }
 
-
     private static async Task SeedMember(GarageContext context, UserManager<ApplicationUser> userManager, string firstName, string lastName, string email, string password = "")
     {
         string pwd = !String.IsNullOrWhiteSpace(password) ? password : "Testare-1";
@@ -155,10 +154,9 @@ public static class DbInitializer
         }
     }
 
-    public static async Task SeedTestVehicle(GarageContext context, IServiceProvider serviceProvider)
+    public static async Task SeedTestVehicle(GarageContext context, IServiceProvider serviceProvider, string email)
     {
         // Add a car for first test user
-        string email = "test1@test.com";
         string regNbr = "NNN111";
         string vehicleType = "Car";
 
@@ -192,15 +190,4 @@ public static class DbInitializer
             }
         }
     }
-
-
-    //public static async Task SeedParkingSessions(GarageContext context, IServiceProvider serviceProvider)
-    //{
-
-    //    // User
-    //    // Vehicle
-    //    // Parkignspot
-    //    // ParkingSession
-    //}
-
 }
