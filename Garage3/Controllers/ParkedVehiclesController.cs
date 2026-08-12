@@ -2,11 +2,13 @@ using Garage3.Data;
 using Garage3.Models;
 using Garage3.Models.ViewModels;
 using Garage3.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
+[Authorize]
 public class ParkedVehiclesController : Controller
 {
     const int pricePerHour = 10;
@@ -68,11 +70,15 @@ public class ParkedVehiclesController : Controller
             return NotFound();
         }
 
+        var currentUserId = _userManager.GetUserId(User);
+
         var parkedvehicle = await _context.ParkedVehicle
-            .FirstOrDefaultAsync(m => m.Id == id);
+            .FirstOrDefaultAsync(m => m.Id == id && m.ApplicationUserId == currentUserId);
+
         if (parkedvehicle == null)
         {
-            return NotFound();
+            TempData["ErrorMessage"] = "You do not have permission to view this vehicle.";
+            return RedirectToAction(nameof(MyVehicles));
         }
 
         return View(parkedvehicle);
@@ -89,43 +95,57 @@ public class ParkedVehiclesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ParkVehicleViewModel ParkVehicleViewModel)
+    public async Task<IActionResult> Create(ParkVehicleViewModel viewModel)
     {
         if (ModelState.IsValid)
         {
-            var normalizedRegNbr = ParkVehicleViewModel.RegNbr?.Trim().ToUpper() ?? string.Empty;
+            var normalizedRegNbr = viewModel.RegNbr?.Trim().ToUpper() ?? string.Empty;
 
             bool isUnique = await _uniquenessValidator.IsRegNbrUniqueAsync(normalizedRegNbr);
 
             if (!isUnique)
             {
                 ModelState.AddModelError("RegNbr", "This registration number already exists in the garage. There can only be one vehicle per registration number.");
-                return View(ParkVehicleViewModel);
+                return View(viewModel);
             }
 
-            var currentUserId = _userManager.GetUserId!;
+            var currentUserId = _userManager.GetUserId(User);
+
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                TempData["Error"] = "User session expired or user ID not found. Please log in again.";
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
 
             var parkedVehicle = new ParkedVehicle
             {
-                VehicleType = ParkVehicleViewModel.VehicleType,
+                VehicleType = viewModel.VehicleType,
                 RegNbr = normalizedRegNbr,
-                Color = ParkVehicleViewModel.Color ?? string.Empty,
-                Brand = ParkVehicleViewModel.Brand ?? string.Empty,
-                Model = ParkVehicleViewModel.Model ?? string.Empty,
-                Wheels = ParkVehicleViewModel.Wheels,
-                Arrival = DateTime.Now
+                Color = viewModel.Color ?? string.Empty,
+                Brand = viewModel.Brand ?? string.Empty,
+                Model = viewModel.Model ?? string.Empty,
+                Wheels = viewModel.Wheels,
+                Arrival = DateTime.Now,
+                ApplicationUserId = currentUserId
             };
-            _context.Add(parkedVehicle);
-            await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Vehicle has been successfully parked!";
+            try
+            {
+                _context.Add(parkedVehicle);
+                await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+                TempData["Success"] = "Vehicle has been successfully parked!";
+                return RedirectToAction(nameof(MyVehicles));
+            }
+            catch (DbUpdateException ex)
+            {
+                var innerMessage = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                ModelState.AddModelError(string.Empty, $"Database error: {innerMessage}");
+            }
         }
 
             TempData["Error"] = "Vehicle could not be parked!";
-
-            return View(ParkVehicleViewModel);
+            return View(viewModel);
         }
     
 
@@ -135,15 +155,18 @@ public class ParkedVehiclesController : Controller
         if (id == null)
         {
             TempData["ErrorMessage"] = "A valid vehicle ID must be provided to edit.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(MyVehicles));
         }
 
-        var parkedvehicle = await _context.ParkedVehicle.FindAsync(id);
+        var currentUserId = _userManager.GetUserId(User);
+
+        var parkedvehicle = await _context.ParkedVehicle.
+            FirstOrDefaultAsync(v => v.Id == id && v.ApplicationUserId ==currentUserId);
 
         if (parkedvehicle == null)
         {
-            TempData["ErrorMessage"] = $"Vehicle with ID {id} could not be found in the system.";
-            return RedirectToAction(nameof(Index));
+            TempData["ErrorMessage"] = "Vehicle not found or you do not have permission to edit it.";
+            return RedirectToAction(nameof(MyVehicles));
         }
 
         var viewModel = new ParkedVehicleEditViewModel
@@ -172,7 +195,7 @@ public class ParkedVehiclesController : Controller
         if (id != viewModel.Id)
         {
             TempData["ErrorMessage"] = "Data mismatch error. The request could not be processed.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(MyVehicles));
         }
 
         if (ModelState.IsValid)
@@ -191,13 +214,16 @@ public class ParkedVehiclesController : Controller
                     return View(viewModel); // "Abort" and send user back to view with error message
                 }
 
-                var parkedvehicle = await _context.ParkedVehicle.FindAsync(id);
+                var currentUserId = _userManager.GetUserId(User);
+
+                var parkedvehicle = await _context.ParkedVehicle.
+                    FirstOrDefaultAsync(v => v.Id == id && v.ApplicationUserId == currentUserId);
 
                 // If the vehicle has been removed from the database while another user edited it
                 if (parkedvehicle == null)
                 {
-                    TempData["ErrorMessage"] = "The vehicle you are trying to edit no longer exists.";
-                    return RedirectToAction(nameof(Index));
+                    TempData["ErrorMessage"] = "Vehicle not found or you do not have permission to update it.";
+                    return RedirectToAction(nameof(MyVehicles));
                 }
 
                 parkedvehicle.VehicleType = viewModel.VehicleType!.Value;
@@ -216,23 +242,27 @@ public class ParkedVehiclesController : Controller
                 if (!ParkedVehicleExists(viewModel.Id))
                 {
                     TempData["ErrorMessage"] = "The vehicle was removed by another user during the process.";
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(MyVehicles));
                 }
                 else
                 {
                     TempData["ErrorMessage"] = "A database concurrency error occurred. Please try again.";
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(MyVehicles));
                 }
             }
 
-            TempData["Success"] = "Vehicle details updated successfully!";
-
-            return RedirectToAction(nameof(Index));
+            //TempData["Success"] = "Vehicle details updated successfully!";
+            //return RedirectToAction(nameof(Index));
         }
 
         TempData["Error"] = "Failed to update vehicle details.";
-
         return View(viewModel);
+    }
+
+    private bool ParkedVehicleExists(int id)
+    {
+        var currentUserId = _userManager.GetUserId(User);
+        return _context.ParkedVehicle.Any(e => e.Id == id && e.ApplicationUserId == currentUserId);
     }
 
 

@@ -1,0 +1,86 @@
+﻿@model IEnumerable<Garage3.Models.ViewModels.ParkedVehicleOverviewViewModel>
+
+@{
+    ViewData["Title"] = "My Vehicles";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>My Parked Vehicles</h2>
+    <a asp-action="Create" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Park New Vehicle
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info shadow-sm p-4 text-center">
+        <h4>You have no parked vehicles at the moment</h4>
+        <p class="mb-3">When you park a vehicle in the garage, it will appear here.</p>
+        <a asp-action="Create" class="btn btn-primary">Park your first vehicle</a>
+    </div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>@Html.DisplayNameFor(m => m.RegNbr)</th>
+                            <th>@Html.DisplayNameFor(m => m.VehicleType)</th>
+                            <th>@Html.DisplayNameFor(m => m.Brand)</th>
+                            <th>@Html.DisplayNameFor(m => m.Model)</th>
+                            <th>@Html.DisplayNameFor(m => m.Color)</th>
+                            <th>Arrival Time</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var vehicle in Model)
+                        {
+                            <tr>
+                                <td><span class="badge bg-dark fs-6 font-monospace">@vehicle.RegNbr</span></td>
+                                <td>@vehicle.VehicleType</td>
+                                <td>@vehicle.Brand</td>
+                                <td>@vehicle.Model</td>
+                                <td>@vehicle.Color</td>
+                                <td>@vehicle.Arrival.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td class="text-end pe-3">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a asp-action="Details" asp-route-id="@vehicle.Id" class="btn btn-outline-info">Details</a>
+                                        <a asp-action="Edit" asp-route-id="@vehicle.Id" class="btn btn-outline-warning">Edit</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}

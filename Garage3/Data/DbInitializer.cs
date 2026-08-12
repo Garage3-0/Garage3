@@ -160,13 +160,36 @@ public static class DbInitializer
         }
     }
 
-    //public static async Task SeedParkingSessions(GarageContext context, IServiceProvider serviceProvider)
+    public static async Task SeedParkingSessions(GarageContext context, IServiceProvider serviceProvider)
+    {
+        var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+        var member = await userManager.FindByEmailAsync("test1@test.com");
+        var vehicleType = await context.VehicleTypeNew.FirstOrDefaultAsync();
+        var spot = await context.ParkingSpots.FirstOrDefaultAsync();
+
+        if (member == null || vehicleType == null || spot == null) return;
+
+        //if (!await context.ParkedVehicle.AnyAsync()) 
     //{
+        //var vehicle = new ParkedVehicle
+        //{
+           // RegistrationNumber = "ABC123",
+            // Använd det riktiga GUID-ID:t från den hämtade användaren:
+            //ApplicationUserId = member.Id, 
+            //VehicleTypeNewId = vehicleType.Id,
+            //ParkingSpotId = spot.Id
+        //};
 
-    //    // User
-    //    // Vehicle
-    //    // Parkignspot
-    //    // ParkingSession
-    //}
-
+        //context.ParkedVehicle.Add(vehicle);
+        await context.SaveChangesAsync();
+    }
 }
+
+        //    // User
+        //    // Vehicle
+        //    // Parkignspot
+        //    // ParkingSession
+        //}
+
+    
