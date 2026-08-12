@@ -36,7 +36,7 @@ public static class DbInitializer
     {
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        const string userEmail = "u2@garage3.local";
+        const string userEmail = "admin@garage3.local";
         const string userPassword = "Admin123!";
 
         var memberUser = await userManager.FindByEmailAsync(userEmail);
