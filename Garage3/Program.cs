@@ -42,18 +42,16 @@ using (var scope = app.Services.CreateScope())
         await DbInitializer.SeedAdminAsync(services);
         await DbInitializer.SeedParkingMembers(db, services);
 
-        // Seed test data
-        uint nbrParkingSpots = 3;
-        await DbInitializer.SeedVehicleTypes(db);
-        await DbInitializer.SeedParkingSpots(db, nbrParkingSpots);
+    // Seed test data
+    uint nbrParkingSpots = 3;
+    await DbInitializer.SeedParkingMembers(db, services);
+    await DbInitializer.SeedVehicleTypes(db);
+    await DbInitializer.SeedParkingSpots(db, nbrParkingSpots);
+    await DbInitializer.SeedParkingSessions(db, services);
 
-        await DbInitializer.SeedParkingSessions(db, services);
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred when seeding the database");
-    }
+        // Add 1 vehicle for test user 1
+        // email: test1@test.com
+        await DbInitializer.SeedTestVehicle(db, services, "test1@test.com");
 }
 
 app.UseHttpsRedirection();

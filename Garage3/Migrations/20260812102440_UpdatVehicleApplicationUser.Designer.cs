@@ -4,6 +4,7 @@ using Garage3.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Garage3.Migrations
 {
     [DbContext(typeof(GarageContext))]
-    partial class GarageContextModelSnapshot : ModelSnapshot
+    [Migration("20260812102440_UpdatVehicleApplicationUser")]
+    partial class UpdatVehicleApplicationUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -68,7 +71,7 @@ namespace Garage3.Migrations
 
                     b.Property<string>("PersonalIdentityNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
@@ -96,9 +99,6 @@ namespace Garage3.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.HasIndex("PersonalIdentityNumber")
-                        .IsUnique();
-
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
@@ -109,10 +109,6 @@ namespace Garage3.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ApplicationUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("Arrival")
                         .HasColumnType("datetime2");
@@ -144,12 +140,122 @@ namespace Garage3.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId");
-
                     b.HasIndex("RegNbr")
                         .IsUnique();
 
                     b.ToTable("ParkedVehicle");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Arrival = new DateTime(2026, 7, 6, 10, 59, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Volvo",
+                            Color = "Red",
+                            Model = "V60",
+                            RegNbr = "ABC123",
+                            VehicleType = 0,
+                            Wheels = 4
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Arrival = new DateTime(2026, 7, 4, 11, 59, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Toyota",
+                            Color = "Blue",
+                            Model = "A50",
+                            RegNbr = "BGD567",
+                            VehicleType = 1,
+                            Wheels = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Arrival = new DateTime(2026, 6, 5, 9, 10, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Saab",
+                            Color = "Yellow",
+                            Model = "H88",
+                            RegNbr = "KLI908",
+                            VehicleType = 2,
+                            Wheels = 10
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Arrival = new DateTime(2026, 7, 8, 18, 0, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Toyota",
+                            Color = "Black",
+                            Model = "X76",
+                            RegNbr = "TRE654",
+                            VehicleType = 1,
+                            Wheels = 2
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Arrival = new DateTime(2026, 7, 1, 10, 45, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Saab",
+                            Color = "Blue",
+                            Model = "C50",
+                            RegNbr = "DUN584",
+                            VehicleType = 0,
+                            Wheels = 4
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Arrival = new DateTime(2026, 6, 28, 14, 50, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Volvo",
+                            Color = "White",
+                            Model = "BG70",
+                            RegNbr = "PLG327",
+                            VehicleType = 2,
+                            Wheels = 10
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Arrival = new DateTime(2026, 6, 30, 16, 25, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Mazda",
+                            Color = "Black",
+                            Model = "BT50",
+                            RegNbr = "NJG968",
+                            VehicleType = 0,
+                            Wheels = 4
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Arrival = new DateTime(2026, 7, 6, 11, 18, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Toyota",
+                            Color = "White",
+                            Model = "A50",
+                            RegNbr = "RFM596",
+                            VehicleType = 0,
+                            Wheels = 4
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Arrival = new DateTime(2026, 6, 28, 15, 45, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Volvo",
+                            Color = "White",
+                            Model = "AZ34",
+                            RegNbr = "JYT628",
+                            VehicleType = 2,
+                            Wheels = 8
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Arrival = new DateTime(2026, 7, 8, 10, 18, 0, 0, DateTimeKind.Unspecified),
+                            Brand = "Toyota",
+                            Color = "Red",
+                            Model = "V30",
+                            RegNbr = "DER421",
+                            VehicleType = 1,
+                            Wheels = 2
+                        });
                 });
 
             modelBuilder.Entity("Garage3.Models.ParkingSession", b =>
@@ -208,9 +314,6 @@ namespace Garage3.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Number")
-                        .IsUnique();
-
                     b.ToTable("ParkingSpots");
                 });
 
@@ -244,9 +347,9 @@ namespace Garage3.Migrations
                     b.Property<int>("NumberOfWheels")
                         .HasColumnType("int");
 
-                    b.Property<string>("RegNbr")
+                    b.Property<string>("RegistrationNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("VehicleTypeNewId")
                         .HasColumnType("int");
@@ -254,9 +357,6 @@ namespace Garage3.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId");
-
-                    b.HasIndex("RegistrationNumber")
-                        .IsUnique();
 
                     b.HasIndex("VehicleTypeNewId");
 
@@ -273,12 +373,9 @@ namespace Garage3.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
 
                     b.ToTable("VehicleTypeNew");
                 });
@@ -418,17 +515,6 @@ namespace Garage3.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("Garage3.Models.ParkedVehicle", b =>
-                {
-                    b.HasOne("Garage3.Data.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ApplicationUser");
                 });
 
             modelBuilder.Entity("Garage3.Models.ParkingSession", b =>

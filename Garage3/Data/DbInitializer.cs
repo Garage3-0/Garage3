@@ -1,10 +1,7 @@
 ﻿using Garage3.Constants;
 using Garage3.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 
 namespace Garage3.Data;
 
@@ -35,7 +32,7 @@ public static class DbInitializer
     {
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        const string userEmail = "u2@garage3.local";
+        const string userEmail = "admin@garage3.local";
         const string userPassword = "Admin123!";
 
         var adminUser = await userManager.FindByEmailAsync(userEmail);
@@ -67,33 +64,32 @@ public static class DbInitializer
                 await userManager.AddToRoleAsync(adminUser, Roles.Admin);
             }
         }
+
+
     }
 
     public static async Task SeedParkingMembers(GarageContext context, IServiceProvider serviceProvider)
     {
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        await DbInitializer.SeedMember(
-     context, userManager,
-     "test1", "testare1",
-     "test1@test.com",
-     "19900101-0025");
+        string password = "Tester-1";  // Same for all test users!
 
         await DbInitializer.SeedMember(
-            context, userManager,
-            "test2", "testare2",
-            "test2@test.com",
-            "19900101-0033");
+             context, userManager,
+             "19900101-0025",
+             "test1", "tester1",
+             "test1@test.com",
+             password);
+
+        await DbInitializer.SeedMember(
+             context, userManager,
+             "19900101-0033",
+             "test2", "tester2",
+             "test2@test.com",
+             password);
     }
 
-    public static async Task SeedMember(
-    GarageContext context,
-    UserManager<ApplicationUser> userManager,
-    string firstName,
-    string lastName,
-    string email,
-    string personalIdentityNumber,
-    string password = "")
+    private static async Task SeedMember(GarageContext context, UserManager<ApplicationUser> userManager, string personalIdentityNumber, string firstName, string lastName, string email, string password = "")
     {
         string pwd = !String.IsNullOrWhiteSpace(password) ? password : "Tester-1";
 
@@ -290,26 +286,40 @@ public static class DbInitializer
     }
 }
 
-//var vehicleType = await context.VehicleTypeNew.FirstOrDefaultAsync();
-//var spot = await context.ParkingSpots.FirstOrDefaultAsync();
+    public static async Task SeedTestVehicle(GarageContext context, IServiceProvider serviceProvider, string email)
+    {
+        // Add a car for first test user
+        string regNbr = "NNN111";
+        string vehicleType = "Car";
 
-//if (member == null || vehicleType == null || spot == null) return;
+        var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-//if (!await context.ParkedVehicle.AnyAsync()) 
-//{
-//var vehicle = new ParkedVehicle
-//{
-// RegistrationNumber = "ABC123",
-// Använd det riktiga GUID-ID:t från den hämtade användaren:
-//ApplicationUserId = member.Id, 
-//VehicleTypeNewId = vehicleType.Id,
-//ParkingSpotId = spot.Id
-//};
+        var user = await userManager.FindByEmailAsync(email);
 
+        if (user != null)
+        {
+            var tmpVehicle = await context.Vehicles.FirstOrDefaultAsync(v => v.RegistrationNumber == regNbr);
 
-//    // User
-//    // Vehicle
-//    // Parkignspot
-//    // ParkingSession
-//}
-
+            if (tmpVehicle == null)
+            {
+                VehicleTypeNew? type = await context.VehicleTypeNew.FirstOrDefaultAsync(t => t.Name == vehicleType);
+                if (type != null)
+                {
+                    Vehicle vehicle = new Vehicle()
+                    {
+                        RegistrationNumber = regNbr, // nbr.ToString(),
+                        Color = "Black",
+                        Brand = "SAAB",
+                        Model = "900",
+                        NumberOfWheels = 4,
+                        VehicleTypeNewId = type.Id,
+                        ApplicationUser = user,
+                        ApplicationUserId = user.Id
+                    };
+                    context.Add(vehicle);
+                    await context.SaveChangesAsync();
+                }
+            }
+        }
+    }
+}
