@@ -45,6 +45,7 @@ public static class DbInitializer
                 UserName = userEmail,
                 Email = userEmail,
                 EmailConfirmed = true,
+                PersonalIdentityNumber = "900101-0017",
             };
 
             var result = await userManager.CreateAsync(

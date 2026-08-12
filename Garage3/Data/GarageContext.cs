@@ -18,6 +18,21 @@ public class GarageContext(DbContextOptions<GarageContext> options)
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<ApplicationUser>()
+    .HasIndex(u => u.PersonalIdentityNumber)
+    .IsUnique();
+
+        modelBuilder.Entity<Vehicle>()
+            .HasIndex(v => v.RegistrationNumber)
+            .IsUnique();
+
+        modelBuilder.Entity<ParkingSpot>()
+            .HasIndex(p => p.Number)
+            .IsUnique();
+
+        modelBuilder.Entity<VehicleTypeNew>()
+            .HasIndex(v => v.Name)
+            .IsUnique();
         modelBuilder.Entity<ParkedVehicle>().HasIndex(v => v.RegNbr).IsUnique();
         modelBuilder.Entity<ParkedVehicle>().HasData(
             new ParkedVehicle()
