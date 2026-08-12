@@ -74,6 +74,7 @@ public class ParkedVehiclesController : Controller
     // GET: PARKEDVEHICLES/Create
     public IActionResult Create()
     {
+        //var test = hourlyRate;
         return View();
     }
 

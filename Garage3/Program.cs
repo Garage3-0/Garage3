@@ -1,8 +1,27 @@
 using Garage3.Data;
+using Humanizer.Configuration;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Garage_3_0Context") ?? throw new InvalidOperationException("Connection string 'Garage_3_0Context' not found.");
+
+// Get hourlyRate from appsettings.json
+var priceData = builder.Configuration.GetSection("PriceData");
+var tmp = priceData.GetSection("HourlyRate");
+//public const decimal hourlyRate = decimal.TryParse(tmp.Value, out decimal r) ? r : default;
+
+//public static readonly decimal hourlyRate =
+//    decimal.TryParse(tmp.Value, System.Globalization.NumberStyles.Number,
+//                     System.Globalization.CultureInfo.InvariantCulture, out decimal r) ? r : default;
+
+var hourlyRate = builder.Configuration.GetValue<decimal>("PriceData:HourlyRate");
+
+
+
+//var t = priceData["HourlyRate"];
+
+//var price = priceData.Hour
+//Console.WriteLine(settings2["Settings2"]);
 
 builder.Services.AddDbContext<GarageContext>(options => options.UseSqlServer(connectionString));
 
