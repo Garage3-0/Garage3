@@ -13,9 +13,7 @@ public class GarageContext(DbContextOptions<GarageContext> options)
     public DbSet<VehicleTypeNew> VehicleTypeNew { get; set; }  // = default!; 
     public DbSet<Vehicle> Vehicles { get; set; }  // = default!;
     public DbSet<ParkingSpot> ParkingSpots { get; set; }  // = default!;
-
-    // TODO - this gives error on update-database!
-    //public DbSet<ParkingSession> ParkingSession { get; set; }
+    public DbSet<ParkingSession> ParkingSession { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
