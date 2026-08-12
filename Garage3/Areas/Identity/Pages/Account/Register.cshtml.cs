@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Garage3.Data;
+using Garage3.Constants;
 using Garage3.Services;
 using Garage3.Validation;
 using Microsoft.AspNetCore.Authentication;
@@ -10,9 +11,12 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Garage3.Areas.Identity.Pages.Account;
 
@@ -67,17 +71,19 @@ public class RegisterModel : PageModel
     ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class InputModel
+    public class InputModel : IValidatableObject
     {
         [Required]
         [Display(Name = "Username")]
         public string UserName { get; set; } = default!;
 
         [Required]
+        [StringLength(50)]
         [Display(Name = "First name")]
         public string FirstName { get; set; } = default!;
 
         [Required]
+        [StringLength(50)]
         [Display(Name = "Last name")]
         public string LastName { get; set; } = default!;
 
@@ -112,6 +118,41 @@ public class RegisterModel : PageModel
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string? ConfirmPassword { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (FirstName.Equals(LastName, StringComparison.OrdinalIgnoreCase))
+            {
+                yield return new ValidationResult(
+                    "First name and last name must be different.",
+                    new[] { nameof(FirstName), nameof(LastName) });
+            }
+            var personalNumber = PersonalIdentityNumber.Replace("-", "");
+
+            if (personalNumber.Length != 10 || !personalNumber.All(char.IsDigit))
+            {
+                yield return new ValidationResult(
+                    "Personal identity number must contain 10 digits.",
+                    new[] { nameof(PersonalIdentityNumber) });
+            }
+            
+            else
+            {
+                var datePart = personalNumber.Substring(0, 6);
+
+                if (!DateTime.TryParseExact(
+                    datePart,
+                    "yyMMdd",
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None,
+                    out _))
+                {
+                    yield return new ValidationResult(
+                        "Personal identity number must contain a valid date.",
+                        new[] { nameof(PersonalIdentityNumber) });
+                }
+            }
+        }
     }
 
 
@@ -147,6 +188,20 @@ public class RegisterModel : PageModel
 
             if (result.Succeeded)
             {
+                var roleResult = await _userManager.AddToRoleAsync(
+                    user,
+                    Roles.Member);
+
+                if (!roleResult.Succeeded)
+                {
+                    foreach (var error in roleResult.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+
+                    return Page();
+                }
+
                 _logger.LogInformation("User created a new account with password.");
 
                 var userId = await _userManager.GetUserIdAsync(user);

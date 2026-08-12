@@ -10,10 +10,10 @@ namespace Garage3.Models
 
         public DateTime? CheckOutTime { get; set; }
 
-        [Column(TypeName = "decimal(10, 2")]
+        [Column(TypeName = "decimal(10, 2)")]
         public decimal HourlyRateAtCheckin { get; set; }  // Is set at creation
 
-        [Column(TypeName = "decimal(10, 2")]
+        [Column(TypeName = "decimal(10, 2)")]
         public decimal? TotalPrice { get; set; }
 
 

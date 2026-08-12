@@ -4,6 +4,7 @@ using Garage3.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Garage3.Migrations
 {
     [DbContext(typeof(GarageContext))]
-    partial class GarageContextModelSnapshot : ModelSnapshot
+    [Migration("20260812090647_SeedMemberVehicle")]
+    partial class SeedMemberVehicle
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -343,7 +346,7 @@ namespace Garage3.Migrations
                     b.Property<int>("NumberOfWheels")
                         .HasColumnType("int");
 
-                    b.Property<string>("RegNbr")
+                    b.Property<string>("RegistrationNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -353,8 +356,6 @@ namespace Garage3.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId");
-                    b.HasIndex("RegNbr")
-                        .IsUnique();
 
                     b.HasIndex("VehicleTypeNewId");
 

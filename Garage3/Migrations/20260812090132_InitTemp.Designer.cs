@@ -4,6 +4,7 @@ using Garage3.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Garage3.Migrations
 {
     [DbContext(typeof(GarageContext))]
-    partial class GarageContextModelSnapshot : ModelSnapshot
+    [Migration("20260812090132_InitTemp")]
+    partial class InitTemp
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -270,13 +273,13 @@ namespace Garage3.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("HourlyRateAtCheckin")
-                        .HasColumnType("decimal(10, 2)");
+                        .HasColumnType("decimal(10, 2");
 
                     b.Property<int>("ParkingSpotId")
                         .HasColumnType("int");
 
                     b.Property<decimal?>("TotalPrice")
-                        .HasColumnType("decimal(10, 2)");
+                        .HasColumnType("decimal(10, 2");
 
                     b.Property<int>("VehicleId")
                         .HasColumnType("int");
@@ -288,6 +291,32 @@ namespace Garage3.Migrations
                     b.HasIndex("VehicleId");
 
                     b.ToTable("ParkingSession");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CheckInTime = new DateTime(2026, 8, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            HourlyRateAtCheckin = 9.9m,
+                            ParkingSpotId = 1,
+                            VehicleId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CheckInTime = new DateTime(2026, 8, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            HourlyRateAtCheckin = 9.9m,
+                            ParkingSpotId = 2,
+                            VehicleId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CheckInTime = new DateTime(2026, 8, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            HourlyRateAtCheckin = 9.9m,
+                            ParkingSpotId = 3,
+                            VehicleId = 3
+                        });
                 });
 
             modelBuilder.Entity("Garage3.Models.ParkingSpot", b =>
@@ -343,9 +372,9 @@ namespace Garage3.Migrations
                     b.Property<int>("NumberOfWheels")
                         .HasColumnType("int");
 
-                    b.Property<string>("RegNbr")
+                    b.Property<string>("RegistrationNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("VehicleTypeNewId")
                         .HasColumnType("int");
@@ -353,12 +382,45 @@ namespace Garage3.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId");
-                    b.HasIndex("RegNbr")
+
+                    b.HasIndex("RegistrationNumber")
                         .IsUnique();
 
                     b.HasIndex("VehicleTypeNewId");
 
                     b.ToTable("Vehicles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Brand = "Alfa Romeo",
+                            Color = "Blue",
+                            Model = "X99",
+                            NumberOfWheels = 4,
+                            RegistrationNumber = "AAA111",
+                            VehicleTypeNewId = 2
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Brand = "Ford",
+                            Color = "Blue",
+                            Model = "Fiesta",
+                            NumberOfWheels = 4,
+                            RegistrationNumber = "BBB222",
+                            VehicleTypeNewId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Brand = "Honda",
+                            Color = "Red",
+                            Model = "CBX750",
+                            NumberOfWheels = 2,
+                            RegistrationNumber = "CCC333",
+                            VehicleTypeNewId = 3
+                        });
                 });
 
             modelBuilder.Entity("Garage3.Models.VehicleTypeNew", b =>
