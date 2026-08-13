@@ -2,7 +2,7 @@
 {
     public interface IUniquenessValidator
     {
-        Task<bool> IsRegNbrUniqueAsync(string regNbr, int? excludeVehicleId = null);
+        Task<bool> IsRegNbrUniqueAsync(string regNbr, int currentVehicleId = 0);
         Task<bool> IsPnumberUniqueAsync(string pnumber, string? excludeUserId = null);
     }
 }

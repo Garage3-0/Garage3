@@ -9,12 +9,13 @@ namespace Garage3.Services
 
         public UniquenessValidator(GarageContext db) => _db = db;
 
-        public async Task<bool> IsRegNbrUniqueAsync(string regNbr, int? excludeVehicleId = null)
+        public async Task<bool> IsRegNbrUniqueAsync(string regNbr, int currentVehicleId = 0)
         {
-            if (string.IsNullOrWhiteSpace(regNbr)) return true;
-            var normalized = regNbr.Trim().ToUpperInvariant();
+            if (string.IsNullOrWhiteSpace(regNbr)) 
+                return false;
+            var normalized = regNbr.Trim().ToUpper();
             return !await _db.ParkedVehicle 
-                .AnyAsync(v => v.RegNbr == normalized && v.Id != excludeVehicleId);
+                .AnyAsync(v => v.RegNbr == normalized && v.Id != currentVehicleId);
         }
 
         public async Task<bool> IsPnumberUniqueAsync(string pnumber, string? excludeUserId = null)
