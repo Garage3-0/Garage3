@@ -90,10 +90,21 @@ public class ParkedVehiclesController : Controller
     [Authorize]
     public async Task<IActionResult> Create()
     {
+        var availableVehicles = await GetAvailableVehiclesForCurrentUserAsync();
+
         var model = new ParkVehicleViewModel
         {
-            VehicleTypes = new SelectList(await _context.VehicleTypeNew.ToListAsync(), "Id", "Name")
+            VehicleTypes = new SelectList(
+                await _context.VehicleTypeNew.ToListAsync(),
+                "Id",
+                "Name"),
+
+            Vehicles = new SelectList(
+                availableVehicles,
+                "Id",
+                "RegistrationNumber")
         };
+
         return View(model);
     }
 
@@ -474,6 +485,24 @@ public class ParkedVehiclesController : Controller
             .ToListAsync();
 
         return View(myVehicles);
+    }
+    private async Task<List<Vehicle>> GetAvailableVehiclesForCurrentUserAsync()
+    {
+        var currentUserId = _userManager.GetUserId(User);
+
+        if (currentUserId == null)
+        {
+            return new List<Vehicle>();
+        }
+
+        var vehicles = await _context.Vehicles
+            .Where(v =>
+                v.ApplicationUserId == currentUserId &&
+                !v.ParkingSessions.Any(ps => ps.CheckOutTime == null))
+            .OrderBy(v => v.RegistrationNumber)
+            .ToListAsync();
+
+        return vehicles;
     }
 
     // GET: ParkedVehicles/Register
