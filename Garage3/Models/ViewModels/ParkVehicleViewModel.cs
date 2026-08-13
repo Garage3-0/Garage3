@@ -6,6 +6,21 @@ namespace Garage3.Models.ViewModels
 {
     public class ParkVehicleViewModel
     {
+        // New properties for US06 - park an already registered vehicle
+
+        [Display(Name = "Vehicle")]
+        public int VehicleId { get; set; }
+
+        public SelectList? Vehicles { get; set; }
+
+        [Display(Name = "Parking spot")]
+        public int ParkingSpotId { get; set; }
+
+        public SelectList? ParkingSpots { get; set; }
+
+
+        // Existing properties used by the current Create flow
+
         [Required(ErrorMessage = "Please select a vehicle type.")]
         [Display(Name = "Vehicle type")]
         public int VehicleTypeId { get; set; }
