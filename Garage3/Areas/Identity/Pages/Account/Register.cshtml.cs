@@ -3,6 +3,8 @@
 
 using Garage3.Data;
 using Garage3.Constants;
+using Garage3.Services;
+using Garage3.Validation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -18,8 +20,10 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Garage3.Areas.Identity.Pages.Account;
 
+
 public class RegisterModel : PageModel
 {
+    private readonly IUniquenessValidator _uniquenessValidator;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUserStore<ApplicationUser> _userStore;
@@ -32,7 +36,8 @@ public class RegisterModel : PageModel
         IUserStore<ApplicationUser> userStore,
         SignInManager<ApplicationUser> signInManager,
         ILogger<RegisterModel> logger,
-        IEmailSender emailSender)
+        IEmailSender emailSender,
+        IUniquenessValidator uniquenessValidator)
     {
         _userManager = userManager;
         _userStore = userStore;
@@ -40,6 +45,7 @@ public class RegisterModel : PageModel
         _signInManager = signInManager;
         _logger = logger;
         _emailSender = emailSender;
+        _uniquenessValidator = uniquenessValidator;
     }
 
     /// <summary>
@@ -82,6 +88,7 @@ public class RegisterModel : PageModel
         public string LastName { get; set; } = default!;
 
         [Required]
+        [PersonalIdentityNumber]
         [Display(Name = "Personal identity number")]
         public string PersonalIdentityNumber { get; set; } = default!;
         /// <summary>
@@ -122,20 +129,20 @@ public class RegisterModel : PageModel
             }
             var personalNumber = PersonalIdentityNumber.Replace("-", "");
 
-            if (personalNumber.Length != 10 || !personalNumber.All(char.IsDigit))
+            if (personalNumber.Length != 12 || !personalNumber.All(char.IsDigit))
             {
                 yield return new ValidationResult(
-                    "Personal identity number must contain 10 digits.",
+                    "Your Personal Identity Number must contain 12 digits (YYYYMMDD-XXXX)",
                     new[] { nameof(PersonalIdentityNumber) });
             }
             
             else
             {
-                var datePart = personalNumber.Substring(0, 6);
+                var datePart = personalNumber.Substring(0, 8);
 
                 if (!DateTime.TryParseExact(
                     datePart,
-                    "yyMMdd",
+                    "yyyyMMdd",
                     System.Globalization.CultureInfo.InvariantCulture,
                     System.Globalization.DateTimeStyles.None,
                     out _))
@@ -161,24 +168,19 @@ public class RegisterModel : PageModel
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         if (ModelState.IsValid)
         {
-            var normalizedPersonalNumber = Input.PersonalIdentityNumber.Replace("-", "");
+            var normalizedPnumber = Input.PersonalIdentityNumber?.Trim() ?? string.Empty;
 
-        var personalNumberExists = await _userManager.Users
-            .AnyAsync(u => u.PersonalIdentityNumber.Replace("-", "") == normalizedPersonalNumber);
+            bool isUnique = await _uniquenessValidator.IsPnumberUniqueAsync(normalizedPnumber);
 
-        if (personalNumberExists)
-        {
-            ModelState.AddModelError(
-                "Input.PersonalIdentityNumber",
-                "This personal identity number is already registered.");
-
-            return Page();
-        }
-        
+            if (!isUnique)
+            {
+                ModelState.AddModelError("Input.PersonalIdentityNumber", "Personal identity number already exists.");
+                return Page();
+            }
             var user = CreateUser();
             user.FirstName = Input.FirstName;
             user.LastName = Input.LastName;
-            user.PersonalIdentityNumber = Input.PersonalIdentityNumber;
+            user.PersonalIdentityNumber = normalizedPnumber;
 
             await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);

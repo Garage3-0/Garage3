@@ -8,7 +8,8 @@ namespace Garage3.Models.ViewModels
         public required int Id { get; set; }
 
         [Display(Name = "Vehicle type")]
-        public VehicleType? VehicleType { get; set; }
+        public int VehicleTypeId { get; set; }
+        public string? VehicleTypeName { get; set; }
 
         [Display(Name = "Reg.nbr")]
         public required string RegNbr { get; set; }
