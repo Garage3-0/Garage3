@@ -17,13 +17,14 @@ namespace Garage3.Services
             if (string.IsNullOrWhiteSpace(regNbr)) 
                 return "Registration number is required";
 
-            var normalized = regNbr.Trim().ToUpperInvariant();
-
-            if (!RegNbrRegex.IsMatch(normalized))
+            if (!RegNbrRegex.IsMatch(regNbr.Trim().ToUpperInvariant()))
                 return "Invalid registration number format. Must be 3 letters followed by 3 numbers (e.g. ABC123).";
 
-            bool exists = !await _db.Vehicles 
-                .AnyAsync(v => v.RegNbr == normalized && (excludeVehicleId == null || v.Id != excludeVehicleId));
+            var normalizedInput = regNbr.Replace(" ", "").ToUpperInvariant();
+
+            bool exists = await _db.Vehicles
+                .AnyAsync(v => v.RegNbr.Replace(" ", "").ToUpper() == normalizedInput
+                            && (excludeVehicleId == null || excludeVehicleId == 0 || v.Id != excludeVehicleId));
 
             if (exists)
             {

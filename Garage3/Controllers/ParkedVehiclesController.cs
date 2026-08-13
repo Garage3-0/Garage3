@@ -265,7 +265,7 @@ public class ParkedVehiclesController : Controller
             {
                 vehicle.VehicleTypeId = viewModel.VehicleTypeId;
                 vehicle.VehicleTypeNewId = viewModel.VehicleTypeId;
-                vehicle.RegNbr = viewModel.RegNbr!.Trim().ToUpperInvariant();
+                vehicle.RegNbr = viewModel.RegNbr!.Replace(" ", "").ToUpperInvariant();
                 vehicle.Color = viewModel.Color;
                 vehicle.Brand = viewModel.Brand;
                 vehicle.Model = viewModel.Model;
