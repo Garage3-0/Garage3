@@ -1,10 +1,10 @@
 @model Garage3.Models.ViewModels.ParkedVehicleEditViewModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Vehicle";
 }
 
-<h1>Edit</h1>
+<h1>Edit Vehicle</h1>
 
 @if (TempData["Error"] != null)
 {
@@ -16,57 +16,49 @@
 <h4>Parked Vehicle</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="VehicleType" class="control-label fw-bold"></label>
-                <select asp-for="VehicleType"
-                        asp-items="Html.GetEnumSelectList<VehicleType>()">
+            <input type="hidden" asp-for="Arrival" />
+
+            <div class="form-group mb-3">
+                <label asp-for="VehicleTypeId" class="control-label fw-bold"></label>
+                <select asp-for="VehicleTypeId" asp-items="Model.VehicleTypes" class="form-select">
                 </select>
-                <span asp-validation-for="VehicleType" class="text-danger"></span>
+                <span asp-validation-for="VehicleTypeId" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group mb-3">
                 <label asp-for="RegNbr" class="control-label fw-bold"></label>
                 <input asp-for="RegNbr" class="form-control" />
                 <span asp-validation-for="RegNbr" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group mb-3">
                 <label asp-for="Color" class="control-label fw-bold"></label>
                 <input asp-for="Color" class="form-control" maxlength="10" />
                 <span asp-validation-for="Color" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group mb-3">
                 <label asp-for="Brand" class="control-label fw-bold"></label>
                 <input asp-for="Brand" class="form-control" maxlength="20" />
                 <span asp-validation-for="Brand" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group mb-3">
                 <label asp-for="Model" class="control-label fw-bold"></label>
                 <input asp-for="Model" class="form-control" maxlength="10" />
                 <span asp-validation-for="Model" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group mb-3">
                 <label asp-for="Wheels" class="control-label fw-bold"></label>
                 <input asp-for="Wheels" class="form-control"/>
                 <span asp-validation-for="Wheels" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Arrival" class="control-label fw-bold"></label>
-                <p class="form-control-plaintext">@Model.Arrival.ToString("yyyy-MM-dd HH:mm")</p>
-                <input type="hidden" asp-for="Arrival" />
-                <small class="form-text text-muted">Arrival time cannot be edited.</small>
-            </div>
-            <div class="form-group">
+            <div class="form-group mt-4">
                 <input type="submit" value="Save" class="btn btn-primary" />
+                <a asp-action="MyVehicles" class="btn btn-secondary ms-2">Back to List</a>
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

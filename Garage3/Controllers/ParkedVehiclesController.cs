@@ -1,22 +1,28 @@
 using Garage3.Data;
 using Garage3.Models;
 using Garage3.Models.ViewModels;
+using Garage3.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
+[Authorize]
 public class ParkedVehiclesController : Controller
 {
     const int pricePerHour = 10;
 
     private readonly GarageContext _context;
+    private readonly IUniquenessValidator _uniquenessValidator;
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public ParkedVehiclesController(GarageContext context, UserManager<ApplicationUser> userManager)
+    public ParkedVehiclesController(GarageContext context, IUniquenessValidator uniquenessValidator, UserManager<ApplicationUser> userManager)
+    
     {
         _context = context;
+        _uniquenessValidator = uniquenessValidator;
         _userManager = userManager;
     }
 
@@ -44,7 +50,8 @@ public class ParkedVehiclesController : Controller
         var model = await vehicles.Select(v => new ParkedVehicleOverviewViewModel
         {
             Id = v.Id,
-            VehicleType = v.VehicleType,
+            VehicleTypeId = v.VehicleTypeId,
+            VehicleTypeName = v.VehicleType != null ? v.VehicleType.Name : "Unknown",
             RegNbr = v.RegNbr,
             Color = v.Color,
             Brand = v.Brand,
@@ -65,20 +72,29 @@ public class ParkedVehiclesController : Controller
             return NotFound();
         }
 
+        var currentUserId = _userManager.GetUserId(User);
+
         var parkedvehicle = await _context.ParkedVehicle
-            .FirstOrDefaultAsync(m => m.Id == id);
+            .FirstOrDefaultAsync(m => m.Id == id && m.ApplicationUserId == currentUserId);
+
         if (parkedvehicle == null)
         {
-            return NotFound();
+            TempData["ErrorMessage"] = "You do not have permission to view this vehicle.";
+            return RedirectToAction(nameof(MyVehicles));
         }
 
         return View(parkedvehicle);
     }
 
     // GET: PARKEDVEHICLES/Create
-    public IActionResult Create()
+    [Authorize]
+    public async Task<IActionResult> Create()
     {
-        return View();
+        var model = new ParkVehicleViewModel
+        {
+        VehicleTypes = new SelectList(await _context.VehicleTypeNew.ToListAsync(), "Id", "Name")
+        };
+        return View(model);
     }
 
     // POST: PARKEDVEHICLES/Create
@@ -86,41 +102,61 @@ public class ParkedVehiclesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ParkVehicleViewModel ParkVehicleViewModel)
+    [Authorize]
+    public async Task<IActionResult> Create(ParkVehicleViewModel viewModel)
     {
         if (ModelState.IsValid)
         {
-            bool exists = _context.ParkedVehicle.Any(v => v.RegNbr == ParkVehicleViewModel.RegNbr);
+            var normalizedRegNbr = viewModel.RegNbr?.Trim().ToUpper() ?? string.Empty;
 
-            if (exists)
+            bool isUnique = await _uniquenessValidator.IsRegNbrUniqueAsync(normalizedRegNbr);
+
+            if (!isUnique)
             {
-                ModelState.AddModelError("RegNbr", "Registration number already exists in the garage. There can only be one vehicle per registration number.");
-                return View(ParkVehicleViewModel);
+                ModelState.AddModelError("RegNbr", "This registration number already exists in the garage. There can only be one vehicle per registration number.");
+                viewModel.VehicleTypes = new SelectList(await _context.VehicleTypeNew.ToListAsync(), "Id", "Name");
+                return View(viewModel);
+            }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            if (currentUser == null)
+            {
+                TempData["Error"] = "Your session is invalid or user was not found. Please log in again.";
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
             }
 
             var parkedVehicle = new ParkedVehicle
             {
-                VehicleType = ParkVehicleViewModel.VehicleType,
-                RegNbr = ParkVehicleViewModel.RegNbr?.ToUpper().Trim() ?? string.Empty,
-                Color = ParkVehicleViewModel.Color ?? string.Empty,
-                Brand = ParkVehicleViewModel.Brand ?? string.Empty,
-                Model = ParkVehicleViewModel.Model ?? string.Empty,
-                Wheels = ParkVehicleViewModel.Wheels,
-                Arrival = DateTime.Now
+                VehicleTypeId = viewModel.VehicleTypeId,
+                RegNbr = normalizedRegNbr,
+                Color = viewModel.Color ?? string.Empty,
+                Brand = viewModel.Brand ?? string.Empty,
+                Model = viewModel.Model ?? string.Empty,
+                Wheels = viewModel.Wheels,
+                Arrival = DateTime.Now,
+                ApplicationUserId = currentUser.Id
             };
-            _context.Add(parkedVehicle);
-            await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Vehicle has been successfully parked!";
+            try
+            {
+                _context.Add(parkedVehicle);
+                await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
-
+                TempData["Success"] = "Vehicle has been successfully parked!";
+                return RedirectToAction(nameof(MyVehicles));
+            }
+            catch (DbUpdateException ex)
+            {
+                var innerMessage = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                ModelState.AddModelError(string.Empty, $"Database error: {innerMessage}");
+            }
         }
-
+        viewModel.VehicleTypes = new SelectList(await _context.VehicleTypeNew.ToListAsync(), "Id", "Name");
         TempData["Error"] = "Vehicle could not be parked!";
-
-        return View(ParkVehicleViewModel);
-    }
+            return View(viewModel);
+        }
+    
 
     // GET: PARKEDVEHICLES/Edit/5
     public async Task<IActionResult> Edit(int? id)
@@ -128,21 +164,25 @@ public class ParkedVehiclesController : Controller
         if (id == null)
         {
             TempData["ErrorMessage"] = "A valid vehicle ID must be provided to edit.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(MyVehicles));
         }
 
-        var parkedvehicle = await _context.ParkedVehicle.FindAsync(id);
+        var currentUserId = _userManager.GetUserId(User);
+
+        var parkedvehicle = await _context.ParkedVehicle.
+            FirstOrDefaultAsync(v => v.Id == id && v.ApplicationUserId ==currentUserId);
 
         if (parkedvehicle == null)
         {
-            TempData["ErrorMessage"] = $"Vehicle with ID {id} could not be found in the system.";
-            return RedirectToAction(nameof(Index));
+            TempData["ErrorMessage"] = "Vehicle not found or you do not have permission to edit it.";
+            return RedirectToAction(nameof(MyVehicles));
         }
 
         var viewModel = new ParkedVehicleEditViewModel
         {
             Id = parkedvehicle.Id,
-            VehicleType = parkedvehicle.VehicleType,
+            VehicleTypeId = parkedvehicle.VehicleTypeId,
+            VehicleTypes = new SelectList(await _context.VehicleTypeNew.ToListAsync(), "Id", "Name", parkedvehicle.VehicleTypeId),
             RegNbr = parkedvehicle.RegNbr,
             Color = parkedvehicle.Color,
             Brand = parkedvehicle.Brand,
@@ -165,35 +205,39 @@ public class ParkedVehiclesController : Controller
         if (id != viewModel.Id)
         {
             TempData["ErrorMessage"] = "Data mismatch error. The request could not be processed.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(MyVehicles));
         }
 
         if (ModelState.IsValid)
         {
             try
             {
+                var normalizedRegNbr = viewModel.RegNbr.Trim().ToUpper() ?? string.Empty;
                 // Is there another vehicle that already has this reg number?
-                bool regNbrExists = await _context.ParkedVehicle
-                    .AnyAsync(v => v.RegNbr == viewModel.RegNbr && v.Id != viewModel.Id);
+                bool isUnique = await _uniquenessValidator
+                    .IsRegNbrUniqueAsync(normalizedRegNbr, viewModel.Id);
 
-                if (regNbrExists)
+                if (!isUnique)
                 {
                     ModelState.AddModelError("RegNbr", "This registration number is already occupied by another parked vehicle.");
-
+                    viewModel.VehicleTypes = new SelectList(await _context.VehicleTypeNew.ToListAsync(), "Id", "Name", viewModel.VehicleTypeId);
                     return View(viewModel); // "Abort" and send user back to view with error message
                 }
 
-                var parkedvehicle = await _context.ParkedVehicle.FindAsync(id);
+                var currentUserId = _userManager.GetUserId(User);
+
+                var parkedvehicle = await _context.ParkedVehicle.
+                    FirstOrDefaultAsync(v => v.Id == id && v.ApplicationUserId == currentUserId);
 
                 // If the vehicle has been removed from the database while another user edited it
                 if (parkedvehicle == null)
                 {
-                    TempData["ErrorMessage"] = "The vehicle you are trying to edit no longer exists.";
-                    return RedirectToAction(nameof(Index));
+                    TempData["ErrorMessage"] = "Vehicle not found or you do not have permission to update it.";
+                    return RedirectToAction(nameof(MyVehicles));
                 }
 
-                parkedvehicle.VehicleType = viewModel.VehicleType!.Value;
-                parkedvehicle.RegNbr = viewModel.RegNbr;
+                parkedvehicle.VehicleTypeId = viewModel.VehicleTypeId;
+                parkedvehicle.RegNbr = normalizedRegNbr;
                 parkedvehicle.Color = viewModel.Color;
                 parkedvehicle.Brand = viewModel.Brand;
                 parkedvehicle.Model = viewModel.Model;
@@ -202,29 +246,34 @@ public class ParkedVehiclesController : Controller
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = $"Vehicle with registration number \"{parkedvehicle.RegNbr}\" has been updated!";
+                return RedirectToAction(nameof(MyVehicles));
             }
             catch (DbUpdateConcurrencyException)
             {
                 if (!ParkedVehicleExists(viewModel.Id))
                 {
                     TempData["ErrorMessage"] = "The vehicle was removed by another user during the process.";
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(MyVehicles));
                 }
                 else
                 {
                     TempData["ErrorMessage"] = "A database concurrency error occurred. Please try again.";
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(MyVehicles));
                 }
             }
 
-            TempData["Success"] = "Vehicle details updated successfully!";
-
-            return RedirectToAction(nameof(Index));
+            //TempData["Success"] = "Vehicle details updated successfully!";
+            //return RedirectToAction(nameof(Index));
         }
-
+        viewModel.VehicleTypes = new SelectList(await _context.VehicleTypeNew.ToListAsync(), "Id", "Name", viewModel.VehicleTypeId);
         TempData["Error"] = "Failed to update vehicle details.";
-
         return View(viewModel);
+    }
+
+    private bool ParkedVehicleExists(int id)
+    {
+        var currentUserId = _userManager.GetUserId(User);
+        return _context.ParkedVehicle.Any(e => e.Id == id && e.ApplicationUserId == currentUserId);
     }
 
 
@@ -317,11 +366,6 @@ public class ParkedVehiclesController : Controller
         return RedirectToAction("Receipt", "ParkedVehicles");
     }
 
-    private bool ParkedVehicleExists(int? id)
-    {
-        return _context.ParkedVehicle.Any(e => e.Id == id);
-    }
-
     private ReceiptViewModel CreateReceiptViewModel(ParkedVehicle parkedVehicle)
     {
         //Get act time, parked time and price
@@ -337,7 +381,7 @@ public class ParkedVehiclesController : Controller
         ReceiptViewModel receiptViewModel = new ReceiptViewModel()
         {
             Id = parkedVehicle.Id,
-            VehicleType = parkedVehicle.VehicleType,
+            VehicleTypeId = parkedVehicle.VehicleTypeId,
             RegNbr = parkedVehicle.RegNbr,
             Color = parkedVehicle.Color,
             Brand = parkedVehicle.Brand,
@@ -353,5 +397,31 @@ public class ParkedVehiclesController : Controller
         };
 
         return receiptViewModel;
+    }
+
+    // GET: PARKEDVEHICLES/MyVehicles
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    public async Task<IActionResult> MyVehicles()
+    {
+        // Get ID for logged in user
+        var currentUserId = _userManager.GetUserId(User);
+
+        // Filter for vehicles with the same ApplicationUserId
+        var myVehicles = await _context.ParkedVehicle
+            .Where(v => v.ApplicationUserId == currentUserId)
+            .Select(v => new ParkedVehicleOverviewViewModel
+            {
+                Id = v.Id,
+                VehicleTypeId = v.VehicleTypeId,
+                RegNbr = v.RegNbr,
+                Color = v.Color,
+                Brand = v.Brand,
+                Model = v.Model,
+                Wheels = v.Wheels,
+                Arrival = v.Arrival
+            })
+            .ToListAsync();
+
+        return View(myVehicles);
     }
 }

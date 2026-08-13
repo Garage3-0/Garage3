@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Garage3.Data;
+using System.ComponentModel.DataAnnotations;
 
 namespace Garage3.Models
 {
@@ -6,8 +7,8 @@ namespace Garage3.Models
     {
         public int Id { get; set; }
 
-        public required VehicleType VehicleType { get; set; }
-
+        public int VehicleTypeId { get; set; }
+        public VehicleTypeNew? VehicleType { get; set; }
         public required string RegNbr { get; set; }
 
         [StringLength(10)]
@@ -24,5 +25,8 @@ namespace Garage3.Models
 
         public DateTime Arrival { get; set; } = DateTime.Now;
 
+        public string ApplicationUserId { get; set; } = string.Empty;
+
+        public ApplicationUser? ApplicationUser { get; set; }
     }
 }

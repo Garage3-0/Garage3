@@ -50,8 +50,7 @@
                 class="btn btn-outline-secondary" 
                 title="Clear search">&times;</a>
             }
-            <button type="submit" 
-                    class="btn btn-primary">Search</button>
+            <button type="submit" class="btn btn-primary">Search</button>
         </div>
     </div>
 </form>
@@ -93,28 +92,28 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(model => item.VehicleType)
+                @item.VehicleTypeName
             </td>
             <td>
-                @Html.DisplayFor(model => item.RegNbr)
+                    @item.RegNbr
             </td>
                 @if (!string.IsNullOrEmpty(currentSearch))
                 {
                     <td>
-                        @Html.DisplayFor(model => item.Brand)
+                        @item.Brand
                     </td>
                     <td>
-                        @Html.DisplayFor(model => item.Model)
+                        @item.Model
                     </td>
                     <td>
-                        @Html.DisplayFor(model => item.Color)
+                        @item.Color
                     </td>
                     <td>
-                        @Html.DisplayFor(model => item.Wheels)
+                        @item.Wheels
                     </td>
                 }
             <td>
-                @Html.DisplayFor(model => item.Arrival)
+                @item.Arrival
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

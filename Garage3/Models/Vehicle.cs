@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Garage3.Data;
+using System.ComponentModel.DataAnnotations;
 
 namespace Garage3.Models
 {
@@ -6,7 +7,18 @@ namespace Garage3.Models
     {
         public int Id { get; set; }
 
-        public required string RegistrationNumber { get; set; }
+        //public required string RegistrationNumber { get; set; }
+
+        private string _regNbr = string.Empty;
+
+        [Required]
+        [RegularExpression(@"^[A-Z]{3}[0-9]{3}$", ErrorMessage = "The Registration number needs to follow format ABC123.")]
+        public required string RegistrationNumber
+        {
+            get => _regNbr;
+            set => _regNbr = value?.Trim().ToUpperInvariant() ?? string.Empty;
+        }
+
 
         [StringLength(10, MinimumLength = 2)]
         public required string Color { get; set; }
@@ -20,19 +32,17 @@ namespace Garage3.Models
         [Range(2, 10)]
         public required int NumberOfWheels { get; set; }
 
-
-        // TODO - change name to VehicleType when old VehicleType-model is removed
-        public required int VehicleTypeNewId { get; set; }
-
-        // Required reference navigation to principal
-        public VehicleTypeNew VehicleTypeNew { get; set; } = null!;
-
         public ICollection<ParkingSession> ParkingSessions { get; } = new List<ParkingSession>();
 
 
-        // TODO - add ApplicationUser 
-        //public required string ApplicationUserId { get; set; }
-        //public ApplicationUser? ApplicationUser { get; set; }  // TODO required !!!
+        // TODO - change name to VehicleType when old VehicleType-model is removed
+        public required int VehicleTypeNewId { get; set; }
+        public required string ApplicationUserId { get; set; }
+
+
+        // Required reference navigation to principal
+        public VehicleTypeNew VehicleTypeNew { get; set; } = null!;
+        public ApplicationUser? ApplicationUser { get; set; }
 
     }
 }
