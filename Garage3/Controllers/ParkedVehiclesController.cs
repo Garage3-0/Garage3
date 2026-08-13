@@ -412,4 +412,62 @@ public class ParkedVehiclesController : Controller
 
         return View(myVehicles);
     }
+
+    // GET: ParkedVehicles/Register
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> Register()
+    {
+        var viewModel = new RegisterVehicleViewModel
+        {
+            VehicleTypes = new SelectList(await _context.VehicleTypeNew.ToListAsync(), "Id", "Name")
+        };
+        return View(viewModel);
+    }
+
+    // POST: ParkedVehicles/Register
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize]
+    public async Task<IActionResult> Register(RegisterVehicleViewModel viewModel)
+    {
+        if (ModelState.IsValid)
+        {
+            var normalizedRegNbr = viewModel.RegNbr?.Trim().ToUpper() ?? string.Empty;
+
+            if (!await _uniquenessValidator.IsRegNbrUniqueAsync(normalizedRegNbr))
+            {
+                ModelState.AddModelError("RegNbr", "This registration number is already registered.");
+            }
+            else
+            {
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null)
+                {
+                    return RedirectToAction("Login", "Account", new { area = "Identity" });
+                }
+
+                
+                var vehicle = new ParkedVehicle 
+                {
+                    VehicleTypeId = viewModel.VehicleTypeId,
+                    RegNbr = normalizedRegNbr,
+                    Color = viewModel.Color,
+                    Brand = viewModel.Brand,
+                    Model = viewModel.Model,
+                    Wheels = viewModel.Wheels,
+                    ApplicationUserId = currentUser.Id
+                };
+
+                _context.Add(vehicle);
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = $"Vehicle {normalizedRegNbr} was successfully registered!";
+                return RedirectToAction(nameof(MyVehicles));
+            }
+        }
+
+        viewModel.VehicleTypes = new SelectList(await _context.VehicleTypeNew.ToListAsync(), "Id", "Name");
+        return View(viewModel);
+    }
 }
