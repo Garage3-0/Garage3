@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using Garage3.Constants
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -28,6 +29,17 @@
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="ParkedVehicles" asp-action="MyVehicles">My Vehicles</a>
+                            </li>
+                        }
+                        @if (User.IsInRole(Roles.Admin))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"
+                                   asp-area=""
+                                   asp-controller="Admin"
+                                   asp-action="Users">
+                                    Admin
+                                </a>
                             </li>
                         }
                     </ul>
