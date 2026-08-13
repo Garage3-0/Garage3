@@ -5,9 +5,9 @@
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>My Parked Vehicles</h2>
+    <h2>My Vehicles</h2>
     <a asp-action="Create" class="btn btn-success">
-        <i class="bi bi-plus-circle"></i> Park New Vehicle
+        <i class="bi bi-plus-circle"></i> Register New Vehicle
     </a>
 </div>
 
@@ -38,8 +38,8 @@
 @if (!Model.Any())
 {
     <div class="alert alert-info shadow-sm p-4 text-center">
-        <h4>You have no parked vehicles at the moment</h4>
-        <p class="mb-3">When you park a vehicle in the garage, it will appear here.</p>
+        <h4>You have no registered vehicles at the moment</h4>
+        <p class="mb-3">When you register a vehicle, it will appear here.</p>
         <a asp-action="Create" class="btn btn-primary">Park your first vehicle</a>
     </div>
 }
