@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
 
 namespace Garage3.Controllers;
 
@@ -82,6 +81,13 @@ public class AdminController : Controller
             return NotFound();
         }
 
+        var currentUserID = _userManager.GetUserId(User);
+
+        if (currentUserID == userId && role == Roles.Admin)
+        {
+            return Forbid();
+        }
+
         if (role != Roles.Admin && role != Roles.Member)
         {
             return BadRequest();
@@ -102,6 +108,7 @@ public class AdminController : Controller
 
         return RedirectToAction(nameof(UserDetails), new { id = userId });
     }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> RemoveRole(string userId, string role)
