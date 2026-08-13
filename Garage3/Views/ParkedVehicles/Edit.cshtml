@@ -4,63 +4,80 @@
     ViewData["Title"] = "Edit Vehicle";
 }
 
-<h1>Edit Vehicle</h1>
+<div class="row justify-content-center">
+    <div class="col-md-6">
 
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger">
+    <div class="alert alert-danger mb-3">
         @TempData["Error"]
     </div>
 }
 
-<h4>Parked Vehicle</h4>
-<hr />
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="Arrival" />
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center py-3">
+                <h4 class="mb-0 fs-5 fw-bold">Edit Vehicle Details</h4>
+                <span class="badge bg-dark">Reg: @Model.RegNbr</span>
+            </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="VehicleTypeId" class="control-label fw-bold"></label>
-                <select asp-for="VehicleTypeId" asp-items="Model.VehicleTypes" class="form-select">
-                </select>
-                <span asp-validation-for="VehicleTypeId" class="text-danger"></span>
+            <div class="card-body p-4">
+                <form asp-action="Edit" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <!-- Dolda fält -->
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="Arrival" />
+
+                    <div class="form-group mb-3">
+                        <label asp-for="VehicleTypeId" class="form-label fw-bold"></label>
+                        <select asp-for="VehicleTypeId" asp-items="Model.VehicleTypes" class="form-select">
+                            <option value="">-- Select Vehicle Type --</option>
+                        </select>
+                        <span asp-validation-for="VehicleTypeId" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="RegNbr" class="form-label fw-bold"></label>
+                        <input asp-for="RegNbr" class="form-control" />
+                        <span asp-validation-for="RegNbr" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Color" class="form-label fw-bold"></label>
+                        <input asp-for="Color" class="form-control" maxlength="10" />
+                        <span asp-validation-for="Color" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Brand" class="form-label fw-bold"></label>
+                        <input asp-for="Brand" class="form-control" maxlength="20" />
+                        <span asp-validation-for="Brand" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Model" class="form-label fw-bold"></label>
+                        <input asp-for="Model" class="form-control" maxlength="10" />
+                        <span asp-validation-for="Model" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Wheels" class="form-label fw-bold"></label>
+                        <input asp-for="Wheels" class="form-control" type="number" />
+                        <span asp-validation-for="Wheels" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-2 border-top">
+                        <a asp-action="MyVehicles" class="btn btn-outline-secondary">Back to List</a>
+                        <button type="submit" class="btn btn-warning fw-bold px-4">Save Changes</button>
+                    </div>
+                </form>
             </div>
-            <div class="form-group mb-3">
-                <label asp-for="RegNbr" class="control-label fw-bold"></label>
-                <input asp-for="RegNbr" class="form-control" />
-                <span asp-validation-for="RegNbr" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="Color" class="control-label fw-bold"></label>
-                <input asp-for="Color" class="form-control" maxlength="10" />
-                <span asp-validation-for="Color" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="Brand" class="control-label fw-bold"></label>
-                <input asp-for="Brand" class="form-control" maxlength="20" />
-                <span asp-validation-for="Brand" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="Model" class="control-label fw-bold"></label>
-                <input asp-for="Model" class="form-control" maxlength="10" />
-                <span asp-validation-for="Model" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="Wheels" class="control-label fw-bold"></label>
-                <input asp-for="Wheels" class="form-control"/>
-                <span asp-validation-for="Wheels" class="text-danger"></span>
-            </div>
-            <div class="form-group mt-4">
-                <input type="submit" value="Save" class="btn btn-primary" />
-                <a asp-action="MyVehicles" class="btn btn-secondary ms-2">Back to List</a>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

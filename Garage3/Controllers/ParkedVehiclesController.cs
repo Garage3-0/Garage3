@@ -65,21 +65,25 @@ public class ParkedVehiclesController : Controller
         return View(model);
     }
     // GET: PARKEDVEHICLES/Details/5
+    [Authorize]
     public async Task<IActionResult> Details(int? id)
     {
         if (id == null)
         {
-            return NotFound();
+            TempData["ErrorMessage"] = "A valid vehicle ID must be provided.";
+            return RedirectToAction(nameof(MyVehicles));
         }
 
         var currentUserId = _userManager.GetUserId(User);
+        bool isAdmin = User.IsInRole("Admin");
 
         var parkedvehicle = await _context.ParkedVehicle
-            .FirstOrDefaultAsync(m => m.Id == id && m.ApplicationUserId == currentUserId);
+            .Include(v => v.VehicleType)
+        .FirstOrDefaultAsync(m => m.Id == id && (isAdmin || m.ApplicationUserId == currentUserId));
 
         if (parkedvehicle == null)
         {
-            TempData["ErrorMessage"] = "You do not have permission to view this vehicle.";
+            TempData["ErrorMessage"] = "Vehicle not found or you do not have permission to view it.";
             return RedirectToAction(nameof(MyVehicles));
         }
 
@@ -159,7 +163,7 @@ public class ParkedVehiclesController : Controller
     
 
     // GET: PARKEDVEHICLES/Edit/5
-    [Authorize(Roles = "Admin, User")]
+    [Authorize]
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null)
@@ -201,7 +205,7 @@ public class ParkedVehiclesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize]
     public async Task<IActionResult> Edit(int id, ParkedVehicleEditViewModel viewModel)
     {
         // If the ID in the URL does not match the ID in the form
