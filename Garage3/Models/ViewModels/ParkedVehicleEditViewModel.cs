@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 
 namespace Garage3.Models.ViewModels
 {
@@ -8,7 +9,8 @@ namespace Garage3.Models.ViewModels
 
         [Required(ErrorMessage = "You need to select a vehicle type")]
         [Display(Name = "Vehicle Type")]
-        public VehicleType? VehicleType { get; set; }
+        public int VehicleTypeId { get; set; }
+        public SelectList? VehicleTypes { get; set; }
 
         [Required(ErrorMessage = "Registration number is required")]
         public string RegNbr { get; set; } = string.Empty;

@@ -7,7 +7,18 @@ namespace Garage3.Models
     {
         public int Id { get; set; }
 
-        public required string RegistrationNumber { get; set; }
+        //public required string RegistrationNumber { get; set; }
+
+        private string _regNbr = string.Empty;
+
+        [Required]
+        [RegularExpression(@"^[A-Z]{3}[0-9]{3}$", ErrorMessage = "The Registration number needs to follow format ABC123.")]
+        public required string RegistrationNumber
+        {
+            get => _regNbr;
+            set => _regNbr = value?.Trim().ToUpperInvariant() ?? string.Empty;
+        }
+
 
         [StringLength(10, MinimumLength = 2)]
         public required string Color { get; set; }

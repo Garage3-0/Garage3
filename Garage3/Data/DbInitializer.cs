@@ -7,8 +7,7 @@ namespace Garage3.Data;
 
 public static class DbInitializer
 {
-    public static async Task SeedRolesAsync(
-        IServiceProvider serviceProvider)
+    public static async Task SeedRolesAsync(IServiceProvider serviceProvider)
     {
         var roleManager =
             serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -36,33 +35,33 @@ public static class DbInitializer
         const string userEmail = "admin@garage3.local";
         const string userPassword = "Admin123!";
 
-        var memberUser = await userManager.FindByEmailAsync(userEmail);
+        var adminUser = await userManager.FindByEmailAsync(userEmail);
 
-        if (memberUser == null)
+        if (adminUser == null)
         {
-            memberUser = new ApplicationUser
+            adminUser = new ApplicationUser
             {
                 UserName = userEmail,
                 Email = userEmail,
                 EmailConfirmed = true,
-                PersonalIdentityNumber = "900101-0017",
+                FirstName = "Admin",
+                LastName = "Administrator",
+                PersonalIdentityNumber = "19900101-0017",
             };
 
             var result = await userManager.CreateAsync(
-                memberUser,
+                adminUser,
                 userPassword);
 
             if (!result.Succeeded)
             {
                 throw new Exception(
-                    $"Failed to create member user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    $"Failed to create admin user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
             }
 
-            if (!await userManager.IsInRoleAsync(memberUser, Roles.Admin))
+            if (!await userManager.IsInRoleAsync(adminUser, Roles.Admin))
             {
-                await userManager.AddToRoleAsync(
-                    memberUser,
-                    Roles.Admin);
+                await userManager.AddToRoleAsync(adminUser, Roles.Admin);
             }
         }
 
@@ -73,26 +72,26 @@ public static class DbInitializer
     {
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        string password = "Testare-1";  // Same for all test users!
+        string password = "Tester-1";  // Same for all test users!
 
         await DbInitializer.SeedMember(
              context, userManager,
-             "900101-0025",
-             "test1", "testare1",
+             "19900101-0025",
+             "test1", "tester1",
              "test1@test.com",
              password);
 
         await DbInitializer.SeedMember(
              context, userManager,
-             "900101-0033",
-             "test2", "testare2",
+             "19900101-0033",
+             "test2", "tester2",
              "test2@test.com",
              password);
     }
 
     private static async Task SeedMember(GarageContext context, UserManager<ApplicationUser> userManager, string personalIdentityNumber, string firstName, string lastName, string email, string password = "")
     {
-        string pwd = !String.IsNullOrWhiteSpace(password) ? password : "Testare-1";
+        string pwd = !String.IsNullOrWhiteSpace(password) ? password : "Tester-1";
 
         var user = await userManager.FindByEmailAsync(email);
 
@@ -105,7 +104,7 @@ public static class DbInitializer
                 Email = email,
                 NormalizedEmail = email.ToUpper(),
                 UserName = email,
-                NormalizedUserName = firstName.ToUpper(),
+                NormalizedUserName = email.ToUpper(),
                 PersonalIdentityNumber = personalIdentityNumber,
                 EmailConfirmed = true
             };
@@ -115,17 +114,13 @@ public static class DbInitializer
             if (!res.Succeeded)
             {
                 throw new Exception(
-                    $"Failed to create user user: {string.Join(", ", res.Errors.Select(e => e.Description))}");
+                    $"Failed to create user: {string.Join(", ", res.Errors.Select(e => e.Description))}");
             }
 
             if (!await userManager.IsInRoleAsync(user, Roles.Member))
             {
-                await userManager.AddToRoleAsync(
-                    user,
-                    Roles.Member);
+                await userManager.AddToRoleAsync(user, Roles.Member);
             }
-
-            await context.SaveChangesAsync();
         }
     }
 
@@ -149,13 +144,11 @@ public static class DbInitializer
 
     public static async Task SeedParkingSpots(GarageContext context, uint nbrParkingSpots)
     {
-        var count = nbrParkingSpots;
-
         var parkingspot = await context.ParkingSpots.FirstOrDefaultAsync();
 
         if (parkingspot == null)
         {
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < nbrParkingSpots; i++)
             {
                 var spot = new ParkingSpot()
                 {
@@ -163,8 +156,33 @@ public static class DbInitializer
                     Location = ""
                 };
                 context.Add(spot);
-                await context.SaveChangesAsync();
             }
+            await context.SaveChangesAsync();
+        }
+    }
+
+    public static async Task SeedParkingSessions(GarageContext context, IServiceProvider serviceProvider)
+    {
+        var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var member = await userManager.FindByEmailAsync("test1@test.com");
+
+        if (member == null) return;
+
+        if (!await context.ParkedVehicle.AnyAsync())
+        {
+            context.ParkedVehicle.Add(new ParkedVehicle
+            {
+                VehicleTypeId = 2,
+                RegNbr = "ABC123",
+                Color = "Red",
+                Brand = "Volvo",
+                Model = "V60",
+                Wheels = 4,
+                Arrival = new DateTime(2026, 7, 6, 10, 59, 00),
+                ApplicationUserId = member.Id
+            });
+
+            await context.SaveChangesAsync();
         }
     }
 
@@ -190,7 +208,7 @@ public static class DbInitializer
                     Vehicle vehicle = new Vehicle()
                     {
                         RegistrationNumber = regNbr, // nbr.ToString(),
-                        Color = "Svart",
+                        Color = "Black",
                         Brand = "SAAB",
                         Model = "900",
                         NumberOfWheels = 4,
