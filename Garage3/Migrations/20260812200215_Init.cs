@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Garage3.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -32,7 +32,7 @@ namespace Garage3.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PersonalIdentityNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PersonalIdentityNumber = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -74,7 +74,7 @@ namespace Garage3.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -219,13 +219,13 @@ namespace Garage3.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    RegNbr = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    RegistrationNumber = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Color = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     Brand = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Model = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     NumberOfWheels = table.Column<int>(type: "int", nullable: false),
                     VehicleTypeNewId = table.Column<int>(type: "int", nullable: false),
-                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -234,7 +234,8 @@ namespace Garage3.Migrations
                         name: "FK_Vehicles_AspNetUsers_ApplicationUserId",
                         column: x => x.ApplicationUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Vehicles_VehicleTypeNew_VehicleTypeNewId",
                         column: x => x.VehicleTypeNewId,
@@ -306,6 +307,12 @@ namespace Garage3.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_PersonalIdentityNumber",
+                table: "AspNetUsers",
+                column: "PersonalIdentityNumber",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
@@ -334,14 +341,32 @@ namespace Garage3.Migrations
                 column: "VehicleId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ParkingSpots_Number",
+                table: "ParkingSpots",
+                column: "Number",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Vehicles_ApplicationUserId",
                 table: "Vehicles",
                 column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Vehicles_RegistrationNumber",
+                table: "Vehicles",
+                column: "RegistrationNumber",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Vehicles_VehicleTypeNewId",
                 table: "Vehicles",
                 column: "VehicleTypeNewId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VehicleTypeNew_Name",
+                table: "VehicleTypeNew",
+                column: "Name",
+                unique: true);
         }
 
         /// <inheritdoc />

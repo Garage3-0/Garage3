@@ -5,6 +5,7 @@ using Garage3.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
@@ -49,7 +50,8 @@ public class ParkedVehiclesController : Controller
         var model = await vehicles.Select(v => new ParkedVehicleOverviewViewModel
         {
             Id = v.Id,
-            VehicleType = v.VehicleType,
+            VehicleTypeId = v.VehicleTypeId,
+            VehicleTypeName = v.VehicleType != null ? v.VehicleType.Name : "Unknown",
             RegNbr = v.RegNbr,
             Color = v.Color,
             Brand = v.Brand,
@@ -85,9 +87,14 @@ public class ParkedVehiclesController : Controller
     }
 
     // GET: PARKEDVEHICLES/Create
-    public IActionResult Create()
+    [Authorize]
+    public async Task<IActionResult> Create()
     {
-        return View();
+        var model = new ParkVehicleViewModel
+        {
+        VehicleTypes = new SelectList(await _context.VehicleTypeNew.ToListAsync(), "Id", "Name")
+        };
+        return View(model);
     }
 
     // POST: PARKEDVEHICLES/Create
@@ -95,6 +102,7 @@ public class ParkedVehiclesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize]
     public async Task<IActionResult> Create(ParkVehicleViewModel viewModel)
     {
         if (ModelState.IsValid)
@@ -106,6 +114,7 @@ public class ParkedVehiclesController : Controller
             if (!isUnique)
             {
                 ModelState.AddModelError("RegNbr", "This registration number already exists in the garage. There can only be one vehicle per registration number.");
+                viewModel.VehicleTypes = new SelectList(await _context.VehicleTypeNew.ToListAsync(), "Id", "Name");
                 return View(viewModel);
             }
 
@@ -119,7 +128,7 @@ public class ParkedVehiclesController : Controller
 
             var parkedVehicle = new ParkedVehicle
             {
-                VehicleType = viewModel.VehicleType,
+                VehicleTypeId = viewModel.VehicleTypeId,
                 RegNbr = normalizedRegNbr,
                 Color = viewModel.Color ?? string.Empty,
                 Brand = viewModel.Brand ?? string.Empty,
@@ -143,8 +152,8 @@ public class ParkedVehiclesController : Controller
                 ModelState.AddModelError(string.Empty, $"Database error: {innerMessage}");
             }
         }
-
-            TempData["Error"] = "Vehicle could not be parked!";
+        viewModel.VehicleTypes = new SelectList(await _context.VehicleTypeNew.ToListAsync(), "Id", "Name");
+        TempData["Error"] = "Vehicle could not be parked!";
             return View(viewModel);
         }
     
@@ -172,7 +181,8 @@ public class ParkedVehiclesController : Controller
         var viewModel = new ParkedVehicleEditViewModel
         {
             Id = parkedvehicle.Id,
-            VehicleType = parkedvehicle.VehicleType,
+            VehicleTypeId = parkedvehicle.VehicleTypeId,
+            VehicleTypes = new SelectList(await _context.VehicleTypeNew.ToListAsync(), "Id", "Name", parkedvehicle.VehicleTypeId),
             RegNbr = parkedvehicle.RegNbr,
             Color = parkedvehicle.Color,
             Brand = parkedvehicle.Brand,
@@ -210,7 +220,7 @@ public class ParkedVehiclesController : Controller
                 if (!isUnique)
                 {
                     ModelState.AddModelError("RegNbr", "This registration number is already occupied by another parked vehicle.");
-
+                    viewModel.VehicleTypes = new SelectList(await _context.VehicleTypeNew.ToListAsync(), "Id", "Name", viewModel.VehicleTypeId);
                     return View(viewModel); // "Abort" and send user back to view with error message
                 }
 
@@ -226,7 +236,7 @@ public class ParkedVehiclesController : Controller
                     return RedirectToAction(nameof(MyVehicles));
                 }
 
-                parkedvehicle.VehicleType = viewModel.VehicleType!.Value;
+                parkedvehicle.VehicleTypeId = viewModel.VehicleTypeId;
                 parkedvehicle.RegNbr = normalizedRegNbr;
                 parkedvehicle.Color = viewModel.Color;
                 parkedvehicle.Brand = viewModel.Brand;
@@ -255,7 +265,7 @@ public class ParkedVehiclesController : Controller
             //TempData["Success"] = "Vehicle details updated successfully!";
             //return RedirectToAction(nameof(Index));
         }
-
+        viewModel.VehicleTypes = new SelectList(await _context.VehicleTypeNew.ToListAsync(), "Id", "Name", viewModel.VehicleTypeId);
         TempData["Error"] = "Failed to update vehicle details.";
         return View(viewModel);
     }
@@ -350,7 +360,7 @@ public class ParkedVehiclesController : Controller
         ReceiptViewModel receiptViewModel = new ReceiptViewModel()
         {
             Id = parkedVehicle.Id,
-            VehicleType = parkedVehicle.VehicleType,
+            VehicleTypeId = parkedVehicle.VehicleTypeId,
             RegNbr = parkedVehicle.RegNbr,
             Color = parkedVehicle.Color,
             Brand = parkedVehicle.Brand,
@@ -381,7 +391,7 @@ public class ParkedVehiclesController : Controller
             .Select(v => new ParkedVehicleOverviewViewModel
             {
                 Id = v.Id,
-                VehicleType = v.VehicleType,
+                VehicleTypeId = v.VehicleTypeId,
                 RegNbr = v.RegNbr,
                 Color = v.Color,
                 Brand = v.Brand,

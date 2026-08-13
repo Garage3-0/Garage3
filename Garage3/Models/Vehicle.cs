@@ -1,6 +1,5 @@
 ﻿using Garage3.Data;
 using System.ComponentModel.DataAnnotations;
-using Garage3.Data;
 
 namespace Garage3.Models
 {
@@ -14,7 +13,7 @@ namespace Garage3.Models
 
         [Required]
         [RegularExpression(@"^[A-Z]{3}[0-9]{3}$", ErrorMessage = "The Registration number needs to follow format ABC123.")]
-        public required string RegNbr
+        public required string RegistrationNumber
         {
             get => _regNbr;
             set => _regNbr = value?.Trim().ToUpperInvariant() ?? string.Empty;

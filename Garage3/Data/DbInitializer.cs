@@ -172,7 +172,7 @@ public static class DbInitializer
         {
             context.ParkedVehicle.Add(new ParkedVehicle
             {
-                VehicleType = VehicleType.Car,
+                VehicleTypeId = 2,
                 RegNbr = "ABC123",
                 Color = "Red",
                 Brand = "Volvo",
@@ -183,7 +183,7 @@ public static class DbInitializer
             });
             context.ParkedVehicle.Add(new ParkedVehicle
             {
-                VehicleType = VehicleType.Motorcycle,
+                VehicleTypeId = 3,
                 RegNbr = "BGD567",
                 Color = "Blue",
                 Brand = "Toyota",
@@ -194,7 +194,7 @@ public static class DbInitializer
             });
             context.ParkedVehicle.Add(new ParkedVehicle
             {
-                VehicleType = VehicleType.Bus,
+                VehicleTypeId = 1,
                 RegNbr = "KLI908",
                 Color = "Yellow",
                 Brand = "Saab",
@@ -205,7 +205,7 @@ public static class DbInitializer
             });
             context.ParkedVehicle.Add(new ParkedVehicle
             {
-                VehicleType = VehicleType.Motorcycle,
+                VehicleTypeId = 3,
                 RegNbr = "TRE654",
                 Color = "Black",
                 Brand = "Toyota",
@@ -216,7 +216,7 @@ public static class DbInitializer
             });
             context.ParkedVehicle.Add(new ParkedVehicle
             {
-                VehicleType = VehicleType.Car,
+                VehicleTypeId = 2,
                 RegNbr = "DUN584",
                 Color = "Blue",
                 Brand = "Saab",
@@ -227,7 +227,7 @@ public static class DbInitializer
             });
             context.ParkedVehicle.Add(new ParkedVehicle
             {
-                VehicleType = VehicleType.Bus,
+                VehicleTypeId = 1,
                 RegNbr = "PLG327",
                 Color = "White",
                 Brand = "Volvo",
@@ -238,7 +238,7 @@ public static class DbInitializer
             });
             context.ParkedVehicle.Add(new ParkedVehicle
             {
-                VehicleType = VehicleType.Car,
+                VehicleTypeId = 2,
                 RegNbr = "NJG968",
                 Color = "Black",
                 Brand = "Mazda",
@@ -249,7 +249,7 @@ public static class DbInitializer
             });
             context.ParkedVehicle.Add(new ParkedVehicle
             {
-                VehicleType = VehicleType.Car,
+                VehicleTypeId = 2,
                 RegNbr = "RFM596",
                 Color = "White",
                 Brand = "Toyota",
@@ -260,7 +260,7 @@ public static class DbInitializer
             });
             context.ParkedVehicle.Add(new ParkedVehicle
             {
-                VehicleType = VehicleType.Bus,
+                VehicleTypeId = 1,
                 RegNbr = "JYT628",
                 Color = "White",
                 Brand = "Volvo",
@@ -271,7 +271,7 @@ public static class DbInitializer
             });
             context.ParkedVehicle.Add(new ParkedVehicle
             {
-                VehicleType = VehicleType.Motorcycle,
+                VehicleTypeId = 3,
                 RegNbr = "DER421",
                 Color = "Red",
                 Brand = "Toyota",
@@ -284,7 +284,6 @@ public static class DbInitializer
             await context.SaveChangesAsync();
         }
     }
-}
 
     public static async Task SeedTestVehicle(GarageContext context, IServiceProvider serviceProvider, string email)
     {

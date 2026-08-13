@@ -136,7 +136,7 @@ namespace Garage3.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("VehicleType")
+                    b.Property<int>("VehicleTypeId")
                         .HasColumnType("int");
 
                     b.Property<int>("Wheels")
@@ -148,6 +148,8 @@ namespace Garage3.Migrations
 
                     b.HasIndex("RegNbr")
                         .IsUnique();
+
+                    b.HasIndex("VehicleTypeId");
 
                     b.ToTable("ParkedVehicle");
                 });
@@ -244,7 +246,7 @@ namespace Garage3.Migrations
                     b.Property<int>("NumberOfWheels")
                         .HasColumnType("int");
 
-                    b.Property<string>("RegNbr")
+                    b.Property<string>("RegistrationNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
@@ -428,7 +430,15 @@ namespace Garage3.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Garage3.Models.VehicleTypeNew", "VehicleType")
+                        .WithMany()
+                        .HasForeignKey("VehicleTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("ApplicationUser");
+
+                    b.Navigation("VehicleType");
                 });
 
             modelBuilder.Entity("Garage3.Models.ParkingSession", b =>
