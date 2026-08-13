@@ -161,6 +161,30 @@ public static class DbInitializer
         }
     }
 
+    public static async Task SeedParkingSessions(GarageContext context, IServiceProvider serviceProvider)
+    {
+        var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var member = await userManager.FindByEmailAsync("test1@test.com");
+
+        if (member == null) return;
+
+        if (!await context.ParkedVehicle.AnyAsync())
+        {
+            context.ParkedVehicle.Add(new ParkedVehicle
+            {
+                VehicleTypeId = 2,
+                RegNbr = "ABC123",
+                Color = "Red",
+                Brand = "Volvo",
+                Model = "V60",
+                Wheels = 4,
+                Arrival = new DateTime(2026, 7, 6, 10, 59, 00),
+                ApplicationUserId = member.Id
+            });
+
+            await context.SaveChangesAsync();
+        }
+    }
 
     public static async Task SeedTestVehicle(GarageContext context, IServiceProvider serviceProvider, string email)
     {
