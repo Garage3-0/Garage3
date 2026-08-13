@@ -81,9 +81,9 @@ public class AdminController : Controller
             return NotFound();
         }
 
-        var currentUserID = _userManager.GetUserId(User);
+        var currentUserId = _userManager.GetUserId(User);
 
-        if (currentUserID == userId && role == Roles.Admin)
+        if (currentUserId == userId && role == Roles.Admin)
         {
             return Forbid();
         }
