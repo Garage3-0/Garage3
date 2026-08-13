@@ -7,8 +7,9 @@ namespace Garage3.Models.ViewModels
     {
         public required int Id { get; set; }
 
-        [Display(Name = "Vehicle type")]
         public int VehicleTypeId { get; set; }
+
+        [Display(Name = "Vehicle type")]
         public string? VehicleTypeName { get; set; }
 
         [Display(Name = "Reg.nbr")]
@@ -36,5 +37,9 @@ namespace Garage3.Models.ViewModels
         public required int Price { get; set; }
 
         public required int PricePerHour { get; set; }
+
+        public required string FullName { get; set; }
+
+        public int ParkingSpot { get; set; }
     }
 }
