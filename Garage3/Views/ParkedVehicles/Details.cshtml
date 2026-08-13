@@ -1,4 +1,4 @@
-@model ParkedVehicle
+@model Vehicle
 
 @{
     ViewData["Title"] = "Vehicle Details";
@@ -27,7 +27,7 @@
         <dd class="col-sm-10">@Html.DisplayFor(model => model.Model)</dd>
 
         <dt class="col-sm-2">Wheels</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.Wheels)</dd>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.NumberOfWheels)</dd>
 
         <dt class="col-sm-2">Arrival Time</dt>
         <dd class="col-sm-10">@Html.DisplayFor(model => model.Arrival)</dd>

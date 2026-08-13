@@ -13,7 +13,7 @@ namespace Garage3.Services
         {
             if (string.IsNullOrWhiteSpace(regNbr)) return true;
             var normalized = regNbr.Trim().ToUpperInvariant();
-            return !await _db.ParkedVehicle 
+            return !await _db.Vehicles 
                 .AnyAsync(v => v.RegNbr == normalized && v.Id != excludeVehicleId);
         }
 
