@@ -18,10 +18,8 @@ public class ParkedVehiclesController : Controller
     private readonly IUniquenessValidator _uniquenessValidator;
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public ParkedVehiclesController(
-        GarageContext context,
-        IUniquenessValidator uniquenessValidator,
-        UserManager<ApplicationUser> userManager)
+    public ParkedVehiclesController(GarageContext context, IUniquenessValidator uniquenessValidator, UserManager<ApplicationUser> userManager)
+
     {
         _context = context;
         _uniquenessValidator = uniquenessValidator;
@@ -207,8 +205,8 @@ public class ParkedVehiclesController : Controller
 
         var currentUserId = _userManager.GetUserId(User);
 
-        var parkedvehicle = await _context.ParkedVehicle
-            .FirstOrDefaultAsync(v => v.Id == id && v.ApplicationUserId == currentUserId);
+        var parkedvehicle = await _context.ParkedVehicle.
+            FirstOrDefaultAsync(v => v.Id == id && v.ApplicationUserId == currentUserId);
 
         if (parkedvehicle == null)
         {
@@ -335,21 +333,93 @@ public class ParkedVehiclesController : Controller
     }
 
     // GET: PARKEDVEHICLES/Delete/5
+    // [Authorize]
+    [Authorize(Roles = "Admin, Member")]
     public async Task<IActionResult> Checkout(int? id)
     {
-        ParkedVehicle? parkedVehicle = null;
-
-        if (id == null ||
-            (parkedVehicle = await _context.ParkedVehicle
-                .FirstOrDefaultAsync(m => m.Id == id)) == null)
+        if (id == null)
         {
-            return NotFound();
+            //return NotFound();
+            TempData["ErrorMessage"] = "Technical error";
+            return RedirectToAction(nameof(MyVehicles));
         }
 
-        ReceiptViewModel receiptViewModel =
-            CreateReceiptViewModel(parkedVehicle);
+        // Get vehicle, type and owner
+        var vehicle = await _context.Vehicles
+            .Where(v => v.Id == id)
+            .Include(v => v.VehicleTypeNew)
+            .Include(v => v.ApplicationUser)
+            .FirstOrDefaultAsync();
+
+        if (vehicle == null)
+        {
+            TempData["ErrorMessage"] = "Sorry, we can't find the vehicle - wrong vehicle id";
+            return RedirectToAction(nameof(MyVehicles));
+        }
+
+        // Check owner/Admin
+        var currentUserId = _userManager.GetUserId(User);
+        if (!User.IsInRole("Admin") && vehicle.ApplicationUserId != currentUserId)
+        {
+            TempData["ErrorMessage"] = "You are not allowed to checkout this vehicle.";
+            return RedirectToAction(nameof(MyVehicles));
+        }
+
+        // Get parking session and parking spot
+        var activeSession = await _context.ParkingSession
+            .Where(ps => ps.VehicleId == vehicle.Id && ps.CheckOutTime == null)
+            .Include(ps => ps.ParkingSpot)
+            .FirstOrDefaultAsync();
+
+        if (activeSession == null)
+        {
+            TempData["ErrorMessage"] = "The vehicle is not parked!";
+            return RedirectToAction(nameof(MyVehicles));
+        }
+
+        ReceiptViewModel receiptViewModel = CreateReceiptViewModelFromVehicleAndSession(vehicle, activeSession);
 
         return View(receiptViewModel);
+    }
+
+    private ReceiptViewModel CreateReceiptViewModelFromVehicleAndSession(Vehicle vehicle, ParkingSession session)
+    {
+        DateTime arrival = session.CheckInTime;
+        DateTime checkout = DateTime.Now;
+        TimeSpan totalTime = checkout - arrival;
+
+        int days = totalTime.Days;
+        int hours = totalTime.Hours;
+        int minutes = totalTime.Minutes;
+
+        decimal rate = session.HourlyRateAtCheckin;
+        decimal totalPriceDecimal = (days * 24m * rate) + (hours * rate) + (minutes * rate / 60m);
+        int totalPrice = (int)Math.Ceiling(totalPriceDecimal);
+
+        string fullName = vehicle.ApplicationUser != null
+            ? $"{vehicle.ApplicationUser.FirstName} {vehicle.ApplicationUser.LastName}"
+            : string.Empty;
+
+        return new ReceiptViewModel
+        {
+            Id = session.Id,
+            VehicleTypeId = vehicle.VehicleTypeNewId,
+            VehicleTypeName = vehicle.VehicleTypeNew?.Name,
+            RegNbr = vehicle.RegistrationNumber,
+            Color = vehicle.Color,
+            Brand = vehicle.Brand,
+            Model = vehicle.Model,
+            Wheels = vehicle.NumberOfWheels,
+            Arrival = arrival,
+            CheckoutTime = checkout,
+            ParkedDays = days,
+            ParkedHours = hours,
+            ParkedMinutes = minutes,
+            Price = totalPrice,
+            PricePerHour = (int)Math.Ceiling(rate),  // Round to int
+            FullName = fullName,
+            ParkingSpot = session.ParkingSpot?.Number ?? 0
+        };
     }
 
     //GET: PARKEDVEHICLES/Receipt/5
@@ -385,62 +455,55 @@ public class ParkedVehiclesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int? id)
     {
-        ParkedVehicle? parkedvehicle =
-            await _context.ParkedVehicle.FindAsync(id);
+        if (id == null)
+        {
+            TempData["ErrorMessage"] = "Sorry, we can't find the vehicle!";
+            return RedirectToAction(nameof(MyVehicles));
+        }
 
-        if (parkedvehicle == null)
+        // Get vehicle, type and owner
+        var vehicle = await _context.Vehicles
+            .Where(v => v.Id == id)
+            .Include(v => v.VehicleTypeNew)
+            .Include(v => v.ApplicationUser)
+            .FirstOrDefaultAsync();
+
+        if (vehicle == null)
         {
             return NotFound();
         }
 
-        ReceiptViewModel receiptViewModel =
-            CreateReceiptViewModel(parkedvehicle);
+        // Check owner/Admin
+        var currentUserId = _userManager.GetUserId(User);
+        if (!User.IsInRole("Admin") && vehicle.ApplicationUserId != currentUserId)
+        {
+            TempData["ErrorMessage"] = "You are not allowed to checkout this vehicle.";
+            return RedirectToAction(nameof(MyVehicles));
+        }
 
-        TempData["receipt"] =
-            JsonSerializer.Serialize(receiptViewModel);
+        // Get parking session and parking spot
+        var activeSession = await _context.ParkingSession
+            .Where(ps => ps.VehicleId == vehicle.Id && ps.CheckOutTime == null)
+            .Include(ps => ps.ParkingSpot)
+            .FirstOrDefaultAsync();
 
-        _context.ParkedVehicle.Remove(parkedvehicle);
+        if (activeSession == null)
+        {
+            TempData["ErrorMessage"] = "The vehicle is not parked!";
+            return RedirectToAction(nameof(MyVehicles));
+        }
+
+        //Store data for receipt in TempData
+        ReceiptViewModel receiptViewModel = CreateReceiptViewModelFromVehicleAndSession(vehicle, activeSession);
+        TempData["receipt"] = JsonSerializer.Serialize(receiptViewModel);
+
+        // Remve vehicle from ParkingSession
+        activeSession.CheckOutTime = receiptViewModel.CheckoutTime;
         await _context.SaveChangesAsync();
 
         TempData["Success"] = "Vehicle has been checked out.";
 
         return RedirectToAction("Receipt", "ParkedVehicles");
-    }
-
-    private ReceiptViewModel CreateReceiptViewModel(ParkedVehicle parkedVehicle)
-    {
-        var timeNow = DateTime.Now;
-
-        TimeSpan totalTime = timeNow - parkedVehicle.Arrival;
-
-        var timeDays = totalTime.Days;
-        var timeHours = totalTime.Hours;
-        var timeMinutes = totalTime.Minutes;
-
-        var price =
-            (timeDays * 24 * pricePerHour) +
-            (timeHours * pricePerHour) +
-            (timeMinutes * pricePerHour / 60);
-
-        ReceiptViewModel receiptViewModel = new ReceiptViewModel()
-        {
-            Id = parkedVehicle.Id,
-            VehicleTypeId = parkedVehicle.VehicleTypeId,
-            RegNbr = parkedVehicle.RegNbr,
-            Color = parkedVehicle.Color,
-            Brand = parkedVehicle.Brand,
-            Model = parkedVehicle.Model,
-            Wheels = parkedVehicle.Wheels,
-            Arrival = parkedVehicle.Arrival,
-            CheckoutTime = timeNow,
-            ParkedDays = timeDays,
-            ParkedHours = timeHours,
-            ParkedMinutes = timeMinutes,
-            Price = price,
-            PricePerHour = pricePerHour
-        };
-
-        return receiptViewModel;
     }
 
     // GET: PARKEDVEHICLES/MyVehicles
@@ -563,6 +626,7 @@ public class ParkedVehiclesController : Controller
                         "Account",
                         new { area = "Identity" });
                 }
+
 
                 var vehicle = new ParkedVehicle
                 {

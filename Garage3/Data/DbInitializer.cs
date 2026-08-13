@@ -186,6 +186,48 @@ public static class DbInitializer
         }
     }
 
+    public static async Task SeedParkingSessionsToParkingSpot(GarageContext context, IServiceProvider serviceProvider)
+    {
+        //var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        //var member = await userManager.FindByEmailAsync("test1@test.com");
+        //if (member == null) return;
+
+        // Vehicle exists
+        var vehicle = await context.Vehicles.FirstOrDefaultAsync(v => v.RegistrationNumber == "NNN111");
+        if (vehicle == null) return;
+
+        // Check that the vehcle isn't already parked
+        bool vehicleAlreadyParked = await context.ParkingSession
+            .AnyAsync(ps => ps.VehicleId == vehicle.Id && ps.CheckOutTime == null);
+
+        if (vehicleAlreadyParked) return;
+        // TempData["ErrorMessage"] "Error - the vehicle is already parked!"
+        // => MyVehicle
+
+        // Find first available spot - not out of service and not occupied (CheckOutTime == null)
+        var spot = await context.ParkingSpots
+            .Where(s => !s.IsOutOfService &&
+                        !context.ParkingSession.Any(ps => ps.ParkingSpotId == s.Id && ps.CheckOutTime == null))
+            .OrderBy(s => s.Number)
+            .FirstOrDefaultAsync();
+
+        if (spot == null) return;
+        // TempData["ErrorMessage"] "Parking is already full!"
+        // => MyVehicle
+
+        var session = new ParkingSession
+        {
+            VehicleId = vehicle.Id,
+            ParkingSpotId = spot.Id,
+            CheckInTime = DateTime.Now,
+            HourlyRateAtCheckin = 10m // TODO - where to set price per hour?
+        };
+
+        // TempData["Success"] = "Vehicle has been successfully parked!";
+        context.ParkingSession.Add(session);
+        await context.SaveChangesAsync();
+    }
+
     public static async Task SeedTestVehicle(GarageContext context, IServiceProvider serviceProvider, string email)
     {
         // Add a car for first test user
