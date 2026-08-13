@@ -463,8 +463,9 @@ public class ParkedVehiclesController : Controller
         ReceiptViewModel receiptViewModel = CreateReceiptViewModelFromVehicleAndSession(vehicle, activeSession);
         TempData["receipt"] = JsonSerializer.Serialize(receiptViewModel);
 
-        // Remve vehicle from ParkingSession
+        // Remve vehicle from ParkingSession and set TotalPrice
         activeSession.CheckOutTime = receiptViewModel.CheckoutTime;
+        activeSession.TotalPrice = receiptViewModel.Price;
         await _context.SaveChangesAsync();
 
         TempData["Success"] = "Vehicle has been checked out.";
