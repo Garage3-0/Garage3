@@ -14,7 +14,7 @@ namespace Garage3.Validation
                 return new ValidationResult("Personal Identity Number required.");
 
             if (!FormatRegex.IsMatch(input))
-                return new ValidationResult("Personal Identity Number must have format YYYMMDD-XXXX.");
+                return new ValidationResult("Personal Identity Number must have format YYYYMMDD-XXXX.");
 
             bool validDate = DateTime.TryParseExact(
                 input[..8], "yyyyMMdd", CultureInfo.InvariantCulture,
