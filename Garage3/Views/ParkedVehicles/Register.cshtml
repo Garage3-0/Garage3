@@ -1,17 +1,17 @@
-@model Garage3.Models.ViewModels.ParkVehicleViewModel
+﻿@model Garage3.Models.ViewModels.RegisterVehicleViewModel
 
 @{
-    ViewData["Title"] = "Park New Vehicle";
+    ViewData["Title"] = "Register Vehicle";
 }
 
 <div class="row justify-content-center">
     <div class="col-md-6">
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">Park New Vehicle</h4>
+                <h4 class="mb-0">Register New Vehicle</h4>
             </div>
             <div class="card-body">
-                <form asp-action="Create" method="post">
+                <form asp-action="Register" method="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                     <div class="form-group mb-3">
@@ -53,8 +53,8 @@
                     </div>
 
                     <div class="d-flex justify-content-between mt-4">
-                        <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
-                        <button type="submit" class="btn btn-primary">Park Vehicle</button>
+                        <a asp-action="MyVehicles" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success">Register Vehicle</button>
                     </div>
                 </form>
             </div>
@@ -63,5 +63,7 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
