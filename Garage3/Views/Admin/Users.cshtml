@@ -1,0 +1,43 @@
+﻿@model List<(Garage3.Data.ApplicationUser User, IList<string> Roles)>
+
+@{
+    ViewData["Title"] = "User Administration";
+}
+
+<h1>User Administration</h1>
+
+<p>Registered users</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>First name</th>
+            <th>Last name</th>
+            <th>Email</th>
+            <th>Roles</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.User.UserName</td>
+                <td>@item.User.FirstName</td>
+                <td>@item.User.LastName</td>
+                <td>@item.User.Email</td>
+                <td>
+                    @string.Join(", ", item.Roles)
+                </td>
+                <td>
+                    <a asp-action="UserDetails"
+                       asp-route-id="@item.User.Id"
+                       class="btn btn-primary">
+                        Open
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
