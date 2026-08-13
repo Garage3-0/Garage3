@@ -1,11 +1,11 @@
-﻿
-
-using Garage3.Constants;
+﻿using Garage3.Constants;
 using Garage3.Data;
+using Garage3.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 
 namespace Garage3.Controllers;
 
@@ -52,22 +52,90 @@ public class AdminController : Controller
 
         var roles = await _userManager.GetRolesAsync(user);
 
-        return View((user, roles));
+        var viewModel = new AdminUserViewModel
+        {
+            User = user,
+            Roles = roles,
+            AvailableRoles =
+            [
+                Roles.Admin,
+                Roles.Member
+            ]
+        };
 
+        return View(viewModel);
     }
 
-
-
-
-
-
-
-
-
-
-
-    public IActionResult Index()
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddRole(string userId, string role)
     {
-        return View();
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(role))
+        {
+            return BadRequest();
+        }
+
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        if (role != Roles.Admin && role != Roles.Member)
+        {
+            return BadRequest();
+        }
+
+        if (!await _userManager.IsInRoleAsync(user, role))
+        {
+            var result = await _userManager.AddToRoleAsync(user, role);
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+        }
+
+        return RedirectToAction(nameof(UserDetails), new { id = userId });
+    }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RemoveRole(string userId, string role)
+    {
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(role))
+        {
+            return BadRequest();
+        }
+
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        if (role != Roles.Admin && role != Roles.Member)
+        {
+            return BadRequest();
+        }
+
+        if (await _userManager.IsInRoleAsync(user, role))
+        {
+            var result = await _userManager.RemoveFromRoleAsync(user, role);
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+        }
+
+        return RedirectToAction(nameof(UserDetails), new { id = userId });
     }
 }
