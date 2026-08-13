@@ -120,19 +120,15 @@ public class ParkedVehiclesController : Controller
     [Authorize]
     public async Task<IActionResult> Create(ParkVehicleViewModel viewModel)
     {
+        string? error = await _uniquenessValidator.IsRegNbrUniqueAsync(viewModel.RegNbr);
+        if (error != null)
+        {
+            ModelState.AddModelError(nameof(viewModel.RegNbr), error);
+        }
+
         if (ModelState.IsValid)
         {
-            var normalizedRegNbr = viewModel.RegNbr?.Trim().ToUpper() ?? string.Empty;
-
-            bool isUnique = await _uniquenessValidator.IsRegNbrUniqueAsync(normalizedRegNbr);
-
-            if (!isUnique)
-            {
-                ModelState.AddModelError("RegNbr", "This registration number already exists in the garage. There can only be one vehicle per registration number.");
-                viewModel.VehicleTypes = new SelectList(await _context.VehicleTypeNew.ToListAsync(), "Id", "Name");
-                return View(viewModel);
-            }
-
+            var normalizedRegNbr = viewModel.RegNbr!.Trim().ToUpperInvariant();
             var currentUser = await _userManager.GetUserAsync(User);
 
             if (currentUser == null)
@@ -226,6 +222,14 @@ public class ParkedVehiclesController : Controller
             return RedirectToAction(nameof(Index));
         }
 
+        string? error = await _uniquenessValidator.IsRegNbrUniqueAsync(viewModel.RegNbr, viewModel.Id);
+        if (error != null)
+        {
+            ModelState.AddModelError(nameof(viewModel.RegNbr), error);
+        }
+
+        if (ModelState.IsValid)
+        {
         var currentUserId = _userManager.GetUserId(User);
         bool isAdmin = User.IsInRole("Admin");
 
@@ -237,21 +241,10 @@ public class ParkedVehiclesController : Controller
             TempData["ErrorMessage"] = "Vehicle not found or you do not have permission to update it.";
             return RedirectToAction(nameof(Index));
         }
-
-        var normalizedRegNbr = viewModel.RegNbr?.Trim().ToUpper() ?? string.Empty;
-        bool isUnique = await _uniquenessValidator.IsRegNbrUniqueAsync(normalizedRegNbr, viewModel.Id);
-
-        if (!isUnique)
-        {
-            ModelState.AddModelError("RegNbr", "This registration number is already occupied by another parked vehicle.");
-        }
-
-        if (ModelState.IsValid)
-        {
             try
             {
                 parkedvehicle.VehicleTypeId = viewModel.VehicleTypeId;
-                parkedvehicle.RegNbr = normalizedRegNbr;
+                parkedvehicle.RegNbr = viewModel.RegNbr!.Trim().ToUpperInvariant();
                 parkedvehicle.Color = viewModel.Color;
                 parkedvehicle.Brand = viewModel.Brand;
                 parkedvehicle.Model = viewModel.Model;
@@ -437,30 +430,30 @@ public class ParkedVehiclesController : Controller
     [Authorize]
     public async Task<IActionResult> Register(RegisterVehicleViewModel viewModel)
     {
+        string? error = await _uniquenessValidator.IsRegNbrUniqueAsync(viewModel.RegNbr);
+        if (error != null)
+        {
+            ModelState.AddModelError(nameof(viewModel.RegNbr), error);
+        }
+
         if (ModelState.IsValid)
         {
-            var normalizedRegNbr = viewModel.RegNbr?.Trim().ToUpper() ?? string.Empty;
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
 
-            if (!await _uniquenessValidator.IsRegNbrUniqueAsync(normalizedRegNbr))
             {
-                ModelState.AddModelError("RegNbr", "This registration number is already registered.");
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
             }
-            else
-            {
-                var currentUser = await _userManager.GetUserAsync(User);
-                if (currentUser == null)
-                {
-                    return RedirectToAction("Login", "Account", new { area = "Identity" });
-                }
 
+            var normalizedRegNbr = viewModel.RegNbr?.Trim().ToUpperInvariant() ?? string.Empty;
                 
                 var vehicle = new ParkedVehicle 
                 {
                     VehicleTypeId = viewModel.VehicleTypeId,
                     RegNbr = normalizedRegNbr,
-                    Color = viewModel.Color,
-                    Brand = viewModel.Brand,
-                    Model = viewModel.Model,
+                    Color = viewModel.Color ?? string.Empty,
+                    Brand = viewModel.Brand ?? string.Empty,
+                    Model = viewModel.Model ?? string.Empty,
                     Wheels = viewModel.Wheels,
                     ApplicationUserId = currentUser.Id
                 };
@@ -471,7 +464,6 @@ public class ParkedVehiclesController : Controller
                 TempData["Success"] = $"Vehicle {normalizedRegNbr} was successfully registered!";
                 return RedirectToAction(nameof(MyVehicles));
             }
-        }
 
         viewModel.VehicleTypes = new SelectList(await _context.VehicleTypeNew.ToListAsync(), "Id", "Name");
         return View(viewModel);
