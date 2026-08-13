@@ -6,7 +6,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>My Vehicles</h2>
-    <a asp-action="Create" class="btn btn-success">
+    <a asp-action="Register" class="btn btn-success">
         <i class="bi bi-plus-circle"></i> Register New Vehicle
     </a>
 </div>
@@ -64,7 +64,7 @@ else
                         @foreach (var vehicle in Model)
                         {
                             <tr>
-                                <td><span class="badge bg-dark fs-6 font-monospace">@vehicle.RegNbr</span></td>
+                                <td><span class="badge bg-dark fs-5 font-monospace">@vehicle.RegNbr</span></td>
                                 <td>@vehicle.VehicleTypeName</td>
                                 <td>@vehicle.Brand</td>
                                 <td>@vehicle.Model</td>
@@ -72,6 +72,7 @@ else
                                 <td>@vehicle.Arrival.ToString("yyyy-MM-dd HH:mm")</td>
                                 <td class="text-end pe-3">
                                     <div class="btn-group btn-group-sm" role="group">
+                                        <a asp-action="Park" asp-route-id="@vehicle.Id" class="btn btn-primary">Park</a>
                                         <a asp-action="Details" asp-route-id="@vehicle.Id" class="btn btn-outline-info">Details</a>
                                         <a asp-action="Edit" asp-route-id="@vehicle.Id" class="btn btn-outline-warning">Edit</a>
                                     </div>
