@@ -168,16 +168,17 @@ public static class DbInitializer
 
         if (member == null) return;
 
-        if (!await context.ParkedVehicle.AnyAsync())
+        if (!await context.Vehicles.AnyAsync())
         {
-            context.ParkedVehicle.Add(new ParkedVehicle
+            context.Vehicles.Add(new Vehicle
             {
                 VehicleTypeId = 2,
+                VehicleTypeNewId = 2,
                 RegNbr = "ABC123",
                 Color = "Red",
                 Brand = "Volvo",
                 Model = "V60",
-                Wheels = 4,
+                NumberOfWheels = 4,
                 Arrival = new DateTime(2026, 7, 6, 10, 59, 00),
                 ApplicationUserId = member.Id
             });
@@ -193,7 +194,7 @@ public static class DbInitializer
         //if (member == null) return;
 
         // Vehicle exists
-        var vehicle = await context.Vehicles.FirstOrDefaultAsync(v => v.RegistrationNumber == "NNN111");
+        var vehicle = await context.Vehicles.FirstOrDefaultAsync(v => v.RegNbr == "NNN111");
         if (vehicle == null) return;
 
         // Check that the vehcle isn't already parked
@@ -240,7 +241,7 @@ public static class DbInitializer
 
         if (user != null)
         {
-            var tmpVehicle = await context.Vehicles.FirstOrDefaultAsync(v => v.RegistrationNumber == regNbr);
+            var tmpVehicle = await context.Vehicles.FirstOrDefaultAsync(v => v.RegNbr == regNbr);
 
             if (tmpVehicle == null)
             {
@@ -249,11 +250,12 @@ public static class DbInitializer
                 {
                     Vehicle vehicle = new Vehicle()
                     {
-                        RegistrationNumber = regNbr, // nbr.ToString(),
+                        RegNbr = regNbr, // nbr.ToString(),
                         Color = "Black",
                         Brand = "SAAB",
                         Model = "900",
                         NumberOfWheels = 4,
+                        VehicleTypeId = type.Id,
                         VehicleTypeNewId = type.Id,
                         ApplicationUser = user,
                         ApplicationUserId = user.Id

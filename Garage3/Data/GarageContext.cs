@@ -7,7 +7,7 @@ namespace Garage3.Data;
 public class GarageContext(DbContextOptions<GarageContext> options)
     : IdentityDbContext<ApplicationUser>(options)
 {
-    public DbSet<ParkedVehicle> ParkedVehicle { get; set; } = default!;  // TODO - ParkedVehicle will be removed later
+    public DbSet<Vehicle> ParkedVehicle { get; set; } = default!;  // TODO - ParkedVehicle will be removed later
 
     // TODO - change name to VehicleType when old VehicleType-model is removed
     public DbSet<VehicleTypeNew> VehicleTypeNew { get; set; }  // = default!; 
@@ -23,8 +23,10 @@ public class GarageContext(DbContextOptions<GarageContext> options)
     .IsUnique();
 
         modelBuilder.Entity<Vehicle>()
-            .HasIndex(v => v.RegistrationNumber)
-            .IsUnique();
+            .HasOne(v => v.VehicleTypeNew)
+            .WithMany()
+            .HasForeignKey(v => v.VehicleTypeNewId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ParkingSpot>()
             .HasIndex(p => p.Number)
@@ -33,7 +35,7 @@ public class GarageContext(DbContextOptions<GarageContext> options)
         modelBuilder.Entity<VehicleTypeNew>()
             .HasIndex(v => v.Name)
             .IsUnique();
-        modelBuilder.Entity<ParkedVehicle>().HasIndex(v => v.RegNbr).IsUnique();
+        modelBuilder.Entity<Vehicle>().HasIndex(v => v.RegNbr).IsUnique();
     }
     }
 

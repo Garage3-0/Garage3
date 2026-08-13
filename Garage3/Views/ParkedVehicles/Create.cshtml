@@ -1,60 +1,54 @@
 @model Garage3.Models.ViewModels.ParkVehicleViewModel
 
 @{
-    ViewData["Title"] = "Park New Vehicle";
+    ViewData["Title"] = "Park Vehicle";
 }
 
 <div class="row justify-content-center">
     <div class="col-md-6">
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">Park New Vehicle</h4>
+                <h4 class="mb-0">Park Vehicle</h4>
             </div>
+
             <div class="card-body">
                 <form asp-action="Create" method="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                     <div class="form-group mb-3">
-                        <label asp-for="VehicleTypeId" class="form-label"></label>
-                        <select asp-for="VehicleTypeId" asp-items="Model.VehicleTypes" class="form-select">
-                            <option value="">-- Select Vehicle Type --</option>
+                        <label asp-for="VehicleId" class="form-label"></label>
+
+                        <select asp-for="VehicleId"
+                                asp-items="Model.Vehicles"
+                                class="form-select">
+                            <option value="">-- Select Vehicle --</option>
                         </select>
-                        <span asp-validation-for="VehicleTypeId" class="text-danger"></span>
+
+                        <span asp-validation-for="VehicleId" class="text-danger"></span>
                     </div>
 
                     <div class="form-group mb-3">
-                        <label asp-for="RegNbr" class="form-label"></label>
-                        <input asp-for="RegNbr" class="form-control" placeholder="e.g. ABC123" />
-                        <span asp-validation-for="RegNbr" class="text-danger"></span>
-                    </div>
+                        <label asp-for="ParkingSpotId" class="form-label"></label>
 
-                    <div class="form-group mb-3">
-                        <label asp-for="Brand" class="form-label"></label>
-                        <input asp-for="Brand" class="form-control" />
-                        <span asp-validation-for="Brand" class="text-danger"></span>
-                    </div>
+                        <select asp-for="ParkingSpotId"
+                                asp-items="Model.ParkingSpots"
+                                class="form-select">
+                            <option value="">-- Select Parking Spot --</option>
+                        </select>
 
-                    <div class="form-group mb-3">
-                        <label asp-for="Model" class="form-label"></label>
-                        <input asp-for="Model" class="form-control" />
-                        <span asp-validation-for="Model" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label asp-for="Color" class="form-label"></label>
-                        <input asp-for="Color" class="form-control" />
-                        <span asp-validation-for="Color" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label asp-for="Wheels" class="form-label"></label>
-                        <input asp-for="Wheels" class="form-control" type="number" />
-                        <span asp-validation-for="Wheels" class="text-danger"></span>
+                        <span asp-validation-for="ParkingSpotId" class="text-danger"></span>
                     </div>
 
                     <div class="d-flex justify-content-between mt-4">
-                        <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
-                        <button type="submit" class="btn btn-primary">Park Vehicle</button>
+                        <a asp-action="MyVehicles"
+                           class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Park Vehicle
+                        </button>
                     </div>
                 </form>
             </div>
@@ -63,5 +57,7 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

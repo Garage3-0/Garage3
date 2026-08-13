@@ -102,58 +102,6 @@ namespace Garage3.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Garage3.Models.ParkedVehicle", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ApplicationUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("Arrival")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Brand")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("Color")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("Model")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("RegNbr")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("VehicleTypeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Wheels")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.HasIndex("RegNbr")
-                        .IsUnique();
-
-                    b.HasIndex("VehicleTypeId");
-
-                    b.ToTable("ParkedVehicle");
-                });
-
             modelBuilder.Entity("Garage3.Models.ParkingSession", b =>
                 {
                     b.Property<int>("Id")
@@ -228,6 +176,9 @@ namespace Garage3.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<DateTime>("Arrival")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Brand")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -246,9 +197,12 @@ namespace Garage3.Migrations
                     b.Property<int>("NumberOfWheels")
                         .HasColumnType("int");
 
-                    b.Property<string>("RegistrationNumber")
+                    b.Property<string>("RegNbr")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("VehicleTypeId")
+                        .HasColumnType("int");
 
                     b.Property<int>("VehicleTypeNewId")
                         .HasColumnType("int");
@@ -257,12 +211,14 @@ namespace Garage3.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.HasIndex("RegistrationNumber")
+                    b.HasIndex("RegNbr")
                         .IsUnique();
+
+                    b.HasIndex("VehicleTypeId");
 
                     b.HasIndex("VehicleTypeNewId");
 
-                    b.ToTable("Vehicles");
+                    b.ToTable("Vehicle");
                 });
 
             modelBuilder.Entity("Garage3.Models.VehicleTypeNew", b =>
@@ -422,25 +378,6 @@ namespace Garage3.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Garage3.Models.ParkedVehicle", b =>
-                {
-                    b.HasOne("Garage3.Data.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Garage3.Models.VehicleTypeNew", "VehicleType")
-                        .WithMany()
-                        .HasForeignKey("VehicleTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ApplicationUser");
-
-                    b.Navigation("VehicleType");
-                });
-
             modelBuilder.Entity("Garage3.Models.ParkingSession", b =>
                 {
                     b.HasOne("Garage3.Models.ParkingSpot", "ParkingSpot")
@@ -468,13 +405,21 @@ namespace Garage3.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Garage3.Models.VehicleTypeNew", "VehicleTypeNew")
+                    b.HasOne("Garage3.Models.VehicleTypeNew", "VehicleType")
                         .WithMany()
-                        .HasForeignKey("VehicleTypeNewId")
+                        .HasForeignKey("VehicleTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Garage3.Models.VehicleTypeNew", "VehicleTypeNew")
+                        .WithMany()
+                        .HasForeignKey("VehicleTypeNewId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("ApplicationUser");
+
+                    b.Navigation("VehicleType");
 
                     b.Navigation("VehicleTypeNew");
                 });
