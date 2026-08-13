@@ -50,6 +50,9 @@ using (var scope = app.Services.CreateScope())
         // Add 1 vehicle for test user 1
         // email: test1@test.com
         await DbInitializer.SeedTestVehicle(db, services, "test1@test.com");
+
+    // Test add a vehicle to parking session
+    await DbInitializer.SeedParkingSessionsToParkingSpot(db, services);
     }
 
 app.UseHttpsRedirection();

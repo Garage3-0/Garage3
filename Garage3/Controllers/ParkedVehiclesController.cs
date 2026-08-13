@@ -282,15 +282,31 @@ public class ParkedVehiclesController : Controller
     [Authorize(Roles = "Admin, Member")]
     public async Task<IActionResult> Checkout(int? id)
     {
+        var user = await _userManager.GetUserAsync(HttpContext.User);
+
+        string? userId = _userManager.GetUserId(User);
+        if (userId == null) ArgumentNullException.ThrowIfNull(userId);
+
         ParkedVehicle? parkedVehicle = null;
 
+        //if (id == null ||
+        //    (parkedVehicle = await _context.ParkedVehicle
+        //        .FirstOrDefaultAsync(m => m.Id == id)) == null)
+        //{
+        //    return NotFound();
+        //}
+
+        Vehicle? vehicle = null;
+        // Right member?
         if (id == null ||
-            (parkedVehicle = await _context.ParkedVehicle
+            (vehicle = await _context.Vehicles
+                .Where(p => p.ApplicationUserId == userId)
                 .FirstOrDefaultAsync(m => m.Id == id)) == null)
         {
             return NotFound();
         }
 
+        var tmp = "";
         /*
             var gymClassWithAttendees = await _context.GymClasses
                 .Where(g=>g.Id == id)
@@ -298,18 +314,23 @@ public class ParkedVehiclesController : Controller
                 .ThenInclude(u=>u.User).FirstOrDefaultAsync();
 
         */
-        string? userId = _userManager.GetUserId(User);
-        if (userId == null) ArgumentNullException.ThrowIfNull(userId);
+        
 
 
-        /*
-        Vehicle? vehicle = await _context.Vehicles
-            .Where(v => v.Id == id)
-            //.Include(u => u.ApplicationUserId == userId)
-            .Include(v => v.Id == _context.ParkingSession.VehicleId)
-            .FirstOrDefaultAsync();
-        */
 
+        //Vehicle? vehicle = await _context.Vehicles
+        //    .Where(v => v.Id == id)
+        //    .Include(u => u.ApplicationUserId == userId)
+        //    // .Include(v => v.Id == _context.ParkingSession.VehicleId)
+        //    //.Include(v => v.Id == _context.ParkingSession.)
+
+        //    .FirstOrDefaultAsync();
+
+        var v = await _context.Vehicles
+            .Where(v => v.ApplicationUserId == userId)
+            .ToArrayAsync();
+
+        var dummy = "";
         ReceiptViewModel receiptViewModel = CreateReceiptViewModel(parkedVehicle);
 
         return View(receiptViewModel);
