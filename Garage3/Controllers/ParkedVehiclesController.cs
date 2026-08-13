@@ -159,6 +159,7 @@ public class ParkedVehiclesController : Controller
     
 
     // GET: PARKEDVEHICLES/Edit/5
+    [Authorize(Roles = "Admin, User")]
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null)
@@ -168,9 +169,10 @@ public class ParkedVehiclesController : Controller
         }
 
         var currentUserId = _userManager.GetUserId(User);
+        bool isAdmin = User.IsInRole("Admin");
 
         var parkedvehicle = await _context.ParkedVehicle.
-            FirstOrDefaultAsync(v => v.Id == id && v.ApplicationUserId ==currentUserId);
+            FirstOrDefaultAsync(v => v.Id == id && (isAdmin || v.ApplicationUserId ==currentUserId));
 
         if (parkedvehicle == null)
         {
@@ -199,6 +201,7 @@ public class ParkedVehiclesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin, User")]
     public async Task<IActionResult> Edit(int id, ParkedVehicleEditViewModel viewModel)
     {
         // If the ID in the URL does not match the ID in the form
@@ -225,9 +228,10 @@ public class ParkedVehiclesController : Controller
                 }
 
                 var currentUserId = _userManager.GetUserId(User);
+                bool isAdmin = User.IsInRole("Admin");
 
                 var parkedvehicle = await _context.ParkedVehicle.
-                    FirstOrDefaultAsync(v => v.Id == id && v.ApplicationUserId == currentUserId);
+                    FirstOrDefaultAsync(v => v.Id == id && (isAdmin || v.ApplicationUserId == currentUserId));
 
                 // If the vehicle has been removed from the database while another user edited it
                 if (parkedvehicle == null)
@@ -392,6 +396,7 @@ public class ParkedVehiclesController : Controller
             {
                 Id = v.Id,
                 VehicleTypeId = v.VehicleTypeId,
+                VehicleTypeName = v.VehicleType != null ? v.VehicleType.Name : "N/A",
                 RegNbr = v.RegNbr,
                 Color = v.Color,
                 Brand = v.Brand,
