@@ -17,17 +17,9 @@ namespace Garage3.Services
             if (string.IsNullOrWhiteSpace(regNbr)) 
                 return "Registration number is required";
             var normalized = regNbr.Trim().ToUpperInvariant();
-
-            if (!RegNbrRegex.IsMatch(normalized))
-                return "Invalid registration number format. Must be 3 letters followed by 3 numbers (e.g. ABC123).";
-
-            bool exists = await _db.ParkedVehicle
-                .AnyAsync(v => v.RegNbr == normalized && (excludeVehicleId == null || v.Id != excludeVehicleId));
-
-            if (exists)
-                return "This registration number already exists in the garage.";
-
-            return null; 
+            
+            return !await _db.Vehicles 
+                .AnyAsync(v => v.RegNbr == normalized && v.Id != excludeVehicleId);
         }
 
         public async Task<bool> IsPnumberUniqueAsync(string pnumber, string? excludeUserId = null)
