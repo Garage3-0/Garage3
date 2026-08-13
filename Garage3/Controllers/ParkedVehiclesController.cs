@@ -249,39 +249,53 @@ public class ParkedVehiclesController : Controller
 
         if (ModelState.IsValid)
         {
-          var currentUserId = _userManager.GetUserId(User);
-          bool isAdmin = User.IsInRole("Admin");
+            var currentUserId = _userManager.GetUserId(User);
+            bool isAdmin = User.IsInRole("Admin");
 
-          var vehicle = await _context.Vehicles
-              .FirstOrDefaultAsync(v => v.Id == id && (isAdmin || v.ApplicationUserId == currentUserId));
+            var vehicle = await _context.Vehicles
+                .FirstOrDefaultAsync(v => v.Id == id && (isAdmin || v.ApplicationUserId == currentUserId));
 
-          // If the vehicle has been removed from the database while another user edited it
-          if (vehicle == null)
-          {
-              TempData["ErrorMessage"] = "Vehicle not found or you do not have permission to update it.";
-              return RedirectToAction(nameof(MyVehicles));
-          }
+            if (vehicle == null)
+            {
+                TempData["ErrorMessage"] = "Vehicle not found or you do not have permission to update it.";
+                return RedirectToAction(nameof(Index));
+            }
 
-          vehicle.VehicleTypeId = viewModel.VehicleTypeId;
-          vehicle.VehicleTypeNewId = viewModel.VehicleTypeId;
-          vehicle.RegNbr = normalizedRegNbr;
-          vehicle.Color = viewModel.Color;
-          vehicle.Brand = viewModel.Brand;
-          vehicle.Model = viewModel.Model;
-          vehicle.NumberOfWheels = viewModel.Wheels;
+            try
+            {
+                vehicle.VehicleTypeId = viewModel.VehicleTypeId;
+                vehicle.VehicleTypeNewId = viewModel.VehicleTypeId;
+                vehicle.RegNbr = viewModel.RegNbr!.Trim().ToUpperInvariant();
+                vehicle.Color = viewModel.Color;
+                vehicle.Brand = viewModel.Brand;
+                vehicle.Model = viewModel.Model;
+                vehicle.NumberOfWheels = viewModel.Wheels;
 
-          await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
-          TempData["SuccessMessage"] = $"Vehicle with registration number \"{vehicle.RegNbr}\" has been updated!";
-          return RedirectToAction(nameof(MyVehicles));
-  }
+                TempData["SuccessMessage"] = $"Vehicle with registration number \"{vehicle.RegNbr}\" has been updated!";
+                return isAdmin ? RedirectToAction(nameof(Index)) : RedirectToAction(nameof(MyVehicles));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                
+                bool exists = await _context.Vehicles.AnyAsync(e => e.Id == viewModel.Id);
+                if (!exists)
+                {
+                    TempData["ErrorMessage"] = "The vehicle was removed by another user during the process.";
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "A database concurrency error occurred. Please try again.";
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+        }
 
-    private bool ParkedVehicleExists(int id)
-    {
-        var currentUserId = _userManager.GetUserId(User);
-        bool isAdmin = User.IsInRole("Admin");
-        
-        return _context.Vehicles.Any(e => e.Id == id && (isAdmin || e.ApplicationUserId == currentUserId));
+        viewModel.VehicleTypes = new SelectList(await _context.VehicleTypeNew.ToListAsync(), "Id", "Name", viewModel.VehicleTypeId);
+        TempData["Error"] = "Failed to update vehicle details. Please check the inputs.";
+        return View(viewModel);
     }
 
     // GET: PARKEDVEHICLES/Delete/5
