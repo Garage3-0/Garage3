@@ -7,7 +7,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using System.Text.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 [Authorize]
 public class ParkedVehiclesController : Controller
@@ -27,51 +29,17 @@ public class ParkedVehiclesController : Controller
     }
 
     // GET: PARKEDVEHICLES
-    [Authorize]
+    [AllowAnonymous]
     public async Task<IActionResult> Index(string searchRegNbr)
     {
-        ViewData["CurrentFilter"] = searchRegNbr;
-        
-        var currentUserId = _userManager.GetUserId(User);
-        bool isAdmin = User.IsInRole("Admin");
+        var currentUserId = "";  // = _userManager.GetUserId(User);
 
-        var vehicles = _context.Vehicles.AsQueryable();
-
-        if (!isAdmin)
+        if ((currentUserId = _userManager.GetUserId(User)) != null)
         {
-            vehicles = vehicles.Where(v => v.ApplicationUserId == currentUserId);
-        }
-        
-        if (!string.IsNullOrWhiteSpace(searchRegNbr))
-        {
-            var searchResults = vehicles.Where(v => v.RegNbr.Contains(searchRegNbr));
-
-            if (searchResults.Any())
-            {
-                ViewData["Exists"] = true;
-                vehicles = searchResults;
-            }
-            else
-            {
-                ViewData["Exists"] = false;
-            }
+            return RedirectToAction(nameof(MyVehicles));
         }
 
-        var model = await vehicles.Select(v => new ParkedVehicleOverviewViewModel
-        {
-            Id = v.Id,
-            VehicleTypeId = v.VehicleTypeId,
-            VehicleTypeName = v.VehicleType != null ? v.VehicleType.Name : "Unknown",
-            RegNbr = v.RegNbr,
-            Color = v.Color,
-            Brand = v.Brand,
-            Model = v.Model,
-            Wheels = v.NumberOfWheels,
-            Arrival = v.Arrival
-        })
-        .ToListAsync();
-
-        return View(model);
+        return View();  // model
     }
 
     // GET: PARKEDVEHICLES/Details/5
@@ -101,46 +69,41 @@ public class ParkedVehiclesController : Controller
 
     // GET: PARKEDVEHICLES/Create
     [Authorize]
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> Park(int? id)
     {
-        var availableVehicles = await GetAvailableVehiclesForCurrentUserAsync();
+        int idValue = 0;
+        if (id > 0)
+        {
+            idValue = (int)id;
+        }
 
-        // Task 71 - get parking spots that are available
+        var availableVehicles = await GetAvailableVehiclesForCurrentUserAsync();
         var availableParkingSpots = await GetAvailableParkingSpotsAsync();
 
-        var model = new ParkVehicleViewModel
+        //Int32.TryParse(id, out int intRes);
+
+
+
+        var model = new NewParkVehicle
         {
-            VehicleTypes = new SelectList(
-                await _context.VehicleTypeNew.ToListAsync(),
-                "Id",
-                "Name"),
-
-            Vehicles = new SelectList(
-                availableVehicles,
-                "Id",
-                "RegNbr")
+            VehicleId = idValue,
+            Vehicles = new SelectList(availableVehicles, "Id", "RegNbr"),
+            ParkingSpots = new SelectList(availableParkingSpots, "Id", "Number")
         };
-
+        
         return View(model);
     }
-
     // POST: PARKEDVEHICLES/Create
     // To protect from overposting attacks, enable the specific properties you want to bind to.
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize]
-    public async Task<IActionResult> Create(ParkVehicleViewModel viewModel)
+    public async Task<IActionResult> Park(NewParkVehicle viewModel)
     {
-        string? error = await _uniquenessValidator.IsRegNbrUniqueAsync(viewModel.RegNbr);
-        if (error != null)
-        {
-            ModelState.AddModelError(nameof(viewModel.RegNbr), error);
-        }
-
         if (ModelState.IsValid)
         {
-            var normalizedRegNbr = viewModel.RegNbr!.Trim().ToUpperInvariant();
+            //var normalizedRegNbr = viewModel.RegNbr!.Trim().ToUpperInvariant();
             var currentUser = await _userManager.GetUserAsync(User);
 
             if (currentUser == null)
@@ -149,22 +112,21 @@ public class ParkedVehiclesController : Controller
                 return RedirectToAction("Login", "Account", new { area = "Identity" });
             }
 
-            var vehicle = new Vehicle
+            // ## Is the parkingspot stil available
+
+
+
+            var parkingSession = new ParkingSession
             {
-                VehicleTypeId = viewModel.VehicleTypeId,
-                VehicleTypeNewId = viewModel.VehicleTypeId,
-                RegNbr = normalizedRegNbr,
-                Color = viewModel.Color ?? string.Empty,
-                Brand = viewModel.Brand ?? string.Empty,
-                Model = viewModel.Model ?? string.Empty,
-                NumberOfWheels = viewModel.Wheels,
-                Arrival = DateTime.Now,
-                ApplicationUserId = currentUser.Id
+                VehicleId = viewModel.VehicleId,
+                ParkingSpotId = viewModel.ParkingSpotId,
+                CheckInTime = DateTime.Now,
+                HourlyRateAtCheckin = 10m // TODO - where to set price per hour?
             };
 
             try
             {
-                _context.Add(vehicle);
+                _context.Add(parkingSession);
                 await _context.SaveChangesAsync();
 
                 TempData["Success"] = "Vehicle has been successfully parked!";
@@ -182,10 +144,21 @@ public class ParkedVehiclesController : Controller
             }
         }
 
-        viewModel.VehicleTypes = new SelectList(
-            await _context.VehicleTypeNew.ToListAsync(),
-            "Id",
-            "Name");
+
+        // Return previous choice
+        var availableVehicles = await GetAvailableVehiclesForCurrentUserAsync();
+        var availableParkingSpots = await GetAvailableParkingSpotsAsync();
+
+        var model = new NewParkVehicle
+        {
+            Vehicles = new SelectList(availableVehicles, "Id", "RegNbr"),
+            ParkingSpots = new SelectList(availableParkingSpots, "Id", "Number")
+        };
+
+        //viewModel.VehicleTypes = new SelectList(
+        //    await _context.VehicleTypeNew.ToListAsync(),
+        //    "Id",
+        //    "Name");
 
         TempData["Error"] = "Vehicle could not be parked!";
         return View(viewModel);

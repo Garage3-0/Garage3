@@ -1,4 +1,5 @@
 ﻿using Garage3.Data;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
@@ -12,7 +13,7 @@ namespace Garage3.Services
 
         public UniquenessValidator(GarageContext db) => _db = db;
 
-        public async Task<string?> IsRegNbrUniqueAsync(string? regNbr, int? excludeVehicleId = null)
+        public async Task<string?> IsRegNbrUniqueAsync(string? regNbr, int? excludeVehicleId = 0)
         {
             if (string.IsNullOrWhiteSpace(regNbr)) 
                 return "Registration number is required";
@@ -22,10 +23,10 @@ namespace Garage3.Services
             if (!RegNbrRegex.IsMatch(normalized))
                 return "Invalid registration number format. Must be 3 letters followed by 3 numbers (e.g. ABC123).";
 
-            bool exists = !await _db.Vehicles 
-                .AnyAsync(v => v.RegNbr == normalized && (excludeVehicleId == null || v.Id != excludeVehicleId));
+            bool exists = !await _db.Vehicles
+                .AnyAsync(v => v.RegNbr == normalized && v.Id != excludeVehicleId);
 
-            if (exists)
+            if (!exists)
             {
                 return "This registration number already exists in the garage.";
             }

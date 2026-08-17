@@ -1,4 +1,5 @@
-﻿@model IEnumerable<Garage3.Models.ViewModels.ParkedVehicleOverviewViewModel>
+﻿@using Garage3.Constants
+@model IEnumerable<Garage3.Models.ViewModels.ParkedVehicleOverviewViewModel>
 
 @{
     ViewData["Title"] = "My Vehicles";
@@ -7,15 +8,14 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>My Vehicles</h2>
 
-    <div class="d-flex gap-2">
-        <a asp-action="Index" class="btn btn-outline-secondary">
-            Back to Parked Vehicles
-        </a>
-
-        <a asp-action="Register" class="btn btn-success">
-            <i class="bi bi-plus-circle"></i> Register New Vehicle
-        </a>
-    </div>
+    @if (Model.Any() || User.IsInRole(Roles.Admin))
+    {
+        <div class="d-flex gap-2">
+            <a asp-action="Register" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Register New Vehicle
+            </a>
+        </div>
+    }
 </div>
 
 @if (TempData["Success"] != null)
@@ -42,12 +42,12 @@
     </div>
 }
 
-@if (!Model.Any())
+@if (!Model.Any() && !User.IsInRole(Roles.Admin))
 {
     <div class="alert alert-info shadow-sm p-4 text-center">
         <h4>You have no registered vehicles at the moment</h4>
         <p class="mb-3">When you register a vehicle, it will appear here.</p>
-        <a asp-action="Create" class="btn btn-primary">Park your first vehicle</a>
+        <a asp-action="Register" class="btn btn-primary">Register your first vehicle</a>
     </div>
 }
 else
@@ -82,10 +82,10 @@ else
                                 <td>@vehicle.Color</td>
                                 <td>@vehicle.Arrival.ToString("yyyy-MM-dd HH:mm")</td>
                                 <td class="text-end pe-3">
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <a asp-action="Park" asp-route-id="@vehicle.Id" class="btn btn-primary">Park</a>
-                                        <a asp-action="Details" asp-route-id="@vehicle.Id" class="btn btn-outline-info">Details</a>
-                                        <a asp-action="Edit" asp-route-id="@vehicle.Id" class="btn btn-outline-warning">Edit</a>
+                                    <div class="/*btn-group btn-group-sm*/" role="group">
+                                        <a asp-action="Park" asp-route-id="@vehicle.Id" class="btn btn-success">Park</a>
+                                        <a asp-action="Details" asp-route-id="@vehicle.Id" class="btn btn-primary">Details</a>
+                                        <a asp-action="Edit" asp-route-id="@vehicle.Id" class="btn btn-warning">Edit</a>
                                         <a asp-action="Checkout" asp-route-id="@vehicle.Id" class="btn btn-danger">Checkout</a>
                                     </div>
                                 </td>

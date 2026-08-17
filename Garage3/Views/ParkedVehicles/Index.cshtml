@@ -1,164 +1,22 @@
 
-@model IEnumerable<ParkedVehicleOverviewViewModel>
+@* @model IEnumerable<ParkedVehicleOverviewViewModel> *@
 
 @{
-    ViewData["Title"] = "Parked Vehicles Overview";
-    string currentSearch = ViewData["CurrentFilter"]?.ToString() ?? "";
+    ViewData["Title"] = "Garage 3"; /* Parked Vehicles Overview */
+    // string currentSearch = ViewData["CurrentFilter"]?.ToString() ?? "";
 }
+<div class="/*d-flex justify-content-between align-items-center*/">
+  <h1>Welcomme to Garage 3</h1>
+    <div style="display: grid; row-gap: 20px; margin-top: 30px;">
+       
+        <div style="display: flex; align-items: center; column-gap: 12px;">
+            <a class="btn btn-sm bg-primary text-white" asp-area="Identity" asp-page="/Account/Login">Login</a>
+            Login to handle your vehicles and parkings
+        </div>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-        <h1 class="mb-0">Parked Vehicles</h1>
-        <p class="text-muted mb-0">Overview of vehicles currently parked</p>
-    </div>
-    <div class="d-flex gap-2">
-        <a asp-action="Register" class="btn btn-success">
-             Register New Vehicle
-        </a>
-        <a asp-action="Create" class="btn btn-primary">
-            Park New Vehicle
-        </a>
-    </div>
+        <div style="display: flex; align-items: center; column-gap: 12px;">
+            <a class="btn btn-sm bg-success text-white" asp-area="Identity" asp-page="/Account/Register">Register</a>
+            Wants to become a member
+        </div>
+  </div>
 </div>
-
-<hr class="mb-4" />
-
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["Success"]
-    </div>
-}
-
-<!-- Display error message if the user tries to access a non-existing vehicle ID -->
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        @TempData["ErrorMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
-
-@if (!Model.Any() && string.IsNullOrEmpty(currentSearch))
-{
-    <div class="card text-center shadow-sm my-4 py-5 border-0 bg-light">
-        <div class="card-body">
-            <div class="mb-3">
-                <i class="bi bi-p-circle text-primary display-1"></i>
-            </div>
-            <h2 class="card-title h3 mb-3">Welcome to Garage 3!</h2>
-            <p class="card-text text-muted mb-4 mx-auto" style="max-width: 500px;">
-                You don't have any vehicles parked in the garage right now. 
-                Get started by registering a new vehicle or park one directly!
-            </p>
-            <div class="d-flex justify-content-center gap-3">
-                <a asp-action="Register" class="btn btn-success btn-lg px-4">
-                    Register New Vehicle
-                </a>
-                <a asp-action="Create" class="btn btn-primary btn-lg px-4">
-                    Park New Vehicle
-                </a>
-            </div>
-        </div>
-    </div>
-}
-else
-{
-
-<!-- SEARCH -->
-
-<form asp-controller="ParkedVehicles" asp-action="Index" method="get" class="form-inline mb-3">
-    <div class="input-group">
-        <input type="text" 
-               name="searchRegNbr" 
-               value="@currentSearch"
-               class="form-control" 
-               placeholder="Filter by registration number"
-                required
-                oninvalid="this.setCustomValidity('You need to enter a registration number.')"
-                oninput="this.setCustomValidity('')" />
-                
-
-        <div class="input-group-append">
-            @if (!string.IsNullOrEmpty(ViewData["CurrentFilter"]?.ToString()))
-            {
-                <!-- Exit to clear search and view all vehicles -->
-                <a asp-action="Index"
-                class="btn btn-outline-secondary" 
-                title="Clear search">&times;</a>
-            }
-            <button type="submit" class="btn btn-primary">Search</button>
-        </div>
-    </div>
-</form>
-
-@if (ViewData["Exists"] != null)
-{
-    if (ViewData["Exists"] as bool? == true)
-    {
-        <div class="alert alert-success mt-3" role="alert">
-            <strong>Hit!</strong> Vehicle(s) with registration number <strong>@ViewData["CurrentFilter"]</strong> is displayed below.
-        </div>
-    }
-    else
-    {
-        <div class="alert alert-warning mt-3" role="alert">
-            <strong>No hit!</strong> Registration number <strong>@ViewData["CurrentFilter"]</strong> does not exist. Full list of vehicles is displayed instead.
-        </div>
-    }
-}
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Vehicle Type</th>
-            <th>Registration Number</th>
-
-            @if (!string.IsNullOrEmpty(currentSearch))
-            {
-                <th>Brand</th>
-                <th>Model</th>
-                <th>Color</th>
-                <th>Wheels</th>
-            }
-            <th>Arrival Time</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @item.VehicleTypeName
-            </td>
-            <td>
-                    @item.RegNbr
-            </td>
-                @if (!string.IsNullOrEmpty(currentSearch))
-                {
-                    <td>
-                        @item.Brand
-                    </td>
-                    <td>
-                        @item.Model
-                    </td>
-                    <td>
-                        @item.Color
-                    </td>
-                    <td>
-                        @item.Wheels
-                    </td>
-                }
-            <td>
-                @item.Arrival
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Checkout" asp-route-id="@item.Id">Checkout</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
-}
