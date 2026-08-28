@@ -11,7 +11,8 @@ namespace Garage3.Models.ViewModels
         [Display(Name = "Vehicle Type")]
         public string VehicleTypeName { get; set; } = string.Empty;
 
-        [Display(Name = "Registration Number")]
+        //[Display(Name = "Registration Number")]
+        [Display(Name = "Reg.number")]
         public string RegNbr { get; set; } = "";
         public string Color { get; set; } = "";
         public string Brand { get; set; } = "";

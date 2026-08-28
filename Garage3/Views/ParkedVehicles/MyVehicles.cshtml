@@ -70,6 +70,10 @@ else
                     <tbody>
                         @foreach (var vehicle in Model)
                         {
+                            var arrived = vehicle.Arrival != DateTime.MinValue 
+                                ? vehicle.Arrival.ToString("yyyy-MM-dd HH:mm")
+                                : null;
+
                             <tr>
                                 <td>
                                     <span class="badge bg-dark fs-5 font-monospace">
@@ -80,10 +84,13 @@ else
                                 <td>@vehicle.Brand</td>
                                 <td>@vehicle.Model</td>
                                 <td>@vehicle.Color</td>
-                                <td>@vehicle.Arrival.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td>
+                                    @* @vehicle.Arrival.ToString("yyyy-MM-dd HH:mm") *@
+                                    @arrived
+                                </td>
                                 <td class="text-end pe-3">
                                     <div class="/*btn-group btn-group-sm*/" role="group">
-                                        <a asp-action="Park" asp-route-id="@vehicle.Id" class="btn btn-success">Park</a>
+                                        <a asp-action="Park" asp-route-id="@vehicle.Id" class="btn btn-success diabled" aria-disabled="true">Park</a>
                                         <a asp-action="Details" asp-route-id="@vehicle.Id" class="btn btn-primary">Details</a>
                                         <a asp-action="Edit" asp-route-id="@vehicle.Id" class="btn btn-warning">Edit</a>
                                         <a asp-action="Checkout" asp-route-id="@vehicle.Id" class="btn btn-danger">Checkout</a>

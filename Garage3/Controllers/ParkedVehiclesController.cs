@@ -468,8 +468,9 @@ public class ParkedVehiclesController : Controller
                 Color = v.Color,
                 Brand = v.Brand,
                 Model = v.Model,
-                Wheels = v.NumberOfWheels,
-                Arrival = v.Arrival
+                Wheels = v.NumberOfWheels //,
+                //Arrival = v.Arrival
+                //Arrival = new DateTime.MinValue
             })
             .ToListAsync();
 
