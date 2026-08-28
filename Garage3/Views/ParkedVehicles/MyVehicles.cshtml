@@ -63,17 +63,17 @@ else
                             <th>@Html.DisplayNameFor(m => m.Brand)</th>
                             <th>@Html.DisplayNameFor(m => m.Model)</th>
                             <th>@Html.DisplayNameFor(m => m.Color)</th>
-                            <th>Arrival Time</th>
+                            @* <th>Arrival Time</th> *@
+                            <th>Checkin Time</th>
                             <th class="text-end pe-4">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var vehicle in Model)
                         {
-                            var arrived = vehicle.Arrival != DateTime.MinValue 
-                                ? vehicle.Arrival.ToString("yyyy-MM-dd HH:mm")
-                                : null;
-
+                            string checkinTime = vehicle.ParkingSession != null ? 
+                                vehicle.ParkingSession.CheckInTime.ToString() 
+                                : "";
                             <tr>
                                 <td>
                                     <span class="badge bg-dark fs-5 font-monospace">
@@ -85,8 +85,7 @@ else
                                 <td>@vehicle.Model</td>
                                 <td>@vehicle.Color</td>
                                 <td>
-                                    @* @vehicle.Arrival.ToString("yyyy-MM-dd HH:mm") *@
-                                    @arrived
+                                    @checkinTime
                                 </td>
                                 <td class="text-end pe-3">
                                     <div class="/*btn-group btn-group-sm*/" role="group">

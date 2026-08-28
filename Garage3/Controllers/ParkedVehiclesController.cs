@@ -1,3 +1,4 @@
+using Garage3.Constants;
 using Garage3.Data;
 using Garage3.Models;
 using Garage3.Models.ViewModels;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using System.Text.Json;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -196,7 +198,7 @@ public class ParkedVehiclesController : Controller
             Brand = vehicle.Brand,
             Model = vehicle.Model,
             Wheels = vehicle.NumberOfWheels,
-            Arrival = vehicle.Arrival
+            //Arrival = vehicle.Arrival
         };
 
         return View(viewModel);
@@ -450,31 +452,134 @@ public class ParkedVehiclesController : Controller
     [Microsoft.AspNetCore.Authorization.Authorize]
     public async Task<IActionResult> MyVehicles()
     {
+        IEnumerable<ParkedVehicleOverviewViewModel> MyVehicles = null!;
+
+        if (User.IsInRole(Roles.Admin))
+        {
+            MyVehicles = await GetAllVehicles();
+        }
+        else
+        {
+            // var test = await GetVehiclesByUser();
+            MyVehicles = await GetVehiclesByUser();
+        }
+
         var currentUserId = _userManager.GetUserId(User);
 
-        // Filter for vehicles with the same ApplicationUserId
+        //Filter for vehicles with the same ApplicationUserId
         var myVehicles = await _context.Vehicles
 
             .Where(v => v.ApplicationUserId == currentUserId)
             .Select(v => new ParkedVehicleOverviewViewModel
             {
                 Id = v.Id,
-                VehicleTypeId = v.VehicleTypeId,
+                //VehicleTypeId = v.VehicleTypeId,
                 VehicleTypeName = v.VehicleType != null
                     ? v.VehicleType.Name
                     : "N/A",
-
                 RegNbr = v.RegNbr,
                 Color = v.Color,
                 Brand = v.Brand,
                 Model = v.Model,
-                Wheels = v.NumberOfWheels //,
-                //Arrival = v.Arrival
-                //Arrival = new DateTime.MinValue
+                Wheels = v.NumberOfWheels,
+                // Get ongoing parking
+                ParkingSession = v.ParkingSessions
+                    .FirstOrDefault(ps => ps.CheckOutTime == null),
+                // Get parking spot
+                ParkingNumber = _context.ParkingSession
+                    .Where(ps => ps.VehicleId == v.Id && ps.CheckOutTime == null)
+                    .Select(ps => (int?)ps.ParkingSpot.Number)
+                    .FirstOrDefault()
+            })
+           .ToListAsync();
+
+        var test = await GetVehiclesByUser();
+
+        return View(test);
+        //return View(myVehicles);
+    }
+
+    private async Task<IEnumerable<ParkedVehicleOverviewViewModel>> GetAllVehicles()
+    {
+        //Filter for vehicles with the same ApplicationUserId
+        IEnumerable<ParkedVehicleOverviewViewModel> myVehicles = await _context.Vehicles
+            .Where(v => User.IsInRole(Roles.Admin))
+            .Select(v => new ParkedVehicleOverviewViewModel
+            {
+                Id = v.Id,
+                VehicleTypeName = v.VehicleType != null
+                    ? v.VehicleType.Name
+                    : "N/A",
+                RegNbr = v.RegNbr,
+                Color = v.Color,
+                Brand = v.Brand,
+                Model = v.Model,
+                Wheels = v.NumberOfWheels,
+                // Get ongoing parking
+                ParkingSession = v.ParkingSessions
+                    .FirstOrDefault(ps => ps.CheckOutTime == null),
+                // Get parking spot
+                ParkingNumber = _context.ParkingSession
+                    .Where(ps => ps.VehicleId == v.Id && ps.CheckOutTime == null)
+                    .Select(ps => (int?)ps.ParkingSpot.Number)
+                    .FirstOrDefault(),
+                //Owner = Owner = _context.Users.Where(u => u.Id == v.ApplicationUserId).Select(u => u.UserName)
+                Owner = _context.Users
+                    .Where(u => u.Id == v.ApplicationUserId)
+                    .Select(u => u.UserName)
+                    .FirstOrDefault()
+                            })
+            .ToListAsync();
+
+        return myVehicles;
+    }
+
+    private async Task<IEnumerable<ParkedVehicleOverviewViewModel>> GetVehiclesByUser(bool allVehicles = false)
+    {
+        var currentUserId = _userManager.GetUserId(User);
+
+        IQueryable<Vehicle> vs = _context.Vehicles.Where(v => v.ApplicationUserId == currentUserId || User.IsInRole(Roles.Admin));
+        
+        if (allVehicles)
+        {
+            //OrderBy: parking/regNbr/owner
+
+        }
+        else
+        {
+            //OrderBy: parking/regNbr/owner
+
+        }
+
+        //Filter for vehicles with the same ApplicationUserId
+        IEnumerable<ParkedVehicleOverviewViewModel> myVehicles = await _context.Vehicles
+
+            .Where(v => v.ApplicationUserId == currentUserId || User.IsInRole(Roles.Admin))
+            .Select(v => new ParkedVehicleOverviewViewModel
+            {
+                //.Select(v => new {
+                Id = v.Id,
+                //VehicleTypeId = v.VehicleTypeId,
+                VehicleTypeName = v.VehicleType != null
+                    ? v.VehicleType.Name
+                    : "N/A",
+                RegNbr = v.RegNbr,
+                Color = v.Color,
+                Brand = v.Brand,
+                Model = v.Model,
+                Wheels = v.NumberOfWheels,
+                // Get ongoing parking
+                ParkingSession = v.ParkingSessions
+                    .FirstOrDefault(ps => ps.CheckOutTime == null),
+                // Get parking spot
+                ParkingNumber = _context.ParkingSession
+                    .Where(ps => ps.VehicleId == v.Id && ps.CheckOutTime == null)
+                    .Select(ps => (int?)ps.ParkingSpot.Number)
+                    .FirstOrDefault()
             })
             .ToListAsync();
 
-        return View(myVehicles);
+        return myVehicles;
     }
 
     // Task 70 - get the logged in user's vehicles that are not already parked
@@ -498,8 +603,7 @@ public class ParkedVehiclesController : Controller
     }
 
     // Task 71 - get parking spots without an active parking session
-    private async Task<List<ParkingSpot>> GetAvailableParkingSpotsAsync(
-        string? location = null)
+    private async Task<List<ParkingSpot>> GetAvailableParkingSpotsAsync(string? location = null)
     {
         var query = _context.ParkingSpots
             .Where(p =>
@@ -512,13 +616,10 @@ public class ParkedVehiclesController : Controller
         // The filter remains available if a location is supplied.
         if (!string.IsNullOrWhiteSpace(location))
         {
-            query = query.Where(p =>
-                p.Location == location);
+            query = query.Where(p => p.Location == location);
         }
 
-        return await query
-            .OrderBy(p => p.Number)
-            .ToListAsync();
+        return await query.OrderBy(p => p.Number).ToListAsync();
     }
 
     // GET: ParkedVehicles/Register

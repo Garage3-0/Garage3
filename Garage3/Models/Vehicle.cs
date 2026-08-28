@@ -34,7 +34,7 @@ namespace Garage3.Models
         [Range(2, 10)]
         public required int NumberOfWheels { get; set; }
 
-        public DateTime Arrival { get; set; } = DateTime.Now;
+        // public DateTime Arrival { get; set; } = DateTime.Now;
         public ICollection<ParkingSession> ParkingSessions { get; } = new List<ParkingSession>();
 
 

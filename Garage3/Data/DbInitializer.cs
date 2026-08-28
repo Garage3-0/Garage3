@@ -179,7 +179,7 @@ public static class DbInitializer
                 Brand = "Volvo",
                 Model = "V60",
                 NumberOfWheels = 4,
-                Arrival = new DateTime(2026, 7, 6, 10, 59, 00),
+                //Arrival = new DateTime(2026, 7, 6, 10, 59, 00),
                 ApplicationUserId = member.Id
             });
 

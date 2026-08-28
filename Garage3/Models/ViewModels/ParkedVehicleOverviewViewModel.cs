@@ -6,7 +6,7 @@ namespace Garage3.Models.ViewModels
     public class ParkedVehicleOverviewViewModel
     {
         public int Id { get; set; }
-        public int VehicleTypeId { get; set; }
+        //public int VehicleTypeId { get; set; }
 
         [Display(Name = "Vehicle Type")]
         public string VehicleTypeName { get; set; } = string.Empty;
@@ -19,5 +19,11 @@ namespace Garage3.Models.ViewModels
         public string Model { get; set; } = "";
         public int Wheels { get; set; }
         public DateTime Arrival { get; set; }
+
+        public ParkingSession? ParkingSession { get; set; }
+
+        public int? ParkingNumber { get; set; }
+
+        public string? Owner { get; set; }
     }
 }
