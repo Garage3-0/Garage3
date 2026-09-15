@@ -23,6 +23,9 @@ jobs:
         with:
           dotnet-version: '10.x'
 
+      - name: Restore Dependencies
+        run: dotnet restore
+
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
@@ -34,6 +37,19 @@ jobs:
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
+
+      - name: Install EntityFrameworkCore Tools
+        run: |
+          dotnet new tool-manifest
+          dotnet tool install dotnet-ef
+
+      - name: Generate EF Core Migration Script
+        run: dotnet ef migrations script --idempotent --configuration Release --no-build --output "${{github.workspace}}/sql/sql-script.sql" --context GarageContext --project ${{github.workspace}}/Garage3/Garage3.csproj
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ddl-updates
+          path: ${{github.workspace}}/sql/sql-script.sql
 
   deploy:
     runs-on: windows-latest
@@ -47,6 +63,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
+          
+      - name: Download SQL artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ddl-updates
+          path: ./ddl-updates
       
       - name: Login to Azure
         uses: azure/login@v2
@@ -63,3 +85,8 @@ jobs:
           slot-name: 'Production'
           package: .
           
+      - name: Azure SQL Deploy
+        uses: azure/sql-action@v2
+        with:
+          connection-string: ${{ secrets.SQL_CONNECTION_STRING }}
+          path: ./ddl-updates/sql-script.sql
